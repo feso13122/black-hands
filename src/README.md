@@ -65,6 +65,8 @@ Wichtig: Die Sichtbarkeit für alle anderen hängt jetzt von der Kategorie ab. W
 
 **Limit auf 1 Channel:** Hat ein Nutzer bereits einen (noch existierenden) Clip-Channel, wird beim Klick auf den Button abgelehnt, solange er nicht freigeschaltet ist. Ein Administrator schaltet mit `/clip-unlock nutzer:<@Nutzer>` einmalig einen weiteren Channel frei — die Freischaltung wird beim nächsten Erstellen automatisch wieder verbraucht. Wurde der bisherige Channel manuell gelöscht, erkennt der Bot das automatisch und erlaubt sofort wieder einen neuen.
 
+**Clip-Channel entfernen:** `/clip-remove nutzer:<@Nutzer>` löscht den Discord-Channel des Nutzers direkt und entfernt den Tracking-Eintrag, sodass der Nutzer danach sofort wieder einen neuen Clip-Channel erstellen kann (ohne `/clip-unlock`).
+
 ## Bündnis-Commands
 
 - `/bundnisse fraktion:<Name>` postet "Ab heute sind wir im Bündnis mit der **<Name>** Fraktion." in `allianceChannelId` und erwähnt dabei `allianceRoleId`.
@@ -101,9 +103,10 @@ black hands/
     ├── commands/
     │   ├── setup-clip-panel.js Postet das Clip-Channel-Panel
     │   ├── clip-unlock.js      Admin-Befehl: weiteren Clip-Channel freischalten
+    │   ├── clip-remove.js      Admin-Befehl: Clip-Channel eines Nutzers entfernen
     │   ├── bundnisse.js        Bündnis-Ankündigung posten
     │   ├── auflosung.js        Bündnis-Auflösung posten
-    │   └── sanktion.js         /sanktion add und /sanktion bezahlt
+    │   └── sanktion.js         /sanktion add, /sanktion bezahlt, /sanktion list
     ├── events/
     │   ├── ready.js
     │   ├── guildMemberAdd.js   Willkommen + Autorole + Log
