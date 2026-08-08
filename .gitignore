@@ -1,0 +1,25 @@
+# Sensitive Daten
+
+# Logs
+*.log
+logs/
+
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Datenbanken & Daten
+*.db
+*.sqlite
+database/
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
