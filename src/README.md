@@ -74,11 +74,13 @@ Beide sind auf Administratoren, `commandRoleIds` **und** `allianceSanctionRoleId
 
 ## Sanktions-System
 
-- `/sanktion add nutzer:<@Nutzer> betrag:<Betrag> grund:<Grund>` speichert eine offene Sanktion für den Nutzer, postet die komplette, aktuelle Sanktionsliste als Embed in `sanctionListChannelId` **und** eine separate Benachrichtigung in `sanctionAddChannelId`. Hat der Nutzer schon eine offene Sanktion, wird sie ersetzt.
-- `/sanktion bezahlt nutzer:<@Nutzer>` entfernt die Sanktion aus der Liste, postet die aktualisierte Liste erneut in `sanctionListChannelId` und zusätzlich eine Bestätigung in `sanctionPaidChannelId`.
-- `/sanktion list` postet die aktuelle Sanktionsliste erneut in `sanctionListChannelId`, ohne etwas zu verändern.
+- `/sanktion add nutzer:<@Nutzer> betrag:<Betrag> grund:<Grund>` speichert eine offene Sanktion für den Nutzer, aktualisiert die Sanktionsliste-Nachricht in `sanctionListChannelId` **und** postet eine separate Benachrichtigung in `sanctionAddChannelId`. Hat der Nutzer schon eine offene Sanktion, wird sie ersetzt.
+- `/sanktion bezahlt nutzer:<@Nutzer>` entfernt die Sanktion aus der Liste, aktualisiert die Sanktionsliste-Nachricht und postet zusätzlich eine Bestätigung in `sanctionPaidChannelId`.
+- `/sanktion list` aktualisiert die Sanktionsliste-Nachricht, ohne die Daten zu verändern.
 
-Beide Subcommands sind wie die Bündnis-Commands auf Administratoren, `commandRoleIds` und `allianceSanctionRoleIds` beschränkt. Die Daten liegen getrennt von `config.json` in `data/sanctionsData.json` (wie beim Clip-Channel-Tracking).
+Die Sanktionsliste ist **eine einzige Nachricht**, die immer bearbeitet statt neu gesendet wird (Message-ID wird in `data/sanctionsData.json` gemerkt). Wurde die Nachricht manuell gelöscht, erkennt der Bot das und postet automatisch eine neue.
+
+Alle drei Subcommands sind wie die Bündnis-Commands auf Administratoren, `commandRoleIds` und `allianceSanctionRoleIds` beschränkt. Die Daten liegen getrennt von `config.json` in `data/sanctionsData.json` (wie beim Clip-Channel-Tracking).
 
 ## Projektstruktur
 

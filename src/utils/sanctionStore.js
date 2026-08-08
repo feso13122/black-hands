@@ -36,4 +36,14 @@ function removeSanction(userId) {
   return removed;
 }
 
-module.exports = { getAll, addSanction, removeSanction };
+function getListMessageId() {
+  return load().listMessageId || null;
+}
+
+function setListMessageId(messageId) {
+  const data = load();
+  data.listMessageId = messageId;
+  save(data);
+}
+
+module.exports = { getAll, addSanction, removeSanction, getListMessageId, setListMessageId };

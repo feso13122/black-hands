@@ -24,7 +24,17 @@ async function postSanctionList(interaction) {
             .join('\n')
     );
 
-  await channel.send({ embeds: [embed] });
+  const existingMessageId = sanctionStore.getListMessageId();
+  if (existingMessageId) {
+    const existingMessage = await channel.messages.fetch(existingMessageId).catch(() => null);
+    if (existingMessage) {
+      await existingMessage.edit({ embeds: [embed] });
+      return channel;
+    }
+  }
+
+  const message = await channel.send({ embeds: [embed] });
+  sanctionStore.setListMessageId(message.id);
   return channel;
 }
 
@@ -49,7 +59,7 @@ module.exports = {
     .addSubcommand(sub =>
       sub
         .setName('list')
-        .setDescription('Postet die aktuelle Sanktionsliste erneut')
+        .setDescription('Aktualisiert die Sanktionsliste-Nachricht')
     ),
 
   async execute(interaction) {
@@ -98,7 +108,7 @@ module.exports = {
               { name: 'Grund', value: grund, inline: true },
               { name: 'Ausgestellt von', value: `${interaction.user}`, inline: false }
             );
-          await addChannel.send({ embeds: [addEmbed] });
+          await addChannel.send({ content: `${user}`, embeds: [addEmbed] });
         }
       }
 
@@ -120,7 +130,7 @@ module.exports = {
       }
 
       await interaction.reply({
-        embeds: [successEmbed(`Die aktuelle Sanktionsliste wurde in ${channel} gepostet.`, interaction.client)],
+        embeds: [successEmbed(`Die Sanktionsliste in ${channel} wurde aktualisiert.`, interaction.client)],
         ephemeral: true
       });
       return;
@@ -151,7 +161,7 @@ module.exports = {
               { name: 'Betrag', value: `${removed.amount}`, inline: true },
               { name: 'Grund', value: `${removed.reason}`, inline: true }
             );
-          await paidChannel.send({ embeds: [paidEmbed] });
+          await paidChannel.send({ content: `${user}`, embeds: [paidEmbed] });
         }
       }
 
