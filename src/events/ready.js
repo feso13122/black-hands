@@ -1,3 +1,8 @@
+const fs = require('fs');
+const path = require('path');
+require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
+const { Client, GatewayIntentBits, Partials, Collection, ActivityType } = require('discord.js');
+
 module.exports = {
   name: 'ready',
   once: true,
