@@ -1,0 +1,7 @@
+src/node_modules
+src/config.json
+src/data
+.env
+.git
+.gitignore
+README.md

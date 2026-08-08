@@ -1,0 +1,18 @@
+version: "3.9"
+
+services:
+  black-hands:
+    build:
+      context: .
+    container_name: black-hands
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      # config.json vom Host in den Container mounten, damit Änderungen
+      # (Channel-/Rollen-IDs, ...) auch nach einem Rebuild erhalten bleiben
+      # und du config.json nicht neu ins Image bauen musst.
+      - ./src/config.json:/usr/src/app/config.json
+      # Laufzeit-Daten (wer hat schon einen Clip-Channel, wer ist freigeschaltet)
+      # getrennt von config.json, damit sie beim Ersetzen der config.json erhalten bleiben.
+      - ./src/data:/usr/src/app/data

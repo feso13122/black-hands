@@ -1,0 +1,28 @@
+# Sensitive Daten
+.env
+src/config.json
+
+# Logs
+*.log
+logs/
+
+# Dependencies
+node_modules/
+__pycache__/
+*.pyc
+venv/
+.venv/
+
+# Datenbanken & Daten
+*.db
+*.sqlite
+database/
+src/data/clipData.json
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
