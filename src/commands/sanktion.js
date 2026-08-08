@@ -20,7 +20,10 @@ async function postSanctionList(interaction) {
       sanctions.length === 0
         ? 'Aktuell liegen keine offenen Sanktionen vor.'
         : sanctions
-            .map(s => `<@${s.userId}> — **${s.amount}** — ${s.reason}`)
+            .map(s => {
+              const frist = s.dueDate ? ` — Frist: <t:${Math.floor(s.dueDate / 1000)}:D>` : '';
+              return `<@${s.userId}> — **${s.amount}** — ${s.reason}${frist}`;
+            })
             .join('\n')
     );
 
@@ -49,6 +52,12 @@ module.exports = {
         .addUserOption(o => o.setName('nutzer').setDescription('Betroffener Nutzer').setRequired(true))
         .addStringOption(o => o.setName('betrag').setDescription('Betrag/Strafe').setRequired(true))
         .addStringOption(o => o.setName('grund').setDescription('Grund der Sanktion').setRequired(true))
+        .addStringOption(o =>
+          o
+            .setName('frist')
+            .setDescription('Frist, bis wann bezahlt werden muss (TT.MM.JJJJ)')
+            .setRequired(true)
+        )
     )
     .addSubcommand(sub =>
       sub
@@ -99,12 +108,34 @@ module.exports = {
       const user = interaction.options.getUser('nutzer');
       const betrag = interaction.options.getString('betrag');
       const grund = interaction.options.getString('grund');
+      const frist = interaction.options.getString('frist').trim();
+
+      const fristMatch = frist.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+      if (!fristMatch) {
+        await interaction.reply({
+          embeds: [errorEmbed('Bitte gib die Frist im Format TT.MM.JJJJ an.', interaction.client)],
+          ephemeral: true
+        });
+        return;
+      }
+
+      const [, day, month, year] = fristMatch;
+      // Ende des angegebenen Tages (23:59:59) als Zahlungsfrist.
+      const dueDate = new Date(Number(year), Number(month) - 1, Number(day), 23, 59, 59);
+      if (Number.isNaN(dueDate.getTime())) {
+        await interaction.reply({
+          embeds: [errorEmbed('Die angegebene Frist ist ungültig.', interaction.client)],
+          ephemeral: true
+        });
+        return;
+      }
 
       sanctionStore.addSanction({
         userId: user.id,
         tag: user.tag,
         amount: betrag,
         reason: grund,
+        dueDate: dueDate.getTime(),
         issuedBy: interaction.user.id,
         issuedAt: Date.now()
       });
@@ -128,6 +159,7 @@ module.exports = {
             .addFields(
               { name: 'Betrag', value: betrag, inline: true },
               { name: 'Grund', value: grund, inline: true },
+              { name: 'Frist', value: `<t:${Math.floor(dueDate.getTime() / 1000)}:D>`, inline: true },
               { name: 'Ausgestellt von', value: `${interaction.user}`, inline: false }
             );
           await addChannel.send({ content: `${user}`, embeds: [addEmbed] });
@@ -187,6 +219,10 @@ module.exports = {
               { name: 'Grund', value: `${paid.reason}`, inline: true },
               { name: 'Bestätigt von', value: `${interaction.user}`, inline: false }
             );
+
+          if (paid.dueDate) {
+            paidEmbed.addFields({ name: 'Frist war', value: `<t:${Math.floor(paid.dueDate / 1000)}:D>`, inline: true });
+          }
           await paidChannel.send({ content: userLabel, embeds: [paidEmbed] });
         }
       }

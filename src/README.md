@@ -78,9 +78,11 @@ Beide sind auf Administratoren, `commandRoleIds` **und** `allianceSanctionRoleId
 
 ## Sanktions-System
 
-- `/sanktion add nutzer:<@Nutzer> betrag:<Betrag> grund:<Grund>` speichert eine offene Sanktion für den Nutzer, aktualisiert die Sanktionsliste-Nachricht in `sanctionListChannelId` **und** postet eine separate Benachrichtigung in `sanctionAddChannelId` (mit Feld "Ausgestellt von"). Hat der Nutzer schon eine offene Sanktion, wird sie ersetzt.
+- `/sanktion add nutzer:<@Nutzer> betrag:<Betrag> grund:<Grund> frist:<TT.MM.JJJJ>` speichert eine offene Sanktion für den Nutzer inklusive Zahlungsfrist, aktualisiert die Sanktionsliste-Nachricht in `sanctionListChannelId` **und** postet eine separate Benachrichtigung in `sanctionAddChannelId` (mit Feldern "Frist" und "Ausgestellt von"). Hat der Nutzer schon eine offene Sanktion, wird sie ersetzt.
 - `/sanktion bezahlt nutzer:<...>` markiert die Sanktion als bezahlt, aktualisiert die Sanktionsliste-Nachricht (die Sanktion verschwindet dort) und postet eine Bestätigung in `sanctionPaidChannelId` (mit Feld "Bestätigt von"). Das `nutzer`-Feld ist ein Autocomplete-Feld und schlägt nur Nutzer mit einer aktuell offenen, gespeicherten Sanktion vor.
 - `/sanktion list` aktualisiert die Sanktionsliste-Nachricht, ohne die Daten zu verändern.
+
+Die Frist ist rein informativ (steht in Liste und Benachrichtigung) — es gibt **keine** automatische Entfernung, wenn sie verstreicht. Ein Eintrag verschwindet ausschließlich, wenn `/sanktion bezahlt` ausgeführt wird.
 
 Sanktionen werden **nie gelöscht** — `bezahlt` markiert einen Eintrag nur als `status: "paid"` mit Zeitpunkt und Bestätiger, er bleibt als Historie in `data/sanctionsData.json` erhalten. Die Sanktionsliste-Nachricht zeigt nur die aktuell offenen Sanktionen. Bei jeder Aktion (`add`/`bezahlt`) wird außerdem gespeichert und angezeigt, wer sie ausgeführt hat (`issuedBy` bzw. `paidBy`).
 
