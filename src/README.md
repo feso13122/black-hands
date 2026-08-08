@@ -36,7 +36,7 @@ Ein Discord.js-Bot mit:
    - `autoRoleId`
    - `commandRoleIds` (Liste von Rollen-IDs, die `/setup-clip-panel` und `/clip-unlock` benutzen dürfen — Administratoren dürfen unabhängig davon immer)
    - `allianceChannelId` (Channel, in den `/bundnisse` und `/auflosung` posten), `allianceRoleId` (Rolle, die dabei immer erwähnt wird)
-   - `sanctionListChannelId` (Channel für die laufend aktualisierte Sanktionsliste), `sanctionPaidChannelId` (Channel für Bezahlt-Bestätigungen)
+   - `sanctionListChannelId` (Channel für die laufend aktualisierte Sanktionsliste), `sanctionPaidChannelId` (Channel für Bezahlt-Bestätigungen), `sanctionAddChannelId` (Channel für Benachrichtigungen bei neuen Sanktionen)
    - `allianceSanctionRoleIds` (zusätzliche Rollen-IDs, die **nur** `/bundnisse`, `/auflosung` und `/sanktion` benutzen dürfen, unabhängig von `commandRoleIds`)
 
    Diese Datei kannst du jederzeit ersetzen/neu einspielen — das Clip-Channel-Tracking liegt bewusst getrennt in `data/clipData.json` und bleibt davon unberührt. Bei Docker/Portainer wird `config.json` **nicht** als Volume gemountet, sondern kommt aus dem Image (Dockerfile `COPY`) — nach einer Änderung also committen, pushen und den Stack neu bauen lassen.
@@ -74,8 +74,9 @@ Beide sind auf Administratoren, `commandRoleIds` **und** `allianceSanctionRoleId
 
 ## Sanktions-System
 
-- `/sanktion add nutzer:<@Nutzer> betrag:<Betrag> grund:<Grund>` speichert eine offene Sanktion für den Nutzer und postet die komplette, aktuelle Sanktionsliste als Embed in `sanctionListChannelId`. Hat der Nutzer schon eine offene Sanktion, wird sie ersetzt.
+- `/sanktion add nutzer:<@Nutzer> betrag:<Betrag> grund:<Grund>` speichert eine offene Sanktion für den Nutzer, postet die komplette, aktuelle Sanktionsliste als Embed in `sanctionListChannelId` **und** eine separate Benachrichtigung in `sanctionAddChannelId`. Hat der Nutzer schon eine offene Sanktion, wird sie ersetzt.
 - `/sanktion bezahlt nutzer:<@Nutzer>` entfernt die Sanktion aus der Liste, postet die aktualisierte Liste erneut in `sanctionListChannelId` und zusätzlich eine Bestätigung in `sanctionPaidChannelId`.
+- `/sanktion list` postet die aktuelle Sanktionsliste erneut in `sanctionListChannelId`, ohne etwas zu verändern.
 
 Beide Subcommands sind wie die Bündnis-Commands auf Administratoren, `commandRoleIds` und `allianceSanctionRoleIds` beschränkt. Die Daten liegen getrennt von `config.json` in `data/sanctionsData.json` (wie beim Clip-Channel-Tracking).
 

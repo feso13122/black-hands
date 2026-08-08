@@ -45,6 +45,11 @@ module.exports = {
         .setName('bezahlt')
         .setDescription('Markiert die Sanktion eines Nutzers als bezahlt und entfernt sie aus der Liste')
         .addUserOption(o => o.setName('nutzer').setDescription('Betroffener Nutzer').setRequired(true))
+    )
+    .addSubcommand(sub =>
+      sub
+        .setName('list')
+        .setDescription('Postet die aktuelle Sanktionsliste erneut')
     ),
 
   async execute(interaction) {
@@ -81,8 +86,41 @@ module.exports = {
         return;
       }
 
+      if (config.sanctionAddChannelId && !config.sanctionAddChannelId.startsWith('CHANNEL_ID')) {
+        const addChannel = await interaction.guild.channels.fetch(config.sanctionAddChannelId).catch(() => null);
+        if (addChannel && addChannel.isTextBased()) {
+          const addEmbed = baseEmbed(interaction.client)
+            .setColor('#FEE75C')
+            .setTitle('⚠️ Neue Sanktion')
+            .setDescription(`${user} wurde sanktioniert.`)
+            .addFields(
+              { name: 'Betrag', value: betrag, inline: true },
+              { name: 'Grund', value: grund, inline: true },
+              { name: 'Ausgestellt von', value: `${interaction.user}`, inline: false }
+            );
+          await addChannel.send({ embeds: [addEmbed] });
+        }
+      }
+
       await interaction.reply({
         embeds: [successEmbed(`Sanktion für ${user} über **${betrag}** wurde hinzugefügt.`, interaction.client)],
+        ephemeral: true
+      });
+      return;
+    }
+
+    if (sub === 'list') {
+      const channel = await postSanctionList(interaction);
+      if (!channel) {
+        await interaction.reply({
+          embeds: [errorEmbed('Der Sanktionsliste-Channel (`sanctionListChannelId`) wurde nicht gefunden.', interaction.client)],
+          ephemeral: true
+        });
+        return;
+      }
+
+      await interaction.reply({
+        embeds: [successEmbed(`Die aktuelle Sanktionsliste wurde in ${channel} gepostet.`, interaction.client)],
         ephemeral: true
       });
       return;
