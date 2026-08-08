@@ -5,6 +5,7 @@ Ein Discord.js-Bot mit:
 - Clip-Channel-Button (Modal fragt nach einem Namen, erstellt einen privaten Channel — nur der Ersteller und Administratoren können dort schreiben). Jeder Nutzer darf maximal einen Clip-Channel gleichzeitig haben, danach muss ein Administrator ihn per `/clip-unlock` für einen weiteren freischalten.
 - Autorole-System (automatische Rolle bei Beitritt)
 - Komplettes Logging-System (Nachrichten bearbeitet/gelöscht, Mitglied beigetreten/verlassen, Bans, Channel- & Rollen-Änderungen, Clip-Channel-Erstellung/-Freischaltung)
+- Bündnis-Commands (`/bundnisse`, `/auflosung`) für vorgefertigte Bündnis-Ankündigungen
 - Zentrale `config.json` für alle Channel-/Rollen-IDs, Token separat in `.env`
 
 ## Setup
@@ -32,7 +33,8 @@ Ein Discord.js-Bot mit:
    - `welcomeChannelId`, `leaveChannelId`, `logChannelId`
    - `clipPanelChannelId` (informativ, das Panel wird per Command gepostet), `clipCategoryId` (Kategorie, in der neue Clip-Channels erstellt werden)
    - `autoRoleId`
-   - `commandRoleIds` (Liste von Rollen-IDs, die `/setup-clip-panel` und `/clip-unlock` benutzen dürfen — Administratoren dürfen unabhängig davon immer)
+   - `commandRoleIds` (Liste von Rollen-IDs, die `/setup-clip-panel`, `/clip-unlock`, `/bundnisse` und `/auflosung` benutzen dürfen — Administratoren dürfen unabhängig davon immer)
+   - `allianceChannelId` (Channel, in den `/bundnisse` und `/auflosung` posten), `allianceRoleId` (Rolle, die dabei immer erwähnt wird)
 
    Diese Datei kannst du jederzeit ersetzen/neu einspielen — das Clip-Channel-Tracking liegt bewusst getrennt in `data/clipData.json` und bleibt davon unberührt. Bei Docker/Portainer wird `config.json` **nicht** als Volume gemountet, sondern kommt aus dem Image (Dockerfile `COPY`) — nach einer Änderung also committen, pushen und den Stack neu bauen lassen.
 
@@ -60,6 +62,13 @@ Wichtig: Die Sichtbarkeit für alle anderen hängt jetzt von der Kategorie ab. W
 
 **Limit auf 1 Channel:** Hat ein Nutzer bereits einen (noch existierenden) Clip-Channel, wird beim Klick auf den Button abgelehnt, solange er nicht freigeschaltet ist. Ein Administrator schaltet mit `/clip-unlock nutzer:<@Nutzer>` einmalig einen weiteren Channel frei — die Freischaltung wird beim nächsten Erstellen automatisch wieder verbraucht. Wurde der bisherige Channel manuell gelöscht, erkennt der Bot das automatisch und erlaubt sofort wieder einen neuen.
 
+## Bündnis-Commands
+
+- `/bundnisse fraktion:<Name>` postet "Ab heute sind wir im Bündnis mit der **<Name>** Fraktion." in `allianceChannelId` und erwähnt dabei `allianceRoleId`.
+- `/auflosung fraktion:<Name>` postet entsprechend die Auflösung des Bündnisses.
+
+Beide sind wie `/setup-clip-panel`/`/clip-unlock` auf Administratoren und `commandRoleIds` beschränkt. `allianceRoleId` ist aktuell dieselbe Rolle wie `autoRoleId` — jedes neue Mitglied bekommt sie automatisch, wodurch die Erwähnung effektiv den ganzen Server pingt.
+
 ## Projektstruktur
 
 ```
@@ -75,7 +84,9 @@ black hands/
     │   └── clipData.json       Wer hat einen Clip-Channel / wer ist freigeschaltet
     ├── commands/
     │   ├── setup-clip-panel.js Postet das Clip-Channel-Panel
-    │   └── clip-unlock.js      Admin-Befehl: weiteren Clip-Channel freischalten
+    │   ├── clip-unlock.js      Admin-Befehl: weiteren Clip-Channel freischalten
+    │   ├── bundnisse.js        Bündnis-Ankündigung posten
+    │   └── auflosung.js        Bündnis-Auflösung posten
     ├── events/
     │   ├── ready.js
     │   ├── guildMemberAdd.js   Willkommen + Autorole + Log
