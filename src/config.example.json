@@ -19,5 +19,7 @@
   "sanctionPaidChannelId": "CHANNEL_ID_FUER_BEZAHLTE_SANKTIONEN",
   "sanctionAddChannelId": "CHANNEL_ID_FUER_NEUE_SANKTIONEN",
 
-  "allianceSanctionRoleIds": ["ROLLEN_ID_1", "ROLLEN_ID_2"]
+  "allianceSanctionRoleIds": ["ROLLEN_ID_1", "ROLLEN_ID_2"],
+
+  "absenceChannelId": "CHANNEL_ID_FUER_ABMELDUNGEN"
 }

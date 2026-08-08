@@ -10,6 +10,8 @@ const config = require('../config.json');
 const { baseEmbed, errorEmbed, successEmbed } = require('../utils/embeds');
 const { sendLog } = require('../utils/logger');
 const clipStore = require('../utils/clipStore');
+const absenceStore = require('../utils/absenceStore');
+const { updateAbsencePanel } = require('../utils/absencePanel');
 
 function sanitizeChannelName(input) {
   return input
@@ -179,6 +181,98 @@ module.exports = {
           embeds: [errorEmbed('Der Clip-Channel konnte nicht erstellt werden. Bitte prüfe die Bot-Berechtigungen und die Konfiguration.', client)]
         });
       }
+      return;
+    }
+
+    // Button: Abmelden -> Modal öffnen
+    if (interaction.isButton() && interaction.customId === 'create_absence') {
+      const modal = new ModalBuilder()
+        .setCustomId('absence_modal')
+        .setTitle('Abmelden');
+
+      const reasonInput = new TextInputBuilder()
+        .setCustomId('grund')
+        .setLabel('Grund')
+        .setStyle(TextInputStyle.Paragraph)
+        .setMaxLength(300)
+        .setRequired(true);
+
+      const dateInput = new TextInputBuilder()
+        .setCustomId('datum')
+        .setLabel('Datum, bis wann (TT.MM.JJJJ)')
+        .setStyle(TextInputStyle.Short)
+        .setPlaceholder('z. B. 25.12.2026')
+        .setRequired(true);
+
+      const timeInput = new TextInputBuilder()
+        .setCustomId('uhrzeit')
+        .setLabel('Uhrzeit, bis wann (HH:MM)')
+        .setStyle(TextInputStyle.Short)
+        .setPlaceholder('z. B. 18:00')
+        .setRequired(true);
+
+      modal.addComponents(
+        new ActionRowBuilder().addComponents(reasonInput),
+        new ActionRowBuilder().addComponents(dateInput),
+        new ActionRowBuilder().addComponents(timeInput)
+      );
+
+      await interaction.showModal(modal);
+      return;
+    }
+
+    // Modal-Submit: Abmeldung speichern
+    if (interaction.isModalSubmit() && interaction.customId === 'absence_modal') {
+      const grund = interaction.fields.getTextInputValue('grund');
+      const datum = interaction.fields.getTextInputValue('datum').trim();
+      const uhrzeit = interaction.fields.getTextInputValue('uhrzeit').trim();
+
+      const dateMatch = datum.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
+      const timeMatch = uhrzeit.match(/^(\d{1,2}):(\d{2})$/);
+
+      if (!dateMatch || !timeMatch) {
+        await interaction.reply({
+          embeds: [errorEmbed('Bitte gib das Datum im Format TT.MM.JJJJ und die Uhrzeit im Format HH:MM an.', client)],
+          ephemeral: true
+        });
+        return;
+      }
+
+      const [, day, month, year] = dateMatch;
+      const [, hour, minute] = timeMatch;
+      const until = new Date(Number(year), Number(month) - 1, Number(day), Number(hour), Number(minute));
+
+      if (Number.isNaN(until.getTime()) || Number(hour) > 23 || Number(minute) > 59) {
+        await interaction.reply({
+          embeds: [errorEmbed('Das Datum oder die Uhrzeit ist ungültig.', client)],
+          ephemeral: true
+        });
+        return;
+      }
+
+      if (until.getTime() <= Date.now()) {
+        await interaction.reply({
+          embeds: [errorEmbed('Der angegebene Zeitpunkt liegt in der Vergangenheit.', client)],
+          ephemeral: true
+        });
+        return;
+      }
+
+      absenceStore.addAbsence({
+        userId: interaction.user.id,
+        tag: interaction.user.tag,
+        reason: grund,
+        until: until.getTime(),
+        createdAt: Date.now()
+      });
+
+      await updateAbsencePanel(client);
+
+      const unix = Math.floor(until.getTime() / 1000);
+      await interaction.reply({
+        embeds: [successEmbed(`Du bist jetzt abgemeldet bis <t:${unix}:f>. Danach wirst du automatisch wieder aus der Liste entfernt.`, client)],
+        ephemeral: true
+      });
     }
   }
 };

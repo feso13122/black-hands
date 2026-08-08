@@ -19,5 +19,7 @@
   "sanctionPaidChannelId": "1344357491844186134",
   "sanctionAddChannelId": "1535784827918356480",
 
-  "allianceSanctionRoleIds": ["1344357490711728225", "1344357490711728224"]
+  "allianceSanctionRoleIds": ["1344357490711728225", "1344357490711728224"],
+
+  "absenceChannelId": "CHANNEL_ID_FUER_ABMELDUNGEN"
 }

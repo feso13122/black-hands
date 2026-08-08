@@ -7,6 +7,7 @@ Ein Discord.js-Bot mit:
 - Komplettes Logging-System (Nachrichten bearbeitet/gelöscht, Mitglied beigetreten/verlassen, Bans, Channel- & Rollen-Änderungen, Clip-Channel-Erstellung/-Freischaltung)
 - Bündnis-Commands (`/bundnisse`, `/auflosung`) für vorgefertigte Bündnis-Ankündigungen
 - Sanktions-System (`/sanktion add`, `/sanktion bezahlt`) mit automatisch gepflegter Sanktionsliste
+- Abmelde-System mit Panel-Button, Modal (Grund/Datum/Uhrzeit) und automatischem Entfernen abgelaufener Abmeldungen
 - Zentrale `config.json` für alle Channel-/Rollen-IDs, Token separat in `.env`
 
 ## Setup
@@ -38,6 +39,7 @@ Ein Discord.js-Bot mit:
    - `allianceChannelId` (Channel, in den `/bundnisse` und `/auflosung` posten), `allianceRoleId` (Rolle, die dabei immer erwähnt wird)
    - `sanctionListChannelId` (Channel für die laufend aktualisierte Sanktionsliste), `sanctionPaidChannelId` (Channel für Bezahlt-Bestätigungen), `sanctionAddChannelId` (Channel für Benachrichtigungen bei neuen Sanktionen)
    - `allianceSanctionRoleIds` (zusätzliche Rollen-IDs, die **nur** `/bundnisse`, `/auflosung` und `/sanktion` benutzen dürfen, unabhängig von `commandRoleIds`)
+   - `absenceChannelId` (Channel für das Abmelde-Panel mit der Liste aller Abgemeldeten)
 
    Diese Datei kannst du jederzeit ersetzen/neu einspielen — das Clip-Channel-Tracking liegt bewusst getrennt in `data/clipData.json` und bleibt davon unberührt. Bei Docker/Portainer wird `config.json` **nicht** als Volume gemountet, sondern kommt aus dem Image (Dockerfile `COPY`) — nach einer Änderung also committen, pushen und den Stack neu bauen lassen.
 
@@ -86,6 +88,16 @@ Die Sanktionsliste ist **eine einzige Nachricht**, die immer bearbeitet statt ne
 
 Alle drei Subcommands sind wie die Bündnis-Commands auf Administratoren, `commandRoleIds` und `allianceSanctionRoleIds` beschränkt. Die Daten liegen getrennt von `config.json` in `data/sanctionsData.json` (wie beim Clip-Channel-Tracking).
 
+## Abmelde-System
+
+Nutze `/abmelde-panel` (nur für Administratoren oder Rollen aus `commandRoleIds`), um in `absenceChannelId` eine Nachricht zu posten: ein Embed mit der Liste aller aktuell Abgemeldeten und darunter ein Button **"Abmelden"**.
+
+- Klickt jemand auf den Button, öffnet sich ein Modal mit **Grund**, **Datum** (`TT.MM.JJJJ`) und **Uhrzeit** (`HH:MM`), bis wann die Person abgemeldet ist.
+- Nach dem Absenden wird die Abmeldung gespeichert und die Panel-Nachricht sofort mit dem neuen Eintrag aktualisiert (bearbeitet, nicht neu gepostet — wie bei der Sanktionsliste). Meldet sich jemand erneut ab, wird der alte Eintrag ersetzt.
+- Ein Hintergrund-Check läuft jede Minute: Ist die angegebene Zeit abgelaufen, wird der Eintrag automatisch aus der Liste entfernt und das Panel aktualisiert — ganz ohne weiteren Befehl.
+
+Die Daten liegen in `data/absenceData.json`, komplett getrennt von `config.json`.
+
 ## Projektstruktur
 
 ```
@@ -100,14 +112,16 @@ black hands/
     ├── data/
     │   ├── clipData.json       Wer hat einen Clip-Channel / wer ist freigeschaltet
     │   ├── sanctionsData.json  Sanktionen (offen + Historie)
-    │   └── allianceData.json   Aktive Bündnisse
+    │   ├── allianceData.json   Aktive Bündnisse
+    │   └── absenceData.json    Aktuelle Abmeldungen
     ├── commands/
     │   ├── setup-clip-panel.js Postet das Clip-Channel-Panel
     │   ├── clip-unlock.js      Admin-Befehl: weiteren Clip-Channel freischalten
     │   ├── clip-remove.js      Admin-Befehl: Clip-Channel eines Nutzers entfernen
     │   ├── bundnisse.js        Bündnis-Ankündigung posten
     │   ├── auflosung.js        Bündnis-Auflösung posten
-    │   └── sanktion.js         /sanktion add, /sanktion bezahlt, /sanktion list
+    │   ├── sanktion.js         /sanktion add, /sanktion bezahlt, /sanktion list
+    │   └── abmelde-panel.js    Postet/aktualisiert das Abmelde-Panel
     ├── events/
     │   ├── ready.js
     │   ├── guildMemberAdd.js   Willkommen + Autorole + Log
@@ -128,6 +142,9 @@ black hands/
         ├── clipStore.js         Lesen/Schreiben von data/clipData.json
         ├── sanctionStore.js     Lesen/Schreiben von data/sanctionsData.json
         ├── allianceStore.js     Lesen/Schreiben von data/allianceData.json
+        ├── absenceStore.js      Lesen/Schreiben von data/absenceData.json
+        ├── absencePanel.js      Baut/aktualisiert die Abmelde-Panel-Nachricht
+        ├── absenceScheduler.js  Prüft minütlich auf abgelaufene Abmeldungen
         ├── permissions.js       Rollen-/Admin-Check für geschützte Commands
         └── deployCommands.js    Registriert Slash-Commands bei Discord (von ready.js aufgerufen)
 ```

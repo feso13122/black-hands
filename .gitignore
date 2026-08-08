@@ -19,6 +19,7 @@ database/
 src/data/clipData.json
 src/data/sanctionsData.json
 src/data/allianceData.json
+src/data/absenceData.json
 
 # IDE
 .vscode/

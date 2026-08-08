@@ -1,5 +1,6 @@
 const { ActivityType } = require('discord.js');
 const { deployCommands } = require('../utils/deployCommands');
+const { startAbsenceScheduler } = require('../utils/absenceScheduler');
 
 module.exports = {
   name: 'ready',
@@ -25,5 +26,7 @@ module.exports = {
     } catch (err) {
       console.error('❌ Fehler beim automatischen Registrieren der Slash-Commands:', err);
     }
+
+    startAbsenceScheduler(client);
   }
 };
