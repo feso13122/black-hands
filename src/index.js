@@ -1,10 +1,10 @@
 const fs = require('fs');
 const path = require('path');
 require('dotenv').config({ path: path.join(__dirname, '..', '.env') });
-const { Client, GatewayIntentBits, Partials, Collection, ActivityType } = require('discord.js');
+const { Client, GatewayIntentBits, Partials, Collection } = require('discord.js');
 
-if (!process.env.BOT_TOKEN) {
-  console.error('❌ Bitte trage deinen Bot-Token als BOT_TOKEN in die .env-Datei ein, bevor du den Bot startest.');
+if (!process.env.BOT_TOKEN || !process.env.BOT_GUILDID) {
+  console.error('❌ Bitte trage BOT_TOKEN und BOT_GUILDID in die .env-Datei ein, bevor du den Bot startest.');
   process.exit(1);
 }
 

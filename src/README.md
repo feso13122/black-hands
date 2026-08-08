@@ -36,7 +36,7 @@ Ein Discord.js-Bot mit:
 
    Diese Datei kannst du jederzeit ersetzen/neu einspielen — das Clip-Channel-Tracking liegt bewusst getrennt in `data/clipData.json` und bleibt davon unberührt. Bei Docker/Portainer wird `config.json` **nicht** als Volume gemountet, sondern kommt aus dem Image (Dockerfile `COPY`) — nach einer Änderung also committen, pushen und den Stack neu bauen lassen.
 
-6. **Slash-Commands registrieren**:
+6. **Slash-Commands registrieren**: Das passiert automatisch bei jedem Start (siehe Schritt 7) — `ready.js` registriert beim Login alle Commands aus `commands/` neu und listet sie in der Konsole auf. Manuell/vorab geht es weiterhin mit:
    ```bash
    npm run deploy
    ```
@@ -69,7 +69,7 @@ black hands/
 ├── Dockerfile
 └── src/
     ├── index.js               Bot-Einstiegspunkt, lädt Events & Commands
-    ├── deploy-commands.js      Registriert Slash-Commands
+    ├── deploy-commands.js      Registriert Slash-Commands manuell/vorab (optional, passiert sonst automatisch in ready.js)
     ├── config.json             Alle IDs & Einstellungen (kein Token)
     ├── data/
     │   └── clipData.json       Wer hat einen Clip-Channel / wer ist freigeschaltet
@@ -93,5 +93,7 @@ black hands/
     └── utils/
         ├── embeds.js            Embed-Helper
         ├── logger.js            Sendet Log-Embeds in den Log-Channel
-        └── clipStore.js         Lesen/Schreiben von data/clipData.json
+        ├── clipStore.js         Lesen/Schreiben von data/clipData.json
+        ├── permissions.js       Rollen-/Admin-Check für geschützte Commands
+        └── deployCommands.js    Registriert Slash-Commands bei Discord (von ready.js aufgerufen)
 ```
