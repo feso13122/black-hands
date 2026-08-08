@@ -12,7 +12,7 @@ async function postSanctionList(interaction) {
   const channel = await interaction.guild.channels.fetch(config.sanctionListChannelId).catch(() => null);
   if (!channel || !channel.isTextBased()) return null;
 
-  const sanctions = sanctionStore.getAll();
+  const sanctions = sanctionStore.getOpen();
   const embed = baseEmbed(interaction.client)
     .setColor('#FEE75C')
     .setTitle('📋 Sanktionsliste')
@@ -138,9 +138,9 @@ module.exports = {
 
     if (sub === 'bezahlt') {
       const user = interaction.options.getUser('nutzer');
-      const removed = sanctionStore.removeSanction(user.id);
+      const paid = sanctionStore.markPaid(user.id, interaction.user.id);
 
-      if (!removed) {
+      if (!paid) {
         await interaction.reply({
           embeds: [errorEmbed(`${user} hat keine offene Sanktion.`, interaction.client)],
           ephemeral: true
@@ -158,8 +158,9 @@ module.exports = {
             .setTitle('✅ Sanktion bezahlt')
             .setDescription(`${user} hat die Sanktion bezahlt.`)
             .addFields(
-              { name: 'Betrag', value: `${removed.amount}`, inline: true },
-              { name: 'Grund', value: `${removed.reason}`, inline: true }
+              { name: 'Betrag', value: `${paid.amount}`, inline: true },
+              { name: 'Grund', value: `${paid.reason}`, inline: true },
+              { name: 'Bestätigt von', value: `${interaction.user}`, inline: false }
             );
           await paidChannel.send({ content: `${user}`, embeds: [paidEmbed] });
         }

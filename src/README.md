@@ -74,9 +74,11 @@ Beide sind auf Administratoren, `commandRoleIds` **und** `allianceSanctionRoleId
 
 ## Sanktions-System
 
-- `/sanktion add nutzer:<@Nutzer> betrag:<Betrag> grund:<Grund>` speichert eine offene Sanktion für den Nutzer, aktualisiert die Sanktionsliste-Nachricht in `sanctionListChannelId` **und** postet eine separate Benachrichtigung in `sanctionAddChannelId`. Hat der Nutzer schon eine offene Sanktion, wird sie ersetzt.
-- `/sanktion bezahlt nutzer:<@Nutzer>` entfernt die Sanktion aus der Liste, aktualisiert die Sanktionsliste-Nachricht und postet zusätzlich eine Bestätigung in `sanctionPaidChannelId`.
+- `/sanktion add nutzer:<@Nutzer> betrag:<Betrag> grund:<Grund>` speichert eine offene Sanktion für den Nutzer, aktualisiert die Sanktionsliste-Nachricht in `sanctionListChannelId` **und** postet eine separate Benachrichtigung in `sanctionAddChannelId` (mit Feld "Ausgestellt von"). Hat der Nutzer schon eine offene Sanktion, wird sie ersetzt.
+- `/sanktion bezahlt nutzer:<@Nutzer>` markiert die Sanktion als bezahlt, aktualisiert die Sanktionsliste-Nachricht (die Sanktion verschwindet dort) und postet eine Bestätigung in `sanctionPaidChannelId` (mit Feld "Bestätigt von").
 - `/sanktion list` aktualisiert die Sanktionsliste-Nachricht, ohne die Daten zu verändern.
+
+Sanktionen werden **nie gelöscht** — `bezahlt` markiert einen Eintrag nur als `status: "paid"` mit Zeitpunkt und Bestätiger, er bleibt als Historie in `data/sanctionsData.json` erhalten. Die Sanktionsliste-Nachricht zeigt nur die aktuell offenen Sanktionen. Bei jeder Aktion (`add`/`bezahlt`) wird außerdem gespeichert und angezeigt, wer sie ausgeführt hat (`issuedBy` bzw. `paidBy`).
 
 Die Sanktionsliste ist **eine einzige Nachricht**, die immer bearbeitet statt neu gesendet wird (Message-ID wird in `data/sanctionsData.json` gemerkt). Wurde die Nachricht manuell gelöscht, erkennt der Bot das und postet automatisch eine neue.
 

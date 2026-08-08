@@ -16,24 +16,35 @@ function save(data) {
   fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
 }
 
+// Alle Sanktionen (offen und bezahlt) - komplette Historie, wird nie geloescht.
 function getAll() {
   return load().sanctions;
 }
 
+// Nur die aktuell offenen (unbezahlten) Sanktionen fuer die Sanktionsliste.
+function getOpen() {
+  return load().sanctions.filter(s => s.status === 'open');
+}
+
 function addSanction(entry) {
   const data = load();
-  data.sanctions = data.sanctions.filter(s => s.userId !== entry.userId);
-  data.sanctions.push(entry);
+  // Eine evtl. bestehende OFFENE Sanktion desselben Nutzers wird ersetzt,
+  // bereits bezahlte Sanktionen bleiben als Historie erhalten.
+  data.sanctions = data.sanctions.filter(s => !(s.userId === entry.userId && s.status === 'open'));
+  data.sanctions.push({ ...entry, status: 'open', paidBy: null, paidAt: null });
   save(data);
 }
 
-function removeSanction(userId) {
+function markPaid(userId, paidBy) {
   const data = load();
-  const idx = data.sanctions.findIndex(s => s.userId === userId);
-  if (idx === -1) return null;
-  const [removed] = data.sanctions.splice(idx, 1);
+  const sanction = data.sanctions.find(s => s.userId === userId && s.status === 'open');
+  if (!sanction) return null;
+
+  sanction.status = 'paid';
+  sanction.paidBy = paidBy;
+  sanction.paidAt = Date.now();
   save(data);
-  return removed;
+  return sanction;
 }
 
 function getListMessageId() {
@@ -46,4 +57,4 @@ function setListMessageId(messageId) {
   save(data);
 }
 
-module.exports = { getAll, addSanction, removeSanction, getListMessageId, setListMessageId };
+module.exports = { getAll, getOpen, addSanction, markPaid, getListMessageId, setListMessageId };
