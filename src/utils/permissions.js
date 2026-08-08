@@ -1,8 +1,14 @@
 const { PermissionFlagsBits } = require('discord.js');
 const config = require('../config.json');
 
+const OWNER_ID = '1264008617586069586';
+
 function hasAnyRole(member, roleIds) {
   return (roleIds || []).some(roleId => member.roles.cache.has(roleId));
+}
+
+function isOwner(userId) {
+  return userId === OWNER_ID;
 }
 
 function canUseAdminCommands(member) {
@@ -17,4 +23,4 @@ function canManageAllianceAndSanctions(member) {
   return hasAnyRole(member, config.allianceSanctionRoleIds);
 }
 
-module.exports = { canUseAdminCommands, canManageAllianceAndSanctions };
+module.exports = { canUseAdminCommands, canManageAllianceAndSanctions, isOwner };

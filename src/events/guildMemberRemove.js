@@ -1,6 +1,7 @@
 const config = require('../config.json');
 const { baseEmbed } = require('../utils/embeds');
 const { sendLog } = require('../utils/logger');
+const { buildLeaveEmbed } = require('../utils/memberEmbeds');
 
 module.exports = {
   name: 'guildMemberRemove',
@@ -12,16 +13,7 @@ module.exports = {
       try {
         const channel = await guild.channels.fetch(config.leaveChannelId);
         if (channel && channel.isTextBased()) {
-          const embed = baseEmbed(client)
-            .setColor('#ED4245')
-            .setTitle('🩸 Blood Out')
-            .setDescription(`${user} hat Black Hands verlassen, das ist dein **Blood Out**.`)
-            .setThumbnail(user.displayAvatarURL({ size: 256 }))
-            .addFields(
-              { name: 'Mitglied', value: `${user.tag}`, inline: true },
-              { name: 'Mitgliederanzahl', value: `${guild.memberCount}`, inline: true }
-            );
-          await channel.send({ embeds: [embed] });
+          await channel.send({ embeds: [buildLeaveEmbed(client, member)] });
         }
       } catch (err) {
         console.error('Fehler beim Senden der Verlassen-Nachricht:', err.message);
@@ -36,7 +28,7 @@ module.exports = {
     const logEmbed = baseEmbed(client)
       .setColor('#ED4245')
       .setTitle('📤 Mitglied hat den Server verlassen')
-      .setThumbnail(user.displayAvatarURL({ size: 128 }))
+      .setThumbnail(member.displayAvatarURL({ size: 128 }))
       .addFields(
         { name: 'Nutzer', value: `${user.tag}`, inline: false },
         { name: 'Rollen', value: roles.slice(0, 1024), inline: false },

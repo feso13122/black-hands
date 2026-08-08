@@ -25,5 +25,9 @@
 
   "commandListChannelId": "1535793000880283658",
 
-  "commandChannelId": "1535795990223786105"
+  "commandChannelId": "1535795990223786105",
+
+  "twitchNotificationChannelId": "1535798082711584778",
+  "twitchPingRoleId": "1535782072491180153",
+  "twitchCheckIntervalMs": 60000
 }

@@ -10,6 +10,8 @@ Ein Discord.js-Bot mit:
 - Abmelde-System mit Panel-Button, Modal (Grund/Datum/Uhrzeit) und automatischem Entfernen abgelaufener Abmeldungen
 - `/command-liste` postet eine automatisch generierte Übersicht aller Befehle
 - Alle Slash-Commands sind auf einen einzigen Channel gesperrt (`commandChannelId`)
+- Twitch-Live-Benachrichtigungen (`/addstreamer`, `/removestreamer`, `/streamers`) mit automatischem Live-Check
+- `/test-willkommen` und `/test-leave` zum Testen der Willkommens-/Leave-Embeds, nur für den Bot-Owner
 - Zentrale `config.json` für alle Channel-/Rollen-IDs, Token separat in `.env`
 
 ## Setup
@@ -32,6 +34,7 @@ Ein Discord.js-Bot mit:
    - `BOT_TOKEN` = dein Bot-Token
    - `BOT_CLIENTID` = die Application/Client-ID
    - `BOT_GUILDID` = die ID deines Servers
+   - `TWITCH_CLIENT_ID` / `TWITCH_SECRET` = Zugangsdaten einer [Twitch-App](https://dev.twitch.tv/console/apps) (nur nötig für die Twitch-Live-Benachrichtigungen — ohne sie startet der Bot trotzdem, dieses Feature bleibt dann einfach deaktiviert)
 
 5. **`config.json` ausfüllen** (Rechtsklick auf Server/Channel/Rolle → "ID kopieren", Entwicklermodus muss in Discord aktiviert sein):
    - `welcomeChannelId`, `leaveChannelId`, `logChannelId`
@@ -44,6 +47,7 @@ Ein Discord.js-Bot mit:
    - `absenceChannelId` (Channel für das Abmelde-Panel mit der Liste aller Abgemeldeten)
    - `commandListChannelId` (Channel, in den `/command-liste` die Befehlsübersicht postet)
    - `commandChannelId` (einziger Channel, in dem überhaupt irgendein Slash-Command benutzt werden darf — siehe unten)
+   - `twitchNotificationChannelId` (Channel für Live-Benachrichtigungen), `twitchPingRoleId` (Rolle, die dabei erwähnt wird), `twitchCheckIntervalMs` (wie oft geprüft wird, Standard 60000 = 1 Minute)
 
    Diese Datei kannst du jederzeit ersetzen/neu einspielen — das Clip-Channel-Tracking liegt bewusst getrennt in `data/clipData.json` und bleibt davon unberührt. Bei Docker/Portainer wird `config.json` **nicht** als Volume gemountet, sondern kommt aus dem Image (Dockerfile `COPY`) — nach einer Änderung also committen, pushen und den Stack neu bauen lassen.
 
@@ -115,11 +119,23 @@ Wichtig: Das betrifft auch Panel-Commands wie `/setup-clip-panel` und `/abmelde-
 
 `/command-liste` (nur für Administratoren oder Rollen aus `commandRoleIds`) liest alle aktuell registrierten Commands aus `client.commands` (inklusive Subcommands wie `/sanktion add`) und postet eine automatisch generierte Übersicht nach `commandListChannelId`. Es gibt keine feste, händisch gepflegte Liste — sie ist bei jedem Ausführen des Befehls aktuell.
 
+## Twitch-Live-Benachrichtigungen
+
+- `/addstreamer username:<Name>` fügt einen Twitch-Namen zur Überwachungsliste hinzu (prüft vorher über die Twitch-API, ob der Name existiert).
+- `/removestreamer username:<Name>` entfernt ihn wieder.
+- `/streamers` zeigt die aktuelle Liste (ephemer, nur für dich sichtbar).
+
+Alle drei sind auf Administratoren/`commandRoleIds` beschränkt. Im Hintergrund prüft der Bot alle `twitchCheckIntervalMs` (Standard 1 Minute) per Twitch-API, ob einer der gespeicherten Streamer live ist, und postet dann automatisch ein Embed mit Titel, Spiel, Zuschauerzahl und Vorschaubild in `twitchNotificationChannelId` (mit Erwähnung von `twitchPingRoleId`). Ohne `TWITCH_CLIENT_ID`/`TWITCH_SECRET` in der `.env` bleibt das Feature deaktiviert, der Rest des Bots läuft trotzdem normal weiter. Die Liste liegt in `data/twitchStreamers.json`.
+
+## Test-Commands für Willkommen/Leave
+
+`/test-willkommen` und `/test-leave` posten die exakt gleichen Embeds wie ein echter Beitritt/Austritt (inklusive aktuellem Server-Profilbild über `member.displayAvatarURL()`), ohne dass jemand wirklich beitreten/gehen muss — praktisch zum Prüfen, wie die Nachrichten aussehen. Optional per `nutzer`-Option mit einem anderen Mitglied testbar, sonst wird dein eigenes Profil verwendet. Beide sind fest auf die Discord-User-ID `1264008617586069586` beschränkt (nicht über Rollen, sondern hart im Code), unabhängig von `commandRoleIds` oder Administrator-Rechten.
+
 ## Projektstruktur
 
 ```
 black hands/
-├── .env                     BOT_TOKEN, BOT_CLIENTID, BOT_GUILDID (Secrets, nicht in Git)
+├── .env                     BOT_TOKEN, BOT_CLIENTID, BOT_GUILDID, TWITCH_CLIENT_ID, TWITCH_SECRET (Secrets, nicht in Git)
 ├── docker-compose.yml
 ├── Dockerfile
 └── src/
@@ -130,7 +146,8 @@ black hands/
     │   ├── clipData.json       Wer hat einen Clip-Channel / wer ist freigeschaltet
     │   ├── sanctionsData.json  Sanktionen (offen + Historie)
     │   ├── allianceData.json   Aktive Bündnisse
-    │   └── absenceData.json    Aktuelle Abmeldungen
+    │   ├── absenceData.json    Aktuelle Abmeldungen
+    │   └── twitchStreamers.json Überwachte Twitch-Streamer
     ├── commands/
     │   ├── setup-clip-panel.js Postet das Clip-Channel-Panel
     │   ├── clip-unlock.js      Admin-Befehl: weiteren Clip-Channel freischalten
@@ -139,7 +156,12 @@ black hands/
     │   ├── auflosung.js        Bündnis-Auflösung posten
     │   ├── sanktion.js         /sanktion add, /sanktion bezahlt, /sanktion list
     │   ├── abmelde-panel.js    Postet/aktualisiert das Abmelde-Panel
-    │   └── command-liste.js    Postet eine automatische Befehlsübersicht
+    │   ├── command-liste.js    Postet eine automatische Befehlsübersicht
+    │   ├── addstreamer.js      Twitch-Streamer zur Überwachung hinzufügen
+    │   ├── removestreamer.js   Twitch-Streamer von der Überwachung entfernen
+    │   ├── streamers.js        Überwachte Twitch-Streamer anzeigen
+    │   ├── test-willkommen.js  [Nur Owner] Willkommens-Embed testen
+    │   └── test-leave.js       [Nur Owner] Leave-Embed testen
     ├── events/
     │   ├── ready.js
     │   ├── guildMemberAdd.js   Willkommen + Autorole + Log
@@ -163,6 +185,10 @@ black hands/
         ├── absenceStore.js      Lesen/Schreiben von data/absenceData.json
         ├── absencePanel.js      Baut/aktualisiert die Abmelde-Panel-Nachricht
         ├── absenceScheduler.js  Prüft minütlich auf abgelaufene Abmeldungen
-        ├── permissions.js       Rollen-/Admin-Check für geschützte Commands
+        ├── twitchStore.js       Lesen/Schreiben von data/twitchStreamers.json
+        ├── twitchApi.js         Twitch-Helix-API (Token, Stream-/User-Abfragen)
+        ├── twitchScheduler.js   Prüft periodisch, ob Streamer live sind
+        ├── memberEmbeds.js      Baut Willkommen/Leave-Embeds (auch für Test-Commands)
+        ├── permissions.js       Rollen-/Admin-/Owner-Check für geschützte Commands
         └── deployCommands.js    Registriert Slash-Commands bei Discord (von ready.js aufgerufen)
 ```
