@@ -54,13 +54,35 @@ module.exports = {
       sub
         .setName('bezahlt')
         .setDescription('Markiert die Sanktion eines Nutzers als bezahlt und entfernt sie aus der Liste')
-        .addUserOption(o => o.setName('nutzer').setDescription('Betroffener Nutzer').setRequired(true))
+        .addStringOption(o =>
+          o
+            .setName('nutzer')
+            .setDescription('Nutzer mit offener, gespeicherter Sanktion')
+            .setRequired(true)
+            .setAutocomplete(true)
+        )
     )
     .addSubcommand(sub =>
       sub
         .setName('list')
         .setDescription('Aktualisiert die Sanktionsliste-Nachricht')
     ),
+
+  async autocomplete(interaction) {
+    if (interaction.options.getSubcommand() !== 'bezahlt') return;
+
+    const focused = interaction.options.getFocused().toLowerCase();
+    const choices = [];
+    for (const sanction of sanctionStore.getOpen()) {
+      const user = await interaction.client.users.fetch(sanction.userId).catch(() => null);
+      const label = user ? user.tag : `Unbekannt (${sanction.userId})`;
+      if (label.toLowerCase().includes(focused) || sanction.userId.includes(focused)) {
+        choices.push({ name: label.slice(0, 100), value: sanction.userId });
+      }
+    }
+
+    await interaction.respond(choices.slice(0, 25));
+  },
 
   async execute(interaction) {
     if (!canManageAllianceAndSanctions(interaction.member)) {
@@ -137,16 +159,19 @@ module.exports = {
     }
 
     if (sub === 'bezahlt') {
-      const user = interaction.options.getUser('nutzer');
-      const paid = sanctionStore.markPaid(user.id, interaction.user.id);
+      const userId = interaction.options.getString('nutzer');
+      const paid = sanctionStore.markPaid(userId, interaction.user.id);
 
       if (!paid) {
         await interaction.reply({
-          embeds: [errorEmbed(`${user} hat keine offene Sanktion.`, interaction.client)],
+          embeds: [errorEmbed('Für diesen Nutzer ist keine offene Sanktion gespeichert.', interaction.client)],
           ephemeral: true
         });
         return;
       }
+
+      const user = await interaction.client.users.fetch(userId).catch(() => null);
+      const userLabel = user ? `${user}` : `<@${userId}>`;
 
       await postSanctionList(interaction);
 
@@ -156,18 +181,18 @@ module.exports = {
           const paidEmbed = baseEmbed(interaction.client)
             .setColor('#57F287')
             .setTitle('✅ Sanktion bezahlt')
-            .setDescription(`${user} hat die Sanktion bezahlt.`)
+            .setDescription(`${userLabel} hat die Sanktion bezahlt.`)
             .addFields(
               { name: 'Betrag', value: `${paid.amount}`, inline: true },
               { name: 'Grund', value: `${paid.reason}`, inline: true },
               { name: 'Bestätigt von', value: `${interaction.user}`, inline: false }
             );
-          await paidChannel.send({ content: `${user}`, embeds: [paidEmbed] });
+          await paidChannel.send({ content: userLabel, embeds: [paidEmbed] });
         }
       }
 
       await interaction.reply({
-        embeds: [successEmbed(`Sanktion von ${user} wurde als bezahlt markiert und aus der Liste entfernt.`, interaction.client)],
+        embeds: [successEmbed(`Sanktion von ${userLabel} wurde als bezahlt markiert und aus der Liste entfernt.`, interaction.client)],
         ephemeral: true
       });
     }

@@ -20,6 +20,10 @@ function getUserChannel(userId) {
   return load().userChannels[userId] || null;
 }
 
+function getAllUserChannels() {
+  return load().userChannels;
+}
+
 function setUserChannel(userId, channelId) {
   const data = load();
   data.userChannels[userId] = channelId;
@@ -50,6 +54,7 @@ function consumeUnlock(userId) {
 
 module.exports = {
   getUserChannel,
+  getAllUserChannels,
   setUserChannel,
   removeUserChannel,
   isUnlocked,

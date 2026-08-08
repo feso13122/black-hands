@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('discord.js');
 const config = require('../config.json');
 const { baseEmbed, errorEmbed } = require('../utils/embeds');
 const { canManageAllianceAndSanctions } = require('../utils/permissions');
+const allianceStore = require('../utils/allianceStore');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -12,7 +13,18 @@ module.exports = {
         .setName('fraktion')
         .setDescription('Name der Fraktion, mit der das Bündnis aufgelöst wird')
         .setRequired(true)
+        .setAutocomplete(true)
     ),
+
+  async autocomplete(interaction) {
+    const focused = interaction.options.getFocused().toLowerCase();
+    const choices = allianceStore.getAll()
+      .filter(a => a.faction.toLowerCase().includes(focused))
+      .slice(0, 25)
+      .map(a => ({ name: a.faction, value: a.faction }));
+
+    await interaction.respond(choices);
+  },
 
   async execute(interaction) {
     if (!canManageAllianceAndSanctions(interaction.member)) {
@@ -51,6 +63,8 @@ module.exports = {
       .setDescription(`Ab heute ist das Bündnis mit der **${fraktion}** Fraktion aufgelöst.`);
 
     await channel.send({ content: roleMention, embeds: [embed] });
+    allianceStore.removeAlliance(fraktion);
+
     await interaction.reply({ content: `Auflösungs-Nachricht für **${fraktion}** wurde in ${channel} gepostet.`, ephemeral: true });
   }
 };

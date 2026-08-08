@@ -65,19 +65,19 @@ Wichtig: Die Sichtbarkeit für alle anderen hängt jetzt von der Kategorie ab. W
 
 **Limit auf 1 Channel:** Hat ein Nutzer bereits einen (noch existierenden) Clip-Channel, wird beim Klick auf den Button abgelehnt, solange er nicht freigeschaltet ist. Ein Administrator schaltet mit `/clip-unlock nutzer:<@Nutzer>` einmalig einen weiteren Channel frei — die Freischaltung wird beim nächsten Erstellen automatisch wieder verbraucht. Wurde der bisherige Channel manuell gelöscht, erkennt der Bot das automatisch und erlaubt sofort wieder einen neuen.
 
-**Clip-Channel entfernen:** `/clip-remove nutzer:<@Nutzer>` löscht den Discord-Channel des Nutzers direkt und entfernt den Tracking-Eintrag, sodass der Nutzer danach sofort wieder einen neuen Clip-Channel erstellen kann (ohne `/clip-unlock`).
+**Clip-Channel entfernen:** `/clip-remove nutzer:<...>` löscht den Discord-Channel des Nutzers direkt und entfernt den Tracking-Eintrag, sodass der Nutzer danach sofort wieder einen neuen Clip-Channel erstellen kann (ohne `/clip-unlock`). Das `nutzer`-Feld ist ein Autocomplete-Feld und schlägt nur Nutzer vor, für die aktuell wirklich ein Clip-Channel in `data/clipData.json` gespeichert ist.
 
 ## Bündnis-Commands
 
-- `/bundnisse fraktion:<Name>` postet "Ab heute sind wir im Bündnis mit der **<Name>** Fraktion." in `allianceChannelId` und erwähnt dabei `allianceRoleId`.
-- `/auflosung fraktion:<Name>` postet entsprechend die Auflösung des Bündnisses.
+- `/bundnisse fraktion:<Name>` postet "Ab heute sind wir im Bündnis mit der **<Name>** Fraktion." in `allianceChannelId`, erwähnt dabei `allianceRoleId` und speichert das Bündnis in `data/allianceData.json`.
+- `/auflosung fraktion:<Name>` postet entsprechend die Auflösung des Bündnisses und entfernt es aus der gespeicherten Liste. Das `fraktion`-Feld ist ein Autocomplete-Feld und schlägt nur aktuell gespeicherte, aktive Bündnisse vor.
 
 Beide sind auf Administratoren, `commandRoleIds` **und** `allianceSanctionRoleIds` beschränkt. `allianceRoleId` ist aktuell dieselbe Rolle wie `autoRoleId` — jedes neue Mitglied bekommt sie automatisch, wodurch die Erwähnung effektiv den ganzen Server pingt.
 
 ## Sanktions-System
 
 - `/sanktion add nutzer:<@Nutzer> betrag:<Betrag> grund:<Grund>` speichert eine offene Sanktion für den Nutzer, aktualisiert die Sanktionsliste-Nachricht in `sanctionListChannelId` **und** postet eine separate Benachrichtigung in `sanctionAddChannelId` (mit Feld "Ausgestellt von"). Hat der Nutzer schon eine offene Sanktion, wird sie ersetzt.
-- `/sanktion bezahlt nutzer:<@Nutzer>` markiert die Sanktion als bezahlt, aktualisiert die Sanktionsliste-Nachricht (die Sanktion verschwindet dort) und postet eine Bestätigung in `sanctionPaidChannelId` (mit Feld "Bestätigt von").
+- `/sanktion bezahlt nutzer:<...>` markiert die Sanktion als bezahlt, aktualisiert die Sanktionsliste-Nachricht (die Sanktion verschwindet dort) und postet eine Bestätigung in `sanctionPaidChannelId` (mit Feld "Bestätigt von"). Das `nutzer`-Feld ist ein Autocomplete-Feld und schlägt nur Nutzer mit einer aktuell offenen, gespeicherten Sanktion vor.
 - `/sanktion list` aktualisiert die Sanktionsliste-Nachricht, ohne die Daten zu verändern.
 
 Sanktionen werden **nie gelöscht** — `bezahlt` markiert einen Eintrag nur als `status: "paid"` mit Zeitpunkt und Bestätiger, er bleibt als Historie in `data/sanctionsData.json` erhalten. Die Sanktionsliste-Nachricht zeigt nur die aktuell offenen Sanktionen. Bei jeder Aktion (`add`/`bezahlt`) wird außerdem gespeichert und angezeigt, wer sie ausgeführt hat (`issuedBy` bzw. `paidBy`).
@@ -99,7 +99,8 @@ black hands/
     ├── config.json             Alle IDs & Einstellungen (kein Token)
     ├── data/
     │   ├── clipData.json       Wer hat einen Clip-Channel / wer ist freigeschaltet
-    │   └── sanctionsData.json  Offene Sanktionen
+    │   ├── sanctionsData.json  Sanktionen (offen + Historie)
+    │   └── allianceData.json   Aktive Bündnisse
     ├── commands/
     │   ├── setup-clip-panel.js Postet das Clip-Channel-Panel
     │   ├── clip-unlock.js      Admin-Befehl: weiteren Clip-Channel freischalten
@@ -126,6 +127,7 @@ black hands/
         ├── logger.js            Sendet Log-Embeds in den Log-Channel
         ├── clipStore.js         Lesen/Schreiben von data/clipData.json
         ├── sanctionStore.js     Lesen/Schreiben von data/sanctionsData.json
+        ├── allianceStore.js     Lesen/Schreiben von data/allianceData.json
         ├── permissions.js       Rollen-/Admin-Check für geschützte Commands
         └── deployCommands.js    Registriert Slash-Commands bei Discord (von ready.js aufgerufen)
 ```

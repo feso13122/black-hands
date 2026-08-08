@@ -2,6 +2,7 @@ const { SlashCommandBuilder } = require('discord.js');
 const config = require('../config.json');
 const { baseEmbed, errorEmbed } = require('../utils/embeds');
 const { canManageAllianceAndSanctions } = require('../utils/permissions');
+const allianceStore = require('../utils/allianceStore');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -51,6 +52,8 @@ module.exports = {
       .setDescription(`Ab heute sind wir im Bündnis mit der **${fraktion}** Fraktion.`);
 
     await channel.send({ content: roleMention, embeds: [embed] });
+    allianceStore.addAlliance(fraktion, interaction.user.id);
+
     await interaction.reply({ content: `Bündnis-Nachricht für **${fraktion}** wurde in ${channel} gepostet.`, ephemeral: true });
   }
 };

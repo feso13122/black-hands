@@ -8,12 +8,29 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('clip-remove')
     .setDescription('Entfernt den Clip-Channel eines Nutzers.')
-    .addUserOption(option =>
+    .addStringOption(option =>
       option
         .setName('nutzer')
-        .setDescription('Der Nutzer, dessen Clip-Channel entfernt werden soll')
+        .setDescription('Nutzer mit gespeichertem Clip-Channel')
         .setRequired(true)
+        .setAutocomplete(true)
     ),
+
+  async autocomplete(interaction) {
+    const focused = interaction.options.getFocused().toLowerCase();
+    const entries = Object.entries(clipStore.getAllUserChannels());
+
+    const choices = [];
+    for (const [userId] of entries) {
+      const user = await interaction.client.users.fetch(userId).catch(() => null);
+      const label = user ? user.tag : `Unbekannt (${userId})`;
+      if (label.toLowerCase().includes(focused) || userId.includes(focused)) {
+        choices.push({ name: label.slice(0, 100), value: userId });
+      }
+    }
+
+    await interaction.respond(choices.slice(0, 25));
+  },
 
   async execute(interaction) {
     if (!canUseAdminCommands(interaction.member)) {
@@ -24,26 +41,29 @@ module.exports = {
       return;
     }
 
-    const user = interaction.options.getUser('nutzer');
-    const channelId = clipStore.getUserChannel(user.id);
+    const userId = interaction.options.getString('nutzer');
+    const channelId = clipStore.getUserChannel(userId);
 
     if (!channelId) {
       await interaction.reply({
-        embeds: [errorEmbed(`${user} hat aktuell keinen Clip-Channel.`, interaction.client)],
+        embeds: [errorEmbed('Für diesen Nutzer ist aktuell kein Clip-Channel gespeichert.', interaction.client)],
         ephemeral: true
       });
       return;
     }
 
+    const user = await interaction.client.users.fetch(userId).catch(() => null);
     const channel = await interaction.guild.channels.fetch(channelId).catch(() => null);
-    clipStore.removeUserChannel(user.id);
+    clipStore.removeUserChannel(userId);
 
     if (channel) {
       await channel.delete(`Clip-Channel entfernt von ${interaction.user.tag}`).catch(() => null);
     }
 
+    const userLabel = user ? `${user}` : `<@${userId}>`;
+
     await interaction.reply({
-      embeds: [successEmbed(`Der Clip-Channel von ${user} wurde entfernt.`, interaction.client)],
+      embeds: [successEmbed(`Der Clip-Channel von ${userLabel} wurde entfernt.`, interaction.client)],
       ephemeral: true
     });
 
@@ -51,7 +71,7 @@ module.exports = {
       .setColor('#ED4245')
       .setTitle('🗑️ Clip-Channel entfernt')
       .addFields(
-        { name: 'Nutzer', value: `${user} (${user.tag})`, inline: false },
+        { name: 'Nutzer', value: user ? `${user} (${user.tag})` : userLabel, inline: false },
         { name: 'Entfernt von', value: `${interaction.user} (${interaction.user.tag})`, inline: false }
       );
     await sendLog(interaction.client, logEmbed);
