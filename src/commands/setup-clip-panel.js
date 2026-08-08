@@ -1,19 +1,26 @@
 const {
   SlashCommandBuilder,
-  PermissionFlagsBits,
   ActionRowBuilder,
   ButtonBuilder,
   ButtonStyle
 } = require('discord.js');
-const { baseEmbed } = require('../utils/embeds');
+const { baseEmbed, errorEmbed } = require('../utils/embeds');
+const { canUseAdminCommands } = require('../utils/permissions');
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('setup-clip-panel')
-    .setDescription('Postet das Panel zum Erstellen von Clip-Channels in diesen Channel.')
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+    .setDescription('Postet das Panel zum Erstellen von Clip-Channels in diesen Channel.'),
 
   async execute(interaction) {
+    if (!canUseAdminCommands(interaction.member)) {
+      await interaction.reply({
+        embeds: [errorEmbed('Du hast keine Berechtigung, diesen Befehl zu benutzen.', interaction.client)],
+        ephemeral: true
+      });
+      return;
+    }
+
     const embed = baseEmbed(interaction.client)
       .setTitle('🎬 Clip-Channel erstellen')
       .setDescription(

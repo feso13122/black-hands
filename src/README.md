@@ -32,6 +32,7 @@ Ein Discord.js-Bot mit:
    - `welcomeChannelId`, `leaveChannelId`, `logChannelId`
    - `clipPanelChannelId` (informativ, das Panel wird per Command gepostet), `clipCategoryId` (Kategorie, in der neue Clip-Channels erstellt werden)
    - `autoRoleId`
+   - `commandRoleIds` (Liste von Rollen-IDs, die `/setup-clip-panel` und `/clip-unlock` benutzen dürfen — Administratoren dürfen unabhängig davon immer)
 
    Diese Datei kannst du jederzeit ersetzen/neu einspielen — das Clip-Channel-Tracking liegt bewusst getrennt in `data/clipData.json` und bleibt davon unberührt.
 
@@ -49,7 +50,7 @@ Ein Discord.js-Bot mit:
 
 ## Clip-Channel-Panel posten
 
-Nutze in dem gewünschten Channel den Befehl `/setup-clip-panel` (nur für Administratoren). Das postet ein Embed mit einem Button. Klickt jemand darauf, öffnet sich ein Modal, in dem der Name für den neuen Channel eingegeben wird. Der Channel wird als `🔫clip-<name>` unter `clipCategoryId` erstellt und ist **mit der Kategorie synchronisiert** (wie Discords "Berechtigungen synchronisieren"):
+Nutze in dem gewünschten Channel den Befehl `/setup-clip-panel` (nur für Administratoren oder Rollen aus `commandRoleIds`). Das postet ein Embed mit einem Button. Klickt jemand darauf, öffnet sich ein Modal, in dem der Name für den neuen Channel eingegeben wird. Der Channel wird als `🔫clip-<name>` unter `clipCategoryId` erstellt und ist **mit der Kategorie synchronisiert** (wie Discords "Berechtigungen synchronisieren"):
 
 - Alle Berechtigungen/Rollen, die auf der Kategorie `clipCategoryId` eingestellt sind, werden 1:1 auf den neuen Channel übernommen.
 - Zusätzlich bekommt der **Ersteller** immer: sehen, schreiben, Verlauf lesen, Dateien anhängen.

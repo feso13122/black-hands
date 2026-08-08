@@ -1,13 +1,13 @@
-const { SlashCommandBuilder, PermissionFlagsBits } = require('discord.js');
-const { baseEmbed, successEmbed } = require('../utils/embeds');
+const { SlashCommandBuilder } = require('discord.js');
+const { baseEmbed, errorEmbed, successEmbed } = require('../utils/embeds');
 const { sendLog } = require('../utils/logger');
 const clipStore = require('../utils/clipStore');
+const { canUseAdminCommands } = require('../utils/permissions');
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('clip-unlock')
     .setDescription('Erlaubt einem Nutzer, trotz bestehendem Clip-Channel einen weiteren zu erstellen.')
-    .setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
     .addUserOption(option =>
       option
         .setName('nutzer')
@@ -16,6 +16,14 @@ module.exports = {
     ),
 
   async execute(interaction) {
+    if (!canUseAdminCommands(interaction.member)) {
+      await interaction.reply({
+        embeds: [errorEmbed('Du hast keine Berechtigung, diesen Befehl zu benutzen.', interaction.client)],
+        ephemeral: true
+      });
+      return;
+    }
+
     const user = interaction.options.getUser('nutzer');
     clipStore.unlockUser(user.id);
 
