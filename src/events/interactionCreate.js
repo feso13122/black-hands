@@ -41,6 +41,18 @@ module.exports = {
 
     // Slash-Commands
     if (interaction.isChatInputCommand()) {
+      if (
+        config.commandChannelId &&
+        !config.commandChannelId.startsWith('CHANNEL_ID') &&
+        interaction.channelId !== config.commandChannelId
+      ) {
+        await interaction.reply({
+          embeds: [errorEmbed(`Befehle können nur in <#${config.commandChannelId}> benutzt werden.`, client)],
+          ephemeral: true
+        });
+        return;
+      }
+
       const command = client.commands.get(interaction.commandName);
       if (!command) return;
       try {

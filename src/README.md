@@ -9,6 +9,7 @@ Ein Discord.js-Bot mit:
 - Sanktions-System (`/sanktion add`, `/sanktion bezahlt`) mit automatisch gepflegter Sanktionsliste
 - Abmelde-System mit Panel-Button, Modal (Grund/Datum/Uhrzeit) und automatischem Entfernen abgelaufener Abmeldungen
 - `/command-liste` postet eine automatisch generierte Übersicht aller Befehle
+- Alle Slash-Commands sind auf einen einzigen Channel gesperrt (`commandChannelId`)
 - Zentrale `config.json` für alle Channel-/Rollen-IDs, Token separat in `.env`
 
 ## Setup
@@ -42,6 +43,7 @@ Ein Discord.js-Bot mit:
    - `allianceSanctionRoleIds` (zusätzliche Rollen-IDs, die **nur** `/bundnisse`, `/auflosung` und `/sanktion` benutzen dürfen, unabhängig von `commandRoleIds`)
    - `absenceChannelId` (Channel für das Abmelde-Panel mit der Liste aller Abgemeldeten)
    - `commandListChannelId` (Channel, in den `/command-liste` die Befehlsübersicht postet)
+   - `commandChannelId` (einziger Channel, in dem überhaupt irgendein Slash-Command benutzt werden darf — siehe unten)
 
    Diese Datei kannst du jederzeit ersetzen/neu einspielen — das Clip-Channel-Tracking liegt bewusst getrennt in `data/clipData.json` und bleibt davon unberührt. Bei Docker/Portainer wird `config.json` **nicht** als Volume gemountet, sondern kommt aus dem Image (Dockerfile `COPY`) — nach einer Änderung also committen, pushen und den Stack neu bauen lassen.
 
@@ -102,6 +104,12 @@ Nutze `/abmelde-panel` (nur für Administratoren oder Rollen aus `commandRoleIds
 - Ein Hintergrund-Check läuft jede Minute: Ist die angegebene Zeit abgelaufen, wird der Eintrag automatisch aus der Liste entfernt und das Panel aktualisiert — ganz ohne weiteren Befehl.
 
 Die Daten liegen in `data/absenceData.json`, komplett getrennt von `config.json`.
+
+## Befehle auf einen Channel sperren
+
+Ist `commandChannelId` gesetzt, kann **jeder** Slash-Command nur noch in genau diesem Channel ausgeführt werden — überall sonst antwortet der Bot ephemer mit einem Hinweis, in welchem Channel die Befehle erlaubt sind. Die Prüfung sitzt zentral in `interactionCreate.js`, bevor überhaupt ein einzelner Command aufgerufen wird.
+
+Wichtig: Das betrifft auch Panel-Commands wie `/setup-clip-panel` und `/abmelde-panel`, die ihr Embed normalerweise in den Channel posten, in dem sie ausgeführt werden — die Panels landen dadurch ebenfalls in `commandChannelId`. Buttons/Modale (Clip-Channel erstellen, Abmelden/Zurückmelden) sind davon **nicht** betroffen, die funktionieren weiterhin in den jeweiligen Panel-Channels.
 
 ## Befehlsübersicht posten
 
