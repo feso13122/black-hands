@@ -9,7 +9,7 @@ module.exports = {
 
     if (addedRoles.size === 0 && removedRoles.size === 0) return;
 
-    const embed = baseEmbed()
+    const embed = baseEmbed(newMember.client)
       .setColor('#FEE75C')
       .setTitle('🔧 Rollen aktualisiert')
       .setThumbnail(newMember.user.displayAvatarURL({ size: 128 }))

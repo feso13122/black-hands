@@ -8,7 +8,7 @@ module.exports = {
     if (newMessage.author?.bot) return;
     if (oldMessage.content === newMessage.content) return;
 
-    const embed = baseEmbed()
+    const embed = baseEmbed(newMessage.client)
       .setColor('#FEE75C')
       .setTitle('✏️ Nachricht bearbeitet')
       .addFields(

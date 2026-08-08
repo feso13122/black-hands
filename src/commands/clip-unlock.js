@@ -20,11 +20,11 @@ module.exports = {
     clipStore.unlockUser(user.id);
 
     await interaction.reply({
-      embeds: [successEmbed(`${user} wurde freigeschaltet und kann einen weiteren Clip-Channel erstellen.`)],
+      embeds: [successEmbed(`${user} wurde freigeschaltet und kann einen weiteren Clip-Channel erstellen.`, interaction.client)],
       ephemeral: true
     });
 
-    const logEmbed = baseEmbed()
+    const logEmbed = baseEmbed(interaction.client)
       .setColor('#FEE75C')
       .setTitle('🔓 Clip-Channel-Freischaltung')
       .addFields(

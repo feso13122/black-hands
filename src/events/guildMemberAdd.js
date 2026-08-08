@@ -12,7 +12,7 @@ module.exports = {
       try {
         const channel = await guild.channels.fetch(config.welcomeChannelId);
         if (channel && channel.isTextBased()) {
-          const embed = baseEmbed()
+          const embed = baseEmbed(client)
             .setColor('#57F287')
             .setTitle('🩸 Willkommen bei Black Hands!')
             .setDescription(`Willkommen ${user}, das ist dein **Blood In**.`)
@@ -38,16 +38,16 @@ module.exports = {
     }
 
     // Logging
-    const logEmbed = baseEmbed()
+    const logEmbed = baseEmbed(client)
       .setColor('#57F287')
       .setTitle('📥 Mitglied beigetreten')
       .setThumbnail(user.displayAvatarURL({ size: 128 }))
       .addFields(
         { name: 'Nutzer', value: `${user} (${user.tag})`, inline: false },
         { name: 'Account erstellt', value: `<t:${Math.floor(user.createdTimestamp / 1000)}:R>`, inline: false },
-        { name: 'Mitgliederanzahl', value: `${guild.memberCount}`, inline: false }
-      )
-      .setFooter({ text: `ID: ${user.id}` });
+        { name: 'Mitgliederanzahl', value: `${guild.memberCount}`, inline: false },
+        { name: 'ID', value: `${user.id}`, inline: false }
+      );
     await sendLog(client, logEmbed);
   }
 };

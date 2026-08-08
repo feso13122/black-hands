@@ -7,14 +7,14 @@ module.exports = {
   async execute(channel) {
     if (!channel.guild) return;
 
-    const embed = baseEmbed()
+    const embed = baseEmbed(channel.client)
       .setColor('#ED4245')
       .setTitle('➖ Channel gelöscht')
       .addFields(
         { name: 'Name', value: `#${channel.name}`, inline: true },
-        { name: 'Typ', value: ChannelType[channel.type] || `${channel.type}`, inline: true }
-      )
-      .setFooter({ text: `ID: ${channel.id}` });
+        { name: 'Typ', value: ChannelType[channel.type] || `${channel.type}`, inline: true },
+        { name: 'ID', value: `${channel.id}`, inline: true }
+      );
 
     await sendLog(channel.client, embed);
   }

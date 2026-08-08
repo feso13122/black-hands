@@ -8,7 +8,7 @@ module.exports = {
     if (message.author?.bot) return;
     if (!message.content && message.attachments.size === 0) return;
 
-    const embed = baseEmbed()
+    const embed = baseEmbed(message.client)
       .setColor('#ED4245')
       .setTitle('🗑️ Nachricht gelöscht')
       .addFields(

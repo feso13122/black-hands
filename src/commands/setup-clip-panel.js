@@ -14,7 +14,7 @@ module.exports = {
     .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
   async execute(interaction) {
-    const embed = baseEmbed()
+    const embed = baseEmbed(interaction.client)
       .setTitle('🎬 Clip-Channel erstellen')
       .setDescription(
         'Klicke auf den Button unten, um deinen eigenen privaten Clip-Channel zu erstellen.\n\n' +

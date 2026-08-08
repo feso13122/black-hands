@@ -33,7 +33,7 @@ module.exports = {
         await command.execute(interaction);
       } catch (err) {
         console.error(err);
-        const payload = { embeds: [errorEmbed('Beim Ausführen des Befehls ist ein Fehler aufgetreten.')], ephemeral: true };
+        const payload = { embeds: [errorEmbed('Beim Ausführen des Befehls ist ein Fehler aufgetreten.', client)], ephemeral: true };
         if (interaction.replied || interaction.deferred) {
           await interaction.followUp(payload);
         } else {
@@ -52,7 +52,8 @@ module.exports = {
           if (!clipStore.isUnlocked(interaction.user.id)) {
             await interaction.reply({
               embeds: [errorEmbed(
-                `Du hast bereits einen Clip-Channel: ${existingChannel}\nEin Administrator muss dich mit \`/clip-unlock\` freischalten, bevor du einen weiteren erstellen kannst.`
+                `Du hast bereits einen Clip-Channel: ${existingChannel}\nEin Administrator muss dich mit \`/clip-unlock\` freischalten, bevor du einen weiteren erstellen kannst.`,
+                client
               )],
               ephemeral: true
             });
@@ -139,7 +140,7 @@ module.exports = {
           topic: `Privater Clip-Channel von ${interaction.user.tag}`
         });
 
-        const welcomeEmbed = baseEmbed()
+        const welcomeEmbed = baseEmbed(client)
           .setTitle('🎬 Dein Clip-Channel')
           .setDescription(`Willkommen ${interaction.user}! Dies ist dein Clip-Channel.\nDu und Administratoren können hier immer schreiben, die restlichen Berechtigungen sind mit der Kategorie synchronisiert.`);
         await newChannel.send({ embeds: [welcomeEmbed] });
@@ -148,22 +149,22 @@ module.exports = {
         clipStore.consumeUnlock(interaction.user.id);
 
         await interaction.editReply({
-          embeds: [successEmbed(`Dein Clip-Channel wurde erstellt: ${newChannel}`)]
+          embeds: [successEmbed(`Dein Clip-Channel wurde erstellt: ${newChannel}`, client)]
         });
 
-        const logEmbed = baseEmbed()
+        const logEmbed = baseEmbed(client)
           .setColor('#57F287')
           .setTitle('🎬 Clip-Channel erstellt')
           .addFields(
             { name: 'Ersteller', value: `${interaction.user} (${interaction.user.tag})`, inline: false },
-            { name: 'Channel', value: `${newChannel}`, inline: false }
-          )
-          .setFooter({ text: `ID: ${newChannel.id}` });
+            { name: 'Channel', value: `${newChannel}`, inline: false },
+            { name: 'ID', value: `${newChannel.id}`, inline: false }
+          );
         await sendLog(client, logEmbed);
       } catch (err) {
         console.error('Fehler beim Erstellen des Clip-Channels:', err);
         await interaction.editReply({
-          embeds: [errorEmbed('Der Clip-Channel konnte nicht erstellt werden. Bitte prüfe die Bot-Berechtigungen und die Konfiguration.')]
+          embeds: [errorEmbed('Der Clip-Channel konnte nicht erstellt werden. Bitte prüfe die Bot-Berechtigungen und die Konfiguration.', client)]
         });
       }
     }
