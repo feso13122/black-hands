@@ -1,3 +1,4 @@
+const { ActivityType } = require('discord.js');
 const { deployCommands } = require('../utils/deployCommands');
 
 module.exports = {
@@ -5,7 +6,15 @@ module.exports = {
   once: true,
   async execute(client) {
     console.log(`✅ Eingeloggt als ${client.user.tag}`);
-    client.user.setActivity('über den Server', { type: 3 });
+
+    client.user.setPresence({
+      activities: [{
+        name: 'EXTASY-LIFE Content System By Feso',
+        type: ActivityType.Streaming,
+        url: 'https://www.twitch.tv/the_offical_feso2'
+      }],
+      status: 'online',
+    });
 
     try {
       const commands = await deployCommands(client);
