@@ -1,6 +1,4 @@
 src/node_modules
-src/data
-.env
 .git
 .gitignore
 README.md

@@ -16,10 +16,10 @@ services:
       BOT_CLIENTID: ${BOT_CLIENTID}
       BOT_GUILDID: ${BOT_GUILDID}
     volumes:
-      # config.json vom Host in den Container mounten, damit Änderungen
-      # (Channel-/Rollen-IDs, ...) auch nach einem Rebuild erhalten bleiben
-      # und du config.json nicht neu ins Image bauen musst.
-      - ./src/config.json:/usr/src/app/config.json
       # Laufzeit-Daten (wer hat schon einen Clip-Channel, wer ist freigeschaltet)
-      # getrennt von config.json, damit sie beim Ersetzen der config.json erhalten bleiben.
+      # bleiben über Rebuilds hinweg erhalten. config.json wird bewusst NICHT
+      # gemountet (Datei-Bind-Mounts brechen auf manchen Docker-Hosts/Portainer,
+      # wenn dort mal ein Verzeichnis statt einer Datei angelegt wurde) -
+      # sie kommt stattdessen aus dem Image (Dockerfile COPY). Änderung an
+      # config.json -> committen, pushen, Stack neu bauen ("Update the stack").
       - ./src/data:/usr/src/app/data
