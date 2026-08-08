@@ -9,7 +9,12 @@ function buildAbsenceRow() {
       .setCustomId('create_absence')
       .setLabel('Abmelden')
       .setEmoji('📅')
-      .setStyle(ButtonStyle.Primary)
+      .setStyle(ButtonStyle.Primary),
+    new ButtonBuilder()
+      .setCustomId('remove_absence')
+      .setLabel('Zurückmelden')
+      .setEmoji('✅')
+      .setStyle(ButtonStyle.Secondary)
   );
 }
 

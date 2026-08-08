@@ -221,6 +221,27 @@ module.exports = {
       return;
     }
 
+    // Button: Zurückmelden -> eigene Abmeldung entfernen
+    if (interaction.isButton() && interaction.customId === 'remove_absence') {
+      const removed = absenceStore.removeAbsence(interaction.user.id);
+
+      if (!removed) {
+        await interaction.reply({
+          embeds: [errorEmbed('Du bist aktuell nicht abgemeldet.', client)],
+          ephemeral: true
+        });
+        return;
+      }
+
+      await updateAbsencePanel(client);
+
+      await interaction.reply({
+        embeds: [successEmbed('Du wurdest zurückgemeldet und aus der Abmeldungsliste entfernt.', client)],
+        ephemeral: true
+      });
+      return;
+    }
+
     // Modal-Submit: Abmeldung speichern
     if (interaction.isModalSubmit() && interaction.customId === 'absence_modal') {
       const grund = interaction.fields.getTextInputValue('grund');

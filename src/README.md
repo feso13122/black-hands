@@ -92,10 +92,11 @@ Alle drei Subcommands sind wie die Bündnis-Commands auf Administratoren, `comma
 
 ## Abmelde-System
 
-Nutze `/abmelde-panel` (nur für Administratoren oder Rollen aus `commandRoleIds`), um in `absenceChannelId` eine Nachricht zu posten: ein Embed mit der Liste aller aktuell Abgemeldeten und darunter ein Button **"Abmelden"**.
+Nutze `/abmelde-panel` (nur für Administratoren oder Rollen aus `commandRoleIds`), um in `absenceChannelId` eine Nachricht zu posten: ein Embed mit der Liste aller aktuell Abgemeldeten und darunter zwei Buttons — **"Abmelden"** und **"Zurückmelden"**.
 
-- Klickt jemand auf den Button, öffnet sich ein Modal mit **Grund**, **Datum** (`TT.MM.JJJJ`) und **Uhrzeit** (`HH:MM`), bis wann die Person abgemeldet ist.
+- Klickt jemand auf **"Abmelden"**, öffnet sich ein Modal mit **Grund**, **Datum** (`TT.MM.JJJJ`) und **Uhrzeit** (`HH:MM`), bis wann die Person abgemeldet ist.
 - Nach dem Absenden wird die Abmeldung gespeichert und die Panel-Nachricht sofort mit dem neuen Eintrag aktualisiert (bearbeitet, nicht neu gepostet — wie bei der Sanktionsliste). Meldet sich jemand erneut ab, wird der alte Eintrag ersetzt.
+- Klickt jemand auf **"Zurückmelden"**, wird die eigene Abmeldung sofort entfernt und das Panel aktualisiert — jeder kann so nur seine eigene Abmeldung vorzeitig beenden.
 - Ein Hintergrund-Check läuft jede Minute: Ist die angegebene Zeit abgelaufen, wird der Eintrag automatisch aus der Liste entfernt und das Panel aktualisiert — ganz ohne weiteren Befehl.
 
 Die Daten liegen in `data/absenceData.json`, komplett getrennt von `config.json`.

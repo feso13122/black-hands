@@ -27,6 +27,19 @@ function addAbsence(entry) {
   save(data);
 }
 
+function getByUser(userId) {
+  return load().absences.find(a => a.userId === userId) || null;
+}
+
+function removeAbsence(userId) {
+  const data = load();
+  const idx = data.absences.findIndex(a => a.userId === userId);
+  if (idx === -1) return null;
+  const [removed] = data.absences.splice(idx, 1);
+  save(data);
+  return removed;
+}
+
 // Entfernt alle abgelaufenen Abmeldungen und gibt sie zurück.
 function removeExpired() {
   const data = load();
@@ -49,4 +62,12 @@ function setListMessageId(messageId) {
   save(data);
 }
 
-module.exports = { getAll, addAbsence, removeExpired, getListMessageId, setListMessageId };
+module.exports = {
+  getAll,
+  getByUser,
+  addAbsence,
+  removeAbsence,
+  removeExpired,
+  getListMessageId,
+  setListMessageId
+};
