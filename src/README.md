@@ -8,6 +8,7 @@ Ein Discord.js-Bot mit:
 - Bündnis-Commands (`/bundnisse`, `/auflosung`) für vorgefertigte Bündnis-Ankündigungen
 - Sanktions-System (`/sanktion add`, `/sanktion bezahlt`) mit automatisch gepflegter Sanktionsliste
 - Abmelde-System mit Panel-Button, Modal (Grund/Datum/Uhrzeit) und automatischem Entfernen abgelaufener Abmeldungen
+- `/command-liste` postet eine automatisch generierte Übersicht aller Befehle
 - Zentrale `config.json` für alle Channel-/Rollen-IDs, Token separat in `.env`
 
 ## Setup
@@ -40,6 +41,7 @@ Ein Discord.js-Bot mit:
    - `sanctionListChannelId` (Channel für die laufend aktualisierte Sanktionsliste), `sanctionPaidChannelId` (Channel für Bezahlt-Bestätigungen), `sanctionAddChannelId` (Channel für Benachrichtigungen bei neuen Sanktionen)
    - `allianceSanctionRoleIds` (zusätzliche Rollen-IDs, die **nur** `/bundnisse`, `/auflosung` und `/sanktion` benutzen dürfen, unabhängig von `commandRoleIds`)
    - `absenceChannelId` (Channel für das Abmelde-Panel mit der Liste aller Abgemeldeten)
+   - `commandListChannelId` (Channel, in den `/command-liste` die Befehlsübersicht postet)
 
    Diese Datei kannst du jederzeit ersetzen/neu einspielen — das Clip-Channel-Tracking liegt bewusst getrennt in `data/clipData.json` und bleibt davon unberührt. Bei Docker/Portainer wird `config.json` **nicht** als Volume gemountet, sondern kommt aus dem Image (Dockerfile `COPY`) — nach einer Änderung also committen, pushen und den Stack neu bauen lassen.
 
@@ -101,6 +103,10 @@ Nutze `/abmelde-panel` (nur für Administratoren oder Rollen aus `commandRoleIds
 
 Die Daten liegen in `data/absenceData.json`, komplett getrennt von `config.json`.
 
+## Befehlsübersicht posten
+
+`/command-liste` (nur für Administratoren oder Rollen aus `commandRoleIds`) liest alle aktuell registrierten Commands aus `client.commands` (inklusive Subcommands wie `/sanktion add`) und postet eine automatisch generierte Übersicht nach `commandListChannelId`. Es gibt keine feste, händisch gepflegte Liste — sie ist bei jedem Ausführen des Befehls aktuell.
+
 ## Projektstruktur
 
 ```
@@ -124,7 +130,8 @@ black hands/
     │   ├── bundnisse.js        Bündnis-Ankündigung posten
     │   ├── auflosung.js        Bündnis-Auflösung posten
     │   ├── sanktion.js         /sanktion add, /sanktion bezahlt, /sanktion list
-    │   └── abmelde-panel.js    Postet/aktualisiert das Abmelde-Panel
+    │   ├── abmelde-panel.js    Postet/aktualisiert das Abmelde-Panel
+    │   └── command-liste.js    Postet eine automatische Befehlsübersicht
     ├── events/
     │   ├── ready.js
     │   ├── guildMemberAdd.js   Willkommen + Autorole + Log
