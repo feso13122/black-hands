@@ -13,5 +13,10 @@
   "commandRoleIds": ["ROLLEN_ID_1", "ROLLEN_ID_2"],
 
   "allianceChannelId": "CHANNEL_ID_FUER_BUENDNIS_NACHRICHTEN",
-  "allianceRoleId": "ROLLEN_ID_DIE_BEI_BUENDNIS_NACHRICHTEN_ERWAEHNT_WIRD"
+  "allianceRoleId": "ROLLEN_ID_DIE_BEI_BUENDNIS_NACHRICHTEN_ERWAEHNT_WIRD",
+
+  "sanctionListChannelId": "CHANNEL_ID_FUER_DIE_SANKTIONSLISTE",
+  "sanctionPaidChannelId": "CHANNEL_ID_FUER_BEZAHLTE_SANKTIONEN",
+
+  "allianceSanctionRoleIds": ["ROLLEN_ID_1", "ROLLEN_ID_2"]
 }

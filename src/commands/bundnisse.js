@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 const config = require('../config.json');
 const { baseEmbed, errorEmbed } = require('../utils/embeds');
-const { canUseAdminCommands } = require('../utils/permissions');
+const { canManageAllianceAndSanctions } = require('../utils/permissions');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -15,7 +15,7 @@ module.exports = {
     ),
 
   async execute(interaction) {
-    if (!canUseAdminCommands(interaction.member)) {
+    if (!canManageAllianceAndSanctions(interaction.member)) {
       await interaction.reply({
         embeds: [errorEmbed('Du hast keine Berechtigung, diesen Befehl zu benutzen.', interaction.client)],
         ephemeral: true

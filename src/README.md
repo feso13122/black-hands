@@ -6,6 +6,7 @@ Ein Discord.js-Bot mit:
 - Autorole-System (automatische Rolle bei Beitritt)
 - Komplettes Logging-System (Nachrichten bearbeitet/gelöscht, Mitglied beigetreten/verlassen, Bans, Channel- & Rollen-Änderungen, Clip-Channel-Erstellung/-Freischaltung)
 - Bündnis-Commands (`/bundnisse`, `/auflosung`) für vorgefertigte Bündnis-Ankündigungen
+- Sanktions-System (`/sanktion add`, `/sanktion bezahlt`) mit automatisch gepflegter Sanktionsliste
 - Zentrale `config.json` für alle Channel-/Rollen-IDs, Token separat in `.env`
 
 ## Setup
@@ -33,8 +34,10 @@ Ein Discord.js-Bot mit:
    - `welcomeChannelId`, `leaveChannelId`, `logChannelId`
    - `clipPanelChannelId` (informativ, das Panel wird per Command gepostet), `clipCategoryId` (Kategorie, in der neue Clip-Channels erstellt werden)
    - `autoRoleId`
-   - `commandRoleIds` (Liste von Rollen-IDs, die `/setup-clip-panel`, `/clip-unlock`, `/bundnisse` und `/auflosung` benutzen dürfen — Administratoren dürfen unabhängig davon immer)
+   - `commandRoleIds` (Liste von Rollen-IDs, die `/setup-clip-panel` und `/clip-unlock` benutzen dürfen — Administratoren dürfen unabhängig davon immer)
    - `allianceChannelId` (Channel, in den `/bundnisse` und `/auflosung` posten), `allianceRoleId` (Rolle, die dabei immer erwähnt wird)
+   - `sanctionListChannelId` (Channel für die laufend aktualisierte Sanktionsliste), `sanctionPaidChannelId` (Channel für Bezahlt-Bestätigungen)
+   - `allianceSanctionRoleIds` (zusätzliche Rollen-IDs, die **nur** `/bundnisse`, `/auflosung` und `/sanktion` benutzen dürfen, unabhängig von `commandRoleIds`)
 
    Diese Datei kannst du jederzeit ersetzen/neu einspielen — das Clip-Channel-Tracking liegt bewusst getrennt in `data/clipData.json` und bleibt davon unberührt. Bei Docker/Portainer wird `config.json` **nicht** als Volume gemountet, sondern kommt aus dem Image (Dockerfile `COPY`) — nach einer Änderung also committen, pushen und den Stack neu bauen lassen.
 
@@ -67,7 +70,14 @@ Wichtig: Die Sichtbarkeit für alle anderen hängt jetzt von der Kategorie ab. W
 - `/bundnisse fraktion:<Name>` postet "Ab heute sind wir im Bündnis mit der **<Name>** Fraktion." in `allianceChannelId` und erwähnt dabei `allianceRoleId`.
 - `/auflosung fraktion:<Name>` postet entsprechend die Auflösung des Bündnisses.
 
-Beide sind wie `/setup-clip-panel`/`/clip-unlock` auf Administratoren und `commandRoleIds` beschränkt. `allianceRoleId` ist aktuell dieselbe Rolle wie `autoRoleId` — jedes neue Mitglied bekommt sie automatisch, wodurch die Erwähnung effektiv den ganzen Server pingt.
+Beide sind auf Administratoren, `commandRoleIds` **und** `allianceSanctionRoleIds` beschränkt. `allianceRoleId` ist aktuell dieselbe Rolle wie `autoRoleId` — jedes neue Mitglied bekommt sie automatisch, wodurch die Erwähnung effektiv den ganzen Server pingt.
+
+## Sanktions-System
+
+- `/sanktion add nutzer:<@Nutzer> betrag:<Betrag> grund:<Grund>` speichert eine offene Sanktion für den Nutzer und postet die komplette, aktuelle Sanktionsliste als Embed in `sanctionListChannelId`. Hat der Nutzer schon eine offene Sanktion, wird sie ersetzt.
+- `/sanktion bezahlt nutzer:<@Nutzer>` entfernt die Sanktion aus der Liste, postet die aktualisierte Liste erneut in `sanctionListChannelId` und zusätzlich eine Bestätigung in `sanctionPaidChannelId`.
+
+Beide Subcommands sind wie die Bündnis-Commands auf Administratoren, `commandRoleIds` und `allianceSanctionRoleIds` beschränkt. Die Daten liegen getrennt von `config.json` in `data/sanctionsData.json` (wie beim Clip-Channel-Tracking).
 
 ## Projektstruktur
 
@@ -81,12 +91,14 @@ black hands/
     ├── deploy-commands.js      Registriert Slash-Commands manuell/vorab (optional, passiert sonst automatisch in ready.js)
     ├── config.json             Alle IDs & Einstellungen (kein Token)
     ├── data/
-    │   └── clipData.json       Wer hat einen Clip-Channel / wer ist freigeschaltet
+    │   ├── clipData.json       Wer hat einen Clip-Channel / wer ist freigeschaltet
+    │   └── sanctionsData.json  Offene Sanktionen
     ├── commands/
     │   ├── setup-clip-panel.js Postet das Clip-Channel-Panel
     │   ├── clip-unlock.js      Admin-Befehl: weiteren Clip-Channel freischalten
     │   ├── bundnisse.js        Bündnis-Ankündigung posten
-    │   └── auflosung.js        Bündnis-Auflösung posten
+    │   ├── auflosung.js        Bündnis-Auflösung posten
+    │   └── sanktion.js         /sanktion add und /sanktion bezahlt
     ├── events/
     │   ├── ready.js
     │   ├── guildMemberAdd.js   Willkommen + Autorole + Log
@@ -105,6 +117,7 @@ black hands/
         ├── embeds.js            Embed-Helper
         ├── logger.js            Sendet Log-Embeds in den Log-Channel
         ├── clipStore.js         Lesen/Schreiben von data/clipData.json
+        ├── sanctionStore.js     Lesen/Schreiben von data/sanctionsData.json
         ├── permissions.js       Rollen-/Admin-Check für geschützte Commands
         └── deployCommands.js    Registriert Slash-Commands bei Discord (von ready.js aufgerufen)
 ```

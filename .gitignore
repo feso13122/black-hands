@@ -1,4 +1,5 @@
 # Sensitive Daten
+.env
 
 # Logs
 *.log
@@ -15,6 +16,8 @@ venv/
 *.db
 *.sqlite
 database/
+src/data/clipData.json
+src/data/sanctionsData.json
 
 # IDE
 .vscode/

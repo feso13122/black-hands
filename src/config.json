@@ -13,5 +13,10 @@
   "commandRoleIds": ["1344357490711728226", "1344370713490100366"],
 
   "allianceChannelId": "1344357491844186138",
-  "allianceRoleId": "1535782072491180153"
+  "allianceRoleId": "1535782072491180153",
+
+  "sanctionListChannelId": "1344357491844186133",
+  "sanctionPaidChannelId": "1344357491844186134",
+
+  "allianceSanctionRoleIds": ["1344357490711728225", "1344357490711728224"]
 }
