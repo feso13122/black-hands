@@ -1,13 +1,20 @@
-version: "3.9"
-
 services:
   black-hands:
     build:
       context: .
     container_name: black-hands
     restart: unless-stopped
+    # required: false -> Deploy bricht nicht ab, falls keine physische .env
+    # vorhanden ist (z. B. bei Portainer-Stacks aus Git, wo .env nicht
+    # mitkommt). Dort trägst du BOT_TOKEN/BOT_CLIENTID/BOT_GUILDID stattdessen
+    # unter "Environment variables" des Stacks ein.
     env_file:
-      - .env
+      - path: .env
+        required: false
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      BOT_CLIENTID: ${BOT_CLIENTID}
+      BOT_GUILDID: ${BOT_GUILDID}
     volumes:
       # config.json vom Host in den Container mounten, damit Änderungen
       # (Channel-/Rollen-IDs, ...) auch nach einem Rebuild erhalten bleiben
