@@ -11,7 +11,7 @@ module.exports = {
     // Presence setzen
     client.user.setPresence({
         activities: [{
-            name: 'EXTASY-LIFE Content System By Feso',
+            name: 'Black Hands System By NXMZ Feso',
             type: ActivityType.Streaming,
             url: 'https://www.twitch.tv/the_offical_feso2'
         }],
