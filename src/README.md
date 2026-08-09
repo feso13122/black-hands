@@ -150,8 +150,7 @@ Alle drei sind auf Administratoren/`commandRoleIds` beschränkt. Im Hintergrund 
 
 ## Lager-System
 
-- `/lager rein item:<Name> menge:<Zahl>` legt Items ins Lager (legt das Item automatisch an, falls neu). **Jeder Nutzer** darf das, keine Rollen-Beschränkung — funktioniert aber ausschließlich in `lagerCommandChannelId`.
-- `/lager raus item:<Name> menge:<Zahl>` nimmt Items raus — schlägt fehl, wenn nicht genug Bestand da ist. Das `item`-Feld ist ein Autocomplete-Feld und schlägt nur tatsächlich vorhandene Items mit ihrem aktuellen Bestand vor. Fällt der Bestand auf 0, wird das Item aus der Liste entfernt. Ebenfalls für **jeden Nutzer**, nur in `lagerCommandChannelId`.
+- `/lager rein` und `/lager raus` öffnen ein Formular (Modal) mit einem großen Textfeld — **ein Item pro Zeile im Format `Name Menge`**, bis zu 20 Zeilen auf einmal. `/lager rein` legt Items an (legt neue Items automatisch an), `/lager raus` nimmt sie raus (schlägt pro Zeile einzeln fehl, wenn nicht genug Bestand da ist oder das Item nicht existiert — der Rest der Zeilen wird trotzdem verarbeitet). **Jeder Nutzer** darf beides, keine Rollen-Beschränkung — funktioniert aber ausschließlich in `lagerCommandChannelId`. Die Antwort listet für jede Zeile Erfolg oder Fehler einzeln auf.
 - `/lager liste` aktualisiert die Lagerliste-Nachricht, ohne den Bestand zu verändern. Läuft im **allgemeinen** `commandChannelId` (wie die meisten anderen Commands), nicht in `lagerCommandChannelId`, und bleibt auf Administratoren/`commandRoleIds`/`lagerRoleIds` beschränkt.
 
 Jede Aktion (`rein`/`raus`) aktualisiert automatisch die Lagerliste-Nachricht in `lagerListChannelId` (eine einzige Nachricht, die bearbeitet statt neu gesendet wird — wie bei der Sanktionsliste) und postet zusätzlich einen Log-Eintrag (Item, Menge, neuer Bestand, wer es ausgeführt hat) in `lagerLogChannelId`. Die Daten liegen in `data/inventoryData.json`.
@@ -316,6 +315,7 @@ black hands/
         ├── twitchScheduler.js   Prüft periodisch, ob Streamer live sind
         ├── memberEmbeds.js      Baut Willkommen/Leave-Embeds (auch für Test-Commands)
         ├── inventoryStore.js    Lesen/Schreiben von data/inventoryData.json
+        ├── lagerPanel.js        Baut/aktualisiert die Lagerliste + Lager-Logs
         ├── serverStats.js       Erstellt/aktualisiert den Mitgliederzahl-Channel
         ├── serverStatsStore.js  Lesen/Schreiben von data/serverStatsData.json
         ├── serverStatsScheduler.js Aktualisiert die Channel-Namen alle 10 Minuten
