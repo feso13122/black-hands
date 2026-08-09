@@ -6,7 +6,7 @@ const inventoryStore = require('../utils/inventoryStore');
 const { postInventoryList, postLagerLog } = require('../utils/lagerPanel');
 const lagerInfoStore = require('../utils/lagerInfoStore');
 
-const MAX_ITEMS = 20;
+const MAX_ITEMS = 12;
 
 function addItemMengeOptions(sub) {
   sub.addStringOption(o => o.setName('item1').setDescription('Name des Items').setRequired(true));
@@ -22,8 +22,8 @@ module.exports = {
   data: new SlashCommandBuilder()
     .setName('lager')
     .setDescription('Lagerbestand verwalten')
-    .addSubcommand(sub => addItemMengeOptions(sub.setName('rein').setDescription('Legt bis zu 20 Items ins Lager')))
-    .addSubcommand(sub => addItemMengeOptions(sub.setName('raus').setDescription('Nimmt bis zu 20 Items aus dem Lager')))
+    .addSubcommand(sub => addItemMengeOptions(sub.setName('rein').setDescription('Legt bis zu 12 Items ins Lager')))
+    .addSubcommand(sub => addItemMengeOptions(sub.setName('raus').setDescription('Nimmt bis zu 12 Items aus dem Lager')))
     .addSubcommand(sub =>
       sub
         .setName('liste')
@@ -82,7 +82,7 @@ module.exports = {
           {
             name: '📥 `/lager rein` — Items hinzufügen',
             value: 'Mit diesem Command legst du Items ins Lager.\n' +
-                   '**Format:** item1 + menge1, item2 + menge2, ... (bis zu 20 Items)\n' +
+                   '**Format:** item1 + menge1, item2 + menge2, ... (bis zu 12 Items)\n' +
                    '**Beispiel:** item1: "Holz", menge1: 5, item2: "Stein", menge2: 12',
             inline: false
           },
