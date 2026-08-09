@@ -16,6 +16,9 @@ Ein Discord.js-Bot mit:
 - `/serverstats` erstellt zwei Voice-Channels, die Mitgliederzahl und Rollen-Anzahl im Namen zeigen und sich automatisch aktualisieren
 - `/funk` ändert Funk-Frequenz und Passwort und pflegt eine Funkliste-Nachricht
 - `/klamotten` pflegt ein Kleidungs-Panel (Torso/Hose/Shirt/Aufkleber) über ein Auswahlmenü + Modal
+- Blacklist-System (`/blacklist add`, `/blacklist remove`) mit automatisch gepflegter Liste
+- Abstimmungs-System (`/abstimmung start`, `/abstimmung end`) mit Ja/Nein-Buttons
+- Jede Command-Ausführung wird geloggt (wer, was, wo) in `logChannelId`
 - Zentrale `config.json` für alle Channel-/Rollen-IDs, Token separat in `.env`
 
 ## Setup
@@ -56,6 +59,8 @@ Ein Discord.js-Bot mit:
    - `serverStatsRoleId` (Rolle, deren Mitgliederzahl `/serverstats` im zweiten Stats-Channel anzeigt)
    - `funkListChannelId` (Channel für die Funkliste-Nachricht mit aktuellem Funk und Passwort)
    - `klamottenListChannelId` (Channel für das Klamotten-Panel mit Torso/Hose/Shirt/Aufkleber)
+   - `blacklistListChannelId` (Channel für die laufend aktualisierte Blacklist)
+   - `abstimmungChannelId` (Channel, in den `/abstimmung start` die Abstimmungs-Nachricht postet)
 
    Diese Datei kannst du jederzeit ersetzen/neu einspielen — das Clip-Channel-Tracking liegt bewusst getrennt in `data/clipData.json` und bleibt davon unberührt. Bei Docker/Portainer wird `config.json` **nicht** als Volume gemountet, sondern kommt aus dem Image (Dockerfile `COPY`) — nach einer Änderung also committen, pushen und den Stack neu bauen lassen.
 
@@ -169,6 +174,24 @@ Beide Zahlen kommen aus **einem einzigen** `guild.members.fetch()`-Aufruf pro Ak
 
 Die Daten liegen in `data/klamottenData.json`.
 
+## Blacklist
+
+- `/blacklist add nutzer:<@Nutzer> grund:<Grund>` fügt einen Nutzer mit Grund zur Blacklist hinzu und aktualisiert die Blacklist-Nachricht in `blacklistListChannelId`.
+- `/blacklist remove nutzer:<...>` entfernt ihn wieder. Autocomplete zeigt nur Nutzer, die aktuell auf der Blacklist stehen.
+
+Beide auf Administratoren/`commandRoleIds` beschränkt, laufen im allgemeinen `commandChannelId`. Die Liste ist eine einzige Nachricht, die bearbeitet statt neu gesendet wird. Die Daten liegen in `data/blacklistData.json`.
+
+## Abstimmungen
+
+- `/abstimmung start frage:<Frage>` postet eine Abstimmung mit Ja/Nein-Buttons in `abstimmungChannelId`. Es kann immer nur eine Abstimmung gleichzeitig laufen.
+- `/abstimmung end` beendet die aktuelle Abstimmung, deaktiviert die Buttons und zeigt das Endergebnis.
+
+Klickt jemand auf Ja/Nein, wird die Stimme sofort in der Nachricht selbst aktualisiert (Klick auf die jeweils andere Option wechselt die Stimme). Beide Subcommands sind auf Administratoren/`commandRoleIds` beschränkt und laufen im allgemeinen `commandChannelId`. Die Daten liegen in `data/abstimmungData.json`.
+
+## Command-Logging
+
+Jede erfolgreich ausgeführte Slash-Command-Interaktion wird automatisch als Embed in `logChannelId` protokolliert (wer, welcher Befehl inkl. Subcommand, in welchem Channel, mit welchen Optionen) — zusätzlich zu den bereits bestehenden Event-Logs (Nachrichten, Mitglieder, Channels, Rollen, Bans). Das läuft zentral in `interactionCreate.js`, unabhängig von den feature-eigenen Logs (z. B. `sanctionAddChannelId`, `lagerLogChannelId`).
+
 ## Projektstruktur
 
 ```
@@ -189,7 +212,9 @@ black hands/
     │   ├── inventoryData.json  Lagerbestand
     │   ├── serverStatsData.json Server-Stats-Channel-IDs
     │   ├── funkData.json       Aktueller Funk und Passwort
-    │   └── klamottenData.json  Torso/Hose/Shirt/Aufkleber
+    │   ├── klamottenData.json  Torso/Hose/Shirt/Aufkleber
+    │   ├── blacklistData.json  Blacklist-Einträge
+    │   └── abstimmungData.json Aktive Abstimmung
     ├── commands/
     │   ├── setup-clip-panel.js Postet das Clip-Channel-Panel
     │   ├── clip-unlock.js      Admin-Befehl: weiteren Clip-Channel freischalten
@@ -206,7 +231,10 @@ black hands/
     │   ├── test-leave.js       [Nur Owner] Leave-Embed testen
     │   ├── lager.js            /lager rein, /lager raus, /lager liste
     │   ├── serverstats.js      Erstellt/aktualisiert die Stats-Channels
-    │   └── funk.js             Ändert Funk-Frequenz und Passwort
+    │   ├── funk.js             Ändert Funk-Frequenz und Passwort
+    │   ├── klamotten.js        Öffnet das Klamotten-Auswahlmenü
+    │   ├── blacklist.js        /blacklist add, /blacklist remove
+    │   └── abstimmung.js       /abstimmung start, /abstimmung end
     ├── events/
     │   ├── ready.js
     │   ├── guildMemberAdd.js   Willkommen + Autorole + Log
@@ -239,6 +267,11 @@ black hands/
         ├── serverStatsStore.js  Lesen/Schreiben von data/serverStatsData.json
         ├── serverStatsScheduler.js Aktualisiert die Channel-Namen alle 10 Minuten
         ├── funkStore.js         Lesen/Schreiben von data/funkData.json
+        ├── klamottenStore.js    Lesen/Schreiben von data/klamottenData.json
+        ├── klamottenPanel.js    Baut/aktualisiert das Klamotten-Panel
+        ├── blacklistStore.js    Lesen/Schreiben von data/blacklistData.json
+        ├── abstimmungStore.js   Lesen/Schreiben von data/abstimmungData.json
+        ├── abstimmungPanel.js   Baut das Abstimmungs-Embed & die Ja/Nein-Buttons
         ├── permissions.js       Rollen-/Admin-/Owner-Check für geschützte Commands
         └── deployCommands.js    Registriert Slash-Commands bei Discord (von ready.js aufgerufen)
 ```

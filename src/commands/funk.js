@@ -21,16 +21,19 @@ async function postFunkList(interaction) {
       { name: 'Passwort', value: passwort || 'Noch nicht gesetzt', inline: true }
     );
 
+  const pingRoleId = '1535782072491180153';
+  const content = `<@&${pingRoleId}>`;
+
   const existingMessageId = funkStore.getListMessageId();
   if (existingMessageId) {
     const existingMessage = await channel.messages.fetch(existingMessageId).catch(() => null);
     if (existingMessage) {
-      await existingMessage.edit({ embeds: [embed] });
+      await existingMessage.edit({ content, embeds: [embed] });
       return channel;
     }
   }
 
-  const message = await channel.send({ embeds: [embed] });
+  const message = await channel.send({ content, embeds: [embed] });
   funkStore.setListMessageId(message.id);
   return channel;
 }

@@ -14,6 +14,8 @@ const absenceStore = require('../utils/absenceStore');
 const { updateAbsencePanel } = require('../utils/absencePanel');
 const klamottenStore = require('../utils/klamottenStore');
 const { updateKlamottenPanel, CATEGORY_LABELS } = require('../utils/klamottenPanel');
+const abstimmungStore = require('../utils/abstimmungStore');
+const { buildPollEmbed, buildPollRow } = require('../utils/abstimmungPanel');
 
 function sanitizeChannelName(input) {
   return input
@@ -22,6 +24,33 @@ function sanitizeChannelName(input) {
     .replace(/\s+/g, '-')
     .replace(/[^a-z0-9-_äöüß]/g, '')
     .slice(0, 80) || 'clip';
+}
+
+// Baut "name: wert"-Paare aus den Command-Optionen, auch bei Subcommands
+// (eine Ebene tief - reicht für alle aktuellen Commands).
+function summarizeCommandOptions(interaction) {
+  const data = interaction.options.data;
+  const flatOptions = data.length === 1 && Array.isArray(data[0].options)
+    ? data[0].options
+    : data;
+  return flatOptions.map(opt => `${opt.name}: ${opt.value}`).join(', ') || '—';
+}
+
+async function logCommandExecution(interaction) {
+  const subcommand = interaction.options.getSubcommand(false);
+  const fullName = subcommand ? `${interaction.commandName} ${subcommand}` : interaction.commandName;
+
+  const embed = baseEmbed(interaction.client)
+    .setColor('#5865F2')
+    .setTitle('⚙️ Command ausgeführt')
+    .addFields(
+      { name: 'Command', value: `\`/${fullName}\``, inline: true },
+      { name: 'Nutzer', value: `${interaction.user} (${interaction.user.tag})`, inline: true },
+      { name: 'Channel', value: `${interaction.channel}`, inline: true },
+      { name: 'Optionen', value: summarizeCommandOptions(interaction).slice(0, 1024), inline: false }
+    );
+
+  await sendLog(interaction.client, embed);
 }
 
 module.exports = {
@@ -62,6 +91,11 @@ module.exports = {
 
       const command = client.commands.get(interaction.commandName);
       if (!command) return;
+
+      logCommandExecution(interaction).catch(err => {
+        console.error('Fehler beim Loggen der Command-Ausführung:', err.message);
+      });
+
       try {
         await command.execute(interaction);
       } catch (err) {
@@ -312,6 +346,34 @@ module.exports = {
       await interaction.reply({
         embeds: [successEmbed(`Du bist jetzt abgemeldet bis <t:${unix}:f>. Danach wirst du automatisch wieder aus der Liste entfernt.`, client)],
         ephemeral: true
+      });
+      return;
+    }
+
+    // Button: Abstimmung - Ja/Nein
+    if (interaction.isButton() && (interaction.customId === 'abstimmung_ja' || interaction.customId === 'abstimmung_nein')) {
+      const poll = abstimmungStore.getActive();
+
+      if (!poll || poll.messageId !== interaction.message.id) {
+        await interaction.reply({
+          embeds: [errorEmbed('Diese Abstimmung ist nicht mehr aktiv.', client)],
+          ephemeral: true
+        });
+        return;
+      }
+
+      const userId = interaction.user.id;
+      const choice = interaction.customId === 'abstimmung_ja' ? 'ja' : 'nein';
+
+      poll.ja = poll.ja.filter(id => id !== userId);
+      poll.nein = poll.nein.filter(id => id !== userId);
+      poll[choice].push(userId);
+
+      abstimmungStore.setActive(poll);
+
+      await interaction.update({
+        embeds: [buildPollEmbed(client, poll)],
+        components: [buildPollRow()]
       });
       return;
     }

@@ -40,5 +40,9 @@
 
   "funkListChannelId": "CHANNEL_ID_FUER_DIE_FUNKLISTE",
 
-  "klamottenListChannelId": "CHANNEL_ID_FUER_DIE_KLAMOTTEN_LISTE"
+  "klamottenListChannelId": "CHANNEL_ID_FUER_DIE_KLAMOTTEN_LISTE",
+
+  "blacklistListChannelId": "CHANNEL_ID_FUER_DIE_BLACKLIST",
+
+  "abstimmungChannelId": "CHANNEL_ID_FUER_ABSTIMMUNGEN"
 }
