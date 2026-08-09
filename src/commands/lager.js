@@ -92,31 +92,31 @@ module.exports = {
   },
 
   async execute(interaction) {
-    // Eigene Channel-Sperre statt der globalen commandChannelId -
-    // Lager-Commands duerfen NUR in lagerCommandChannelId benutzt werden.
-    if (
-      config.lagerCommandChannelId &&
-      !config.lagerCommandChannelId.startsWith('CHANNEL_ID') &&
-      interaction.channelId !== config.lagerCommandChannelId
-    ) {
-      await interaction.reply({
-        embeds: [errorEmbed(`Lager-Befehle können nur in <#${config.lagerCommandChannelId}> benutzt werden.`, interaction.client)],
-        ephemeral: true
-      });
-      return;
-    }
-
-    if (!canUseLager(interaction.member)) {
-      await interaction.reply({
-        embeds: [errorEmbed('Du hast keine Berechtigung, diesen Befehl zu benutzen.', interaction.client)],
-        ephemeral: true
-      });
-      return;
-    }
-
     const sub = interaction.options.getSubcommand();
 
     if (sub === 'liste') {
+      // /lager liste läuft im allgemeinen Command-Channel wie alle anderen
+      // normalen Commands, nicht im Lager-Channel.
+      if (
+        config.commandChannelId &&
+        !config.commandChannelId.startsWith('CHANNEL_ID') &&
+        interaction.channelId !== config.commandChannelId
+      ) {
+        await interaction.reply({
+          embeds: [errorEmbed(`\`/lager liste\` kann nur in <#${config.commandChannelId}> benutzt werden.`, interaction.client)],
+          ephemeral: true
+        });
+        return;
+      }
+
+      if (!canUseLager(interaction.member)) {
+        await interaction.reply({
+          embeds: [errorEmbed('Du hast keine Berechtigung, diesen Befehl zu benutzen.', interaction.client)],
+          ephemeral: true
+        });
+        return;
+      }
+
       const channel = await postInventoryList(interaction);
       if (!channel) {
         await interaction.reply({
@@ -128,6 +128,21 @@ module.exports = {
 
       await interaction.reply({
         embeds: [successEmbed(`Die Lagerliste in ${channel} wurde aktualisiert.`, interaction.client)],
+        ephemeral: true
+      });
+      return;
+    }
+
+    // /lager rein und /lager raus: eigene Channel-Sperre auf
+    // lagerCommandChannelId, aber KEINE Rollen-/Admin-Beschränkung mehr -
+    // jeder Nutzer darf sie dort benutzen.
+    if (
+      config.lagerCommandChannelId &&
+      !config.lagerCommandChannelId.startsWith('CHANNEL_ID') &&
+      interaction.channelId !== config.lagerCommandChannelId
+    ) {
+      await interaction.reply({
+        embeds: [errorEmbed(`\`/lager ${sub}\` kann nur in <#${config.lagerCommandChannelId}> benutzt werden.`, interaction.client)],
         ephemeral: true
       });
       return;
