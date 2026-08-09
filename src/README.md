@@ -4,7 +4,7 @@ Ein Discord.js-Bot mit:
 - Willkommens- & Verlassen-Nachrichten als Embed
 - Clip-Channel-Button (Modal fragt nach einem Namen, erstellt einen privaten Channel — nur der Ersteller und Administratoren können dort schreiben). Jeder Nutzer darf maximal einen Clip-Channel gleichzeitig haben, danach muss ein Administrator ihn per `/clip-unlock` für einen weiteren freischalten.
 - Autorole-System (automatische Rolle bei Beitritt)
-- Komplettes Logging-System (Nachrichten bearbeitet/gelöscht, Mitglied beigetreten/verlassen, Bans, Channel- & Rollen-Änderungen, Clip-Channel-Erstellung/-Freischaltung)
+- Umfassendes Logging-System: Nachrichten, Mitglieder, Channels, Rollen, Server, Threads, Voice, Einladungen, Emojis, Webhooks, Server-Events, Bans, Command-Ausführungen — praktisch alles, was Discord dem Bot meldet
 - Bündnis-Commands (`/bundnisse`, `/auflosung`) für vorgefertigte Bündnis-Ankündigungen
 - Sanktions-System (`/sanktion add`, `/sanktion bezahlt`) mit automatisch gepflegter Sanktionsliste
 - Abmelde-System mit Panel-Button, Modal (Grund/Datum/Uhrzeit) und automatischem Entfernen abgelaufener Abmeldungen
@@ -18,7 +18,6 @@ Ein Discord.js-Bot mit:
 - `/klamotten` pflegt ein Kleidungs-Panel (Torso/Hose/Shirt/Aufkleber) über ein Auswahlmenü + Modal
 - Blacklist-System (`/blacklist add`, `/blacklist remove`) mit automatisch gepflegter Liste
 - Abstimmungs-System (`/abstimmung start`, `/abstimmung end`) mit Ja/Nein-Buttons
-- Jede Command-Ausführung wird geloggt (wer, was, wo) in `logChannelId`
 - Zentrale `config.json` für alle Channel-/Rollen-IDs, Token separat in `.env`
 
 ## Setup
@@ -189,9 +188,25 @@ Beide auf Administratoren/`commandRoleIds` beschränkt, laufen im allgemeinen `c
 
 Klickt jemand auf Ja/Nein, wird die Stimme sofort in der Nachricht selbst aktualisiert (Klick auf die jeweils andere Option wechselt die Stimme). Beide Subcommands sind auf Administratoren/`commandRoleIds` beschränkt und laufen im allgemeinen `commandChannelId`. Die Daten liegen in `data/abstimmungData.json`.
 
-## Command-Logging
+## Logging
 
-Jede erfolgreich ausgeführte Slash-Command-Interaktion wird automatisch als Embed in `logChannelId` protokolliert (wer, welcher Befehl inkl. Subcommand, in welchem Channel, mit welchen Optionen) — zusätzlich zu den bereits bestehenden Event-Logs (Nachrichten, Mitglieder, Channels, Rollen, Bans). Das läuft zentral in `interactionCreate.js`, unabhängig von den feature-eigenen Logs (z. B. `sanctionAddChannelId`, `lagerLogChannelId`).
+Alles, was der Bot über die Discord-Gateway-Events mitbekommen kann, landet als Embed in `logChannelId` — zusätzlich zu den feature-eigenen Logs (z. B. `sanctionAddChannelId`, `lagerLogChannelId`). Abgedeckt sind:
+
+- **Command-Ausführung**: Jede erfolgreiche Slash-Command-Interaktion (wer, welcher Befehl inkl. Subcommand, in welchem Channel, mit welchen Optionen) — zentral in `interactionCreate.js`.
+- **Nachrichten**: bearbeitet, gelöscht, massenhaft gelöscht.
+- **Mitglieder**: beigetreten, verlassen, Rollen/Nickname/Timeout geändert, gebannt, entbannt.
+- **Channels**: erstellt, gelöscht, umbenannt/Thema/NSFW geändert.
+- **Rollen**: erstellt, gelöscht, Name/Farbe/Berechtigungen/Einstellungen geändert.
+- **Server**: Name/Icon/Beschreibung geändert.
+- **Threads**: erstellt, gelöscht.
+- **Voice**: beigetreten, verlassen, gewechselt, stummgeschaltet/taub geschaltet.
+- **Einladungen**: erstellt, gelöscht/abgelaufen.
+- **Emojis**: erstellt, gelöscht, umbenannt.
+- **Webhooks**: geändert (Channel).
+- **Server-Events**: erstellt, gelöscht.
+- **Clip-Channel-Erstellung**.
+
+Dafür sind zusätzliche (nicht-privilegierte) Gateway-Intents in `index.js` aktiviert: `GuildInvites`, `GuildEmojisAndStickers`, `GuildVoiceStates`, `GuildWebhooks`, `GuildScheduledEvents`.
 
 ## Projektstruktur
 
@@ -248,9 +263,24 @@ black hands/
     │   ├── guildBanRemove.js
     │   ├── channelCreate.js
     │   ├── channelDelete.js
+    │   ├── channelUpdate.js
     │   ├── roleCreate.js
     │   ├── roleDelete.js
-    │   └── guildMemberUpdate.js Log bei Rollenänderungen
+    │   ├── roleUpdate.js
+    │   ├── guildUpdate.js
+    │   ├── guildMemberUpdate.js Log bei Rollen-/Nickname-/Timeout-Änderungen
+    │   ├── messageDeleteBulk.js
+    │   ├── inviteCreate.js
+    │   ├── inviteDelete.js
+    │   ├── emojiCreate.js
+    │   ├── emojiDelete.js
+    │   ├── emojiUpdate.js
+    │   ├── voiceStateUpdate.js
+    │   ├── threadCreate.js
+    │   ├── threadDelete.js
+    │   ├── webhookUpdate.js
+    │   ├── guildScheduledEventCreate.js
+    │   └── guildScheduledEventDelete.js
     └── utils/
         ├── embeds.js            Embed-Helper
         ├── logger.js            Sendet Log-Embeds in den Log-Channel

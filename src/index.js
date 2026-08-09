@@ -14,7 +14,12 @@ const client = new Client({
     GatewayIntentBits.GuildMembers,
     GatewayIntentBits.GuildMessages,
     GatewayIntentBits.MessageContent,
-    GatewayIntentBits.GuildModeration
+    GatewayIntentBits.GuildModeration,
+    GatewayIntentBits.GuildInvites,
+    GatewayIntentBits.GuildEmojisAndStickers,
+    GatewayIntentBits.GuildVoiceStates,
+    GatewayIntentBits.GuildWebhooks,
+    GatewayIntentBits.GuildScheduledEvents
   ],
   partials: [Partials.Message, Partials.Channel, Partials.GuildMember, Partials.User]
 });
