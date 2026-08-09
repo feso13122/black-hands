@@ -26,6 +26,7 @@ src/data/funkData.json
 src/data/klamottenData.json
 src/data/blacklistData.json
 src/data/abstimmungData.json
+src/data/sanctionKatalogData.json
 
 # IDE
 .vscode/

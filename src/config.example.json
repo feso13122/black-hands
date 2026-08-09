@@ -44,5 +44,7 @@
 
   "blacklistListChannelId": "CHANNEL_ID_FUER_DIE_BLACKLIST",
 
-  "abstimmungChannelId": "CHANNEL_ID_FUER_ABSTIMMUNGEN"
+  "abstimmungChannelId": "CHANNEL_ID_FUER_ABSTIMMUNGEN",
+
+  "sanctionKatalogChannelId": "CHANNEL_ID_FUER_DEN_SANKTIONSKATALOG"
 }

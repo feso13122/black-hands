@@ -49,7 +49,7 @@ Ein Discord.js-Bot mit:
    - `autoRoleId`
    - `commandRoleIds` (Liste von Rollen-IDs, die `/setup-clip-panel` und `/clip-unlock` benutzen dürfen — Administratoren dürfen unabhängig davon immer)
    - `allianceChannelId` (Channel, in den `/bundnisse` und `/auflosung` posten), `allianceRoleId` (Rolle, die dabei immer erwähnt wird)
-   - `sanctionListChannelId` (Channel für die laufend aktualisierte Sanktionsliste), `sanctionPaidChannelId` (Channel für Bezahlt-Bestätigungen), `sanctionAddChannelId` (Channel für Benachrichtigungen bei neuen Sanktionen)
+   - `sanctionListChannelId` (Channel für die laufend aktualisierte Sanktionsliste), `sanctionPaidChannelId` (Channel für Bezahlt-Bestätigungen), `sanctionAddChannelId` (Channel für Benachrichtigungen bei neuen Sanktionen), `sanctionKatalogChannelId` (Channel für den festen Sanktionskatalog)
    - `allianceSanctionRoleIds` (zusätzliche Rollen-IDs, die **nur** `/bundnisse`, `/auflosung` und `/sanktion` benutzen dürfen, unabhängig von `commandRoleIds`)
    - `absenceChannelId` (Channel für das Abmelde-Panel mit der Liste aller Abgemeldeten)
    - `commandListChannelId` (Channel, in den `/command-liste` die Befehlsübersicht postet)
@@ -102,6 +102,7 @@ Beide sind auf Administratoren, `commandRoleIds` **und** `allianceSanctionRoleId
 - `/sanktion add nutzer:<@Nutzer> betrag:<Betrag> grund:<Grund> frist:<TT.MM.JJJJ>` speichert eine offene Sanktion für den Nutzer inklusive Zahlungsfrist, aktualisiert die Sanktionsliste-Nachricht in `sanctionListChannelId` **und** postet eine separate Benachrichtigung in `sanctionAddChannelId` (mit Feldern "Frist" und "Ausgestellt von"). Hat der Nutzer schon eine offene Sanktion, wird sie ersetzt.
 - `/sanktion bezahlt nutzer:<...>` markiert die Sanktion als bezahlt, aktualisiert die Sanktionsliste-Nachricht (die Sanktion verschwindet dort) und postet eine Bestätigung in `sanctionPaidChannelId` (mit Feld "Bestätigt von"). Das `nutzer`-Feld ist ein Autocomplete-Feld und schlägt nur Nutzer mit einer aktuell offenen, gespeicherten Sanktion vor.
 - `/sanktion list` aktualisiert die Sanktionsliste-Nachricht, ohne die Daten zu verändern.
+- `/sanktion katalog` postet/aktualisiert den festen Sanktionskatalog (Regelverstöße + Strafen, Zusatzregeln, Kurzversion) in `sanctionKatalogChannelId` — eine einzige Nachricht, die bearbeitet statt neu gesendet wird.
 
 Die Frist ist rein informativ (steht in Liste und Benachrichtigung) — es gibt **keine** automatische Entfernung, wenn sie verstreicht. Ein Eintrag verschwindet ausschließlich, wenn `/sanktion bezahlt` ausgeführt wird.
 
@@ -214,14 +215,15 @@ black hands/
     │   ├── funkData.json       Aktueller Funk und Passwort
     │   ├── klamottenData.json  Torso/Hose/Shirt/Aufkleber
     │   ├── blacklistData.json  Blacklist-Einträge
-    │   └── abstimmungData.json Aktive Abstimmung
+    │   ├── abstimmungData.json Aktive Abstimmung
+    │   └── sanctionKatalogData.json Sanktionskatalog-Message-ID
     ├── commands/
     │   ├── setup-clip-panel.js Postet das Clip-Channel-Panel
     │   ├── clip-unlock.js      Admin-Befehl: weiteren Clip-Channel freischalten
     │   ├── clip-remove.js      Admin-Befehl: Clip-Channel eines Nutzers entfernen
     │   ├── bundnisse.js        Bündnis-Ankündigung posten
     │   ├── auflosung.js        Bündnis-Auflösung posten
-    │   ├── sanktion.js         /sanktion add, /sanktion bezahlt, /sanktion list
+    │   ├── sanktion.js         /sanktion add, /sanktion bezahlt, /sanktion list, /sanktion katalog
     │   ├── abmelde-panel.js    Postet/aktualisiert das Abmelde-Panel
     │   ├── command-liste.js    Postet eine automatische Befehlsübersicht
     │   ├── addstreamer.js      Twitch-Streamer zur Überwachung hinzufügen
@@ -254,6 +256,7 @@ black hands/
         ├── logger.js            Sendet Log-Embeds in den Log-Channel
         ├── clipStore.js         Lesen/Schreiben von data/clipData.json
         ├── sanctionStore.js     Lesen/Schreiben von data/sanctionsData.json
+        ├── sanctionKatalogStore.js Lesen/Schreiben von data/sanctionKatalogData.json
         ├── allianceStore.js     Lesen/Schreiben von data/allianceData.json
         ├── absenceStore.js      Lesen/Schreiben von data/absenceData.json
         ├── absencePanel.js      Baut/aktualisiert die Abmelde-Panel-Nachricht

@@ -3,6 +3,74 @@ const config = require('../config.json');
 const { baseEmbed, errorEmbed, successEmbed } = require('../utils/embeds');
 const { canManageAllianceAndSanctions } = require('../utils/permissions');
 const sanctionStore = require('../utils/sanctionStore');
+const sanctionKatalogStore = require('../utils/sanctionKatalogStore');
+
+const KATALOG_LISTE = [
+  'Unabgemeldet bei der Aufstellung fehlen = **50.000$ – 100.000$**',
+  'Unabgemeldet zu spät zur Aufstellung kommen = **25.000$ – 50.000$**',
+  'Ohne Grund die Aufstellung verlassen = **75.000$ – 100.000$**',
+  'Nicht auf Anweisungen während der Aufstellung hören = **100.000$**',
+  'Ohne Erlaubnis das Wort ergreifen = **100.000$**',
+  'Unnötiges Reinrufen oder Stören im Voice = **100.000$**',
+  'Reifen platt schießen = **100.000$**',
+  'Dazwischenreden, während der Höchstrangige spricht = **150.000$**',
+  'Respektloses Verhalten gegenüber Ranghöheren = **150.000$**',
+  'Beleidigungen gegen Mitglieder = **200.000$ – 500.000$** oder **Bloodout**',
+  'Befehle von Ranghöheren ignorieren = **250.000$**',
+  'Unnötiges Boxen = **250.000$**',
+  'Provokation ohne RP-Hintergrund = **250.000$**',
+  'Unnötig schlechtes RP = **250.000$**',
+  'Wiederholtes Stören nach Warnung = **300.000$**',
+  'Massives Stören von Frak-Terminen oder Meetings = **300.000$**',
+  'Fraktionsschädigendes Verhalten = **400.000$** oder **Bloodout**',
+  'Absichtliches Sabotieren der Fraktion = **500.000$** oder **Bloodout**',
+  'Trolling = **500.000$** oder **Bloodout**',
+  'Schwere Respektlosigkeit gegenüber der Leitung = **Bloodout**',
+  'Verrat an der Fraktion / Weitergeben interner Infos = **Bloodout**',
+  'Absichtliches Zerstören von RP-Situationen = **Bloodout**'
+];
+
+async function postSanctionKatalog(interaction) {
+  if (!config.sanctionKatalogChannelId || config.sanctionKatalogChannelId.startsWith('CHANNEL_ID')) {
+    return null;
+  }
+
+  const channel = await interaction.guild.channels.fetch(config.sanctionKatalogChannelId).catch(() => null);
+  if (!channel || !channel.isTextBased()) return null;
+
+  const embed = baseEmbed(interaction.client)
+    .setColor('#ED4245')
+    .setTitle('🚫 Sanktionsliste')
+    .setDescription(KATALOG_LISTE.map(line => `• ${line}`).join('\n\n'))
+    .addFields(
+      {
+        name: '⚠️ Zusatzregeln',
+        value: [
+          '• Bei **wiederholten Vergehen** wird die Strafe **verdoppelt**.',
+          '• Bei **mehrfacher Verfehlung trotz Warnung** kann zusätzlich **Bloodout** ausgesprochen werden.',
+          '• Die **Leaderschaft** entscheidet je nach **Schwere des Verstoßes** über die endgültige Strafe.'
+        ].join('\n')
+      },
+      {
+        name: '⚡ Kurzversion',
+        value: '**Regelverstoß = Geldstrafe**, bei **schweren oder wiederholten Vergehen Bloodout**.\n\n' +
+          '**Unabgemeldet bei Aufstellung fehlen: 50k–100k. Wiederholung = doppelte Strafe.**'
+      }
+    );
+
+  const existingMessageId = sanctionKatalogStore.getMessageId();
+  if (existingMessageId) {
+    const existingMessage = await channel.messages.fetch(existingMessageId).catch(() => null);
+    if (existingMessage) {
+      await existingMessage.edit({ embeds: [embed] });
+      return channel;
+    }
+  }
+
+  const message = await channel.send({ embeds: [embed] });
+  sanctionKatalogStore.setMessageId(message.id);
+  return channel;
+}
 
 async function postSanctionList(interaction) {
   if (!config.sanctionListChannelId || config.sanctionListChannelId.startsWith('CHANNEL_ID')) {
@@ -75,6 +143,11 @@ module.exports = {
       sub
         .setName('list')
         .setDescription('Aktualisiert die Sanktionsliste-Nachricht')
+    )
+    .addSubcommand(sub =>
+      sub
+        .setName('katalog')
+        .setDescription('Postet/aktualisiert den Sanktionskatalog')
     ),
 
   async autocomplete(interaction) {
@@ -185,6 +258,23 @@ module.exports = {
 
       await interaction.reply({
         embeds: [successEmbed(`Die Sanktionsliste in ${channel} wurde aktualisiert.`, interaction.client)],
+        ephemeral: true
+      });
+      return;
+    }
+
+    if (sub === 'katalog') {
+      const channel = await postSanctionKatalog(interaction);
+      if (!channel) {
+        await interaction.reply({
+          embeds: [errorEmbed('Der Sanktionskatalog-Channel (`sanctionKatalogChannelId`) wurde nicht gefunden.', interaction.client)],
+          ephemeral: true
+        });
+        return;
+      }
+
+      await interaction.reply({
+        embeds: [successEmbed(`Der Sanktionskatalog in ${channel} wurde aktualisiert.`, interaction.client)],
         ephemeral: true
       });
       return;
