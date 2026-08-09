@@ -10,19 +10,6 @@ function buildRoleCountName(count) {
   return `Black Hand: ${count}`;
 }
 
-// Zählt nur echte Mitglieder, keine Bots. guild.members.fetch() holt dafür
-// den kompletten, aktuellen Member-Cache (nötig, da nicht alle Member
-// zwangsläufig schon gecacht sind).
-async function countHumanMembers(guild) {
-  const members = await guild.members.fetch();
-  return members.filter(m => !m.user.bot).size;
-}
-
-async function countRoleMembers(guild, roleId) {
-  const members = await guild.members.fetch();
-  return members.filter(m => m.roles.cache.has(roleId)).size;
-}
-
 async function createStatsChannel(guild, name) {
   return guild.channels.create({
     name,
@@ -40,66 +27,52 @@ async function createStatsChannel(guild, name) {
 // Legt den Channel an, falls er noch nicht existiert, sonst wird nur sein
 // Name aktualisiert. So kann dieselbe Funktion für /serverstats (Erstellen)
 // und den Scheduler (Aktualisieren) verwendet werden.
-async function ensureMemberCountChannel(guild) {
-  const count = await countHumanMembers(guild);
-  const name = buildMemberCountName(count);
-
-  const existingId = serverStatsStore.getMemberCountChannelId();
+async function ensureChannel(guild, getId, setId, name, errorLabel) {
+  const existingId = getId();
   const existing = existingId ? await guild.channels.fetch(existingId).catch(() => null) : null;
 
   if (existing) {
     if (existing.name !== name) {
       await existing.setName(name).catch(err => {
-        console.error('Fehler beim Aktualisieren des Mitglieder-Stats-Channels:', err.message);
+        console.error(`Fehler beim Aktualisieren des ${errorLabel}:`, err.message);
       });
     }
     return { channel: existing, created: false };
   }
 
   const channel = await createStatsChannel(guild, name);
-  serverStatsStore.setMemberCountChannelId(channel.id);
+  setId(channel.id);
   return { channel, created: true };
 }
 
-// Gibt null zurück, wenn keine serverStatsRoleId konfiguriert ist.
-async function ensureRoleCountChannel(guild) {
-  if (!config.serverStatsRoleId || config.serverStatsRoleId.startsWith('ROLLEN_ID')) {
-    return null;
+// Holt den kompletten Member-Cache NUR EINMAL (Discord limitiert volle
+// Member-Requests scharf - ein zweiter Request kurz danach führt zu
+// GatewayRateLimitError) und aktualisiert/erstellt daraus beide Channels.
+async function ensureStatsChannels(guild) {
+  const members = await guild.members.fetch();
+  const humanMembers = members.filter(m => !m.user.bot);
+
+  const memberResult = await ensureChannel(
+    guild,
+    serverStatsStore.getMemberCountChannelId,
+    serverStatsStore.setMemberCountChannelId,
+    buildMemberCountName(humanMembers.size),
+    'Mitglieder-Stats-Channels'
+  );
+
+  let roleResult = null;
+  if (config.serverStatsRoleId && !config.serverStatsRoleId.startsWith('ROLLEN_ID')) {
+    const roleCount = humanMembers.filter(m => m.roles.cache.has(config.serverStatsRoleId)).size;
+    roleResult = await ensureChannel(
+      guild,
+      serverStatsStore.getRoleCountChannelId,
+      serverStatsStore.setRoleCountChannelId,
+      buildRoleCountName(roleCount),
+      'Rollen-Stats-Channels'
+    );
   }
 
-  const count = await countRoleMembers(guild, config.serverStatsRoleId);
-  const name = buildRoleCountName(count);
-
-  const existingId = serverStatsStore.getRoleCountChannelId();
-  const existing = existingId ? await guild.channels.fetch(existingId).catch(() => null) : null;
-
-  if (existing) {
-    if (existing.name !== name) {
-      await existing.setName(name).catch(err => {
-        console.error('Fehler beim Aktualisieren des Rollen-Stats-Channels:', err.message);
-      });
-    }
-    return { channel: existing, created: false };
-  }
-
-  const channel = await createStatsChannel(guild, name);
-  serverStatsStore.setRoleCountChannelId(channel.id);
-  return { channel, created: true };
+  return { memberResult, roleResult };
 }
 
-async function updateServerStatsChannels(guild) {
-  await ensureMemberCountChannel(guild).catch(err => {
-    console.error('Fehler beim Mitglieder-Stats-Update:', err.message);
-  });
-  await ensureRoleCountChannel(guild).catch(err => {
-    console.error('Fehler beim Rollen-Stats-Update:', err.message);
-  });
-}
-
-module.exports = {
-  ensureMemberCountChannel,
-  ensureRoleCountChannel,
-  updateServerStatsChannels,
-  countHumanMembers,
-  countRoleMembers
-};
+module.exports = { ensureStatsChannels };

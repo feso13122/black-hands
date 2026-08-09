@@ -36,5 +36,7 @@
   "lagerLogChannelId": "1535803065800724640",
   "lagerRoleIds": ["1535782072491180153"],
 
-  "serverStatsRoleId": "1535782072491180153"
+  "serverStatsRoleId": "1535782072491180153",
+
+  "funkListChannelId": "1344357491638534245"
 }

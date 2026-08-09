@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { errorEmbed, successEmbed } = require('../utils/embeds');
 const { canUseAdminCommands } = require('../utils/permissions');
-const { ensureMemberCountChannel, ensureRoleCountChannel } = require('../utils/serverStats');
+const { ensureStatsChannels } = require('../utils/serverStats');
 
 module.exports = {
   data: new SlashCommandBuilder()
@@ -19,11 +19,10 @@ module.exports = {
 
     await interaction.deferReply({ ephemeral: true });
 
-    const { channel: memberChannel, created: memberCreated } = await ensureMemberCountChannel(interaction.guild);
-    const roleResult = await ensureRoleCountChannel(interaction.guild);
+    const { memberResult, roleResult } = await ensureStatsChannels(interaction.guild);
 
     const lines = [
-      `${memberCreated ? '✅ Erstellt' : '🔄 Aktualisiert'}: ${memberChannel} (Mitgliederzahl ohne Bots)`
+      `${memberResult.created ? '✅ Erstellt' : '🔄 Aktualisiert'}: ${memberResult.channel} (Mitgliederzahl ohne Bots)`
     ];
 
     if (roleResult) {

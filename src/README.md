@@ -13,7 +13,8 @@ Ein Discord.js-Bot mit:
 - Twitch-Live-Benachrichtigungen (`/addstreamer`, `/removestreamer`, `/streamers`) mit automatischem Live-Check
 - `/test-willkommen` und `/test-leave` zum Testen der Willkommens-/Leave-Embeds, nur für den Bot-Owner
 - Lager-System (`/lager rein`, `/lager raus`, `/lager liste`) mit eigener Channel-Sperre, Rollen-Berechtigung und Log-Channel
-- `/serverstats` erstellt einen Voice-Channel, der die Mitgliederzahl (ohne Bots) im Namen zeigt und sich automatisch aktualisiert
+- `/serverstats` erstellt zwei Voice-Channels, die Mitgliederzahl und Rollen-Anzahl im Namen zeigen und sich automatisch aktualisieren
+- `/funk` ändert Funk-Frequenz und Passwort und pflegt eine Funkliste-Nachricht
 - Zentrale `config.json` für alle Channel-/Rollen-IDs, Token separat in `.env`
 
 ## Setup
@@ -52,6 +53,7 @@ Ein Discord.js-Bot mit:
    - `twitchNotificationChannelId` (Channel für Live-Benachrichtigungen), `twitchPingRoleId` (Rolle, die dabei erwähnt wird), `twitchCheckIntervalMs` (wie oft geprüft wird, Standard 60000 = 1 Minute)
    - `lagerCommandChannelId` (einziger Channel, in dem `/lager rein`/`/lager raus` benutzt werden dürfen — für alle Nutzer offen), `lagerListChannelId` (Channel für die laufend aktualisierte Lagerliste), `lagerLogChannelId` (Channel für Rein/Raus-Logs), `lagerRoleIds` (zusätzliche Rollen-IDs, die `/lager liste` benutzen dürfen, unabhängig von `commandRoleIds`)
    - `serverStatsRoleId` (Rolle, deren Mitgliederzahl `/serverstats` im zweiten Stats-Channel anzeigt)
+   - `funkListChannelId` (Channel für die Funkliste-Nachricht mit aktuellem Funk und Passwort)
 
    Diese Datei kannst du jederzeit ersetzen/neu einspielen — das Clip-Channel-Tracking liegt bewusst getrennt in `data/clipData.json` und bleibt davon unberührt. Bei Docker/Portainer wird `config.json` **nicht** als Volume gemountet, sondern kommt aus dem Image (Dockerfile `COPY`) — nach einer Änderung also committen, pushen und den Stack neu bauen lassen.
 
@@ -150,6 +152,12 @@ Jede Aktion (`rein`/`raus`) aktualisiert automatisch die Lagerliste-Nachricht in
 - `👥 Mitglieder: <Zahl>` — alle Mitglieder **ohne Bots**.
 - `Black Hand: <Zahl>` — nur Mitglieder mit der Rolle aus `serverStatsRoleId`. Ist `serverStatsRoleId` nicht gesetzt, wird dieser Channel übersprungen.
 
+Beide Zahlen kommen aus **einem einzigen** `guild.members.fetch()`-Aufruf pro Aktualisierung — Discord limitiert volle Member-Abfragen scharf, zwei Aufrufe kurz hintereinander lösen sonst einen `GatewayRateLimitError` aus.
+
+## Funkliste
+
+`/funk funk:<Wert> passwort:<Wert>` (nur für Administratoren/`commandRoleIds`) speichert die aktuelle Funk-Frequenz und das Passwort und aktualisiert eine Funkliste-Nachricht in `funkListChannelId` (eine einzige Nachricht, die bearbeitet statt neu gesendet wird). Läuft wie die meisten anderen Commands nur im allgemeinen `commandChannelId`. Die Daten liegen in `data/funkData.json`.
+
 Laufen die Channels bereits, aktualisiert der Befehl sie sofort einmalig. Danach halten sich beide Namen automatisch alle 10 Minuten aktuell (`serverStatsScheduler.js`) — häufiger geht wegen Discords Rate-Limit für Channel-Umbenennungen nicht sinnvoll. Die Channel-IDs werden in `data/serverStatsData.json` gemerkt, komplett getrennt von `config.json`.
 
 ## Projektstruktur
@@ -170,7 +178,8 @@ black hands/
     │   ├── absenceData.json    Aktuelle Abmeldungen
     │   ├── twitchStreamers.json Überwachte Twitch-Streamer
     │   ├── inventoryData.json  Lagerbestand
-    │   └── serverStatsData.json Server-Stats-Channel-ID
+    │   ├── serverStatsData.json Server-Stats-Channel-IDs
+    │   └── funkData.json       Aktueller Funk und Passwort
     ├── commands/
     │   ├── setup-clip-panel.js Postet das Clip-Channel-Panel
     │   ├── clip-unlock.js      Admin-Befehl: weiteren Clip-Channel freischalten
@@ -185,8 +194,9 @@ black hands/
     │   ├── streamers.js        Überwachte Twitch-Streamer anzeigen
     │   ├── test-willkommen.js  [Nur Owner] Willkommens-Embed testen
     │   ├── test-leave.js       [Nur Owner] Leave-Embed testen
-    │   ├── lager.js            /lager rein, /lager raus
-    │   └── serverstats.js      Erstellt/aktualisiert den Mitgliederzahl-Channel
+    │   ├── lager.js            /lager rein, /lager raus, /lager liste
+    │   ├── serverstats.js      Erstellt/aktualisiert die Stats-Channels
+    │   └── funk.js             Ändert Funk-Frequenz und Passwort
     ├── events/
     │   ├── ready.js
     │   ├── guildMemberAdd.js   Willkommen + Autorole + Log
@@ -217,7 +227,8 @@ black hands/
         ├── inventoryStore.js    Lesen/Schreiben von data/inventoryData.json
         ├── serverStats.js       Erstellt/aktualisiert den Mitgliederzahl-Channel
         ├── serverStatsStore.js  Lesen/Schreiben von data/serverStatsData.json
-        ├── serverStatsScheduler.js Aktualisiert den Channel-Namen alle 10 Minuten
+        ├── serverStatsScheduler.js Aktualisiert die Channel-Namen alle 10 Minuten
+        ├── funkStore.js         Lesen/Schreiben von data/funkData.json
         ├── permissions.js       Rollen-/Admin-/Owner-Check für geschützte Commands
         └── deployCommands.js    Registriert Slash-Commands bei Discord (von ready.js aufgerufen)
 ```
