@@ -6,24 +6,65 @@ const inventoryStore = require('../utils/inventoryStore');
 const { postInventoryList, postLagerLog } = require('../utils/lagerPanel');
 const lagerInfoStore = require('../utils/lagerInfoStore');
 
-const MAX_ITEMS = 12;
+function parseItemList(raw) {
+  const entries = [];
+  const errors = [];
 
-function addItemMengeOptions(sub) {
-  sub.addStringOption(o => o.setName('item1').setDescription('Name des Items').setRequired(true));
-  sub.addIntegerOption(o => o.setName('menge1').setDescription('Menge').setRequired(true).setMinValue(1));
-  for (let i = 2; i <= MAX_ITEMS; i++) {
-    sub.addStringOption(o => o.setName(`item${i}`).setDescription('Name des Items').setRequired(false));
-    sub.addIntegerOption(o => o.setName(`menge${i}`).setDescription('Menge').setRequired(false).setMinValue(1));
+  const parts = raw.split(',').map(p => p.trim()).filter(p => p.length > 0);
+
+  for (const part of parts) {
+    const idx = part.lastIndexOf(':');
+    if (idx === -1) {
+      errors.push(`❌ Ungültiges Format: \`${part}\` (erwartet: Item:Menge)`);
+      continue;
+    }
+
+    const name = part.slice(0, idx).trim();
+    const mengeStr = part.slice(idx + 1).trim();
+    const menge = parseInt(mengeStr, 10);
+
+    if (!name) {
+      errors.push(`❌ Kein Item-Name angegeben in: \`${part}\``);
+      continue;
+    }
+
+    if (!Number.isInteger(menge) || menge < 1 || String(menge) !== mengeStr) {
+      errors.push(`❌ Ungültige Menge bei **${name}**: \`${mengeStr}\` (muss eine ganze Zahl ≥ 1 sein)`);
+      continue;
+    }
+
+    entries.push({ item: name, menge });
   }
-  return sub;
+
+  return { entries, errors };
 }
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('lager')
     .setDescription('Lagerbestand verwalten')
-    .addSubcommand(sub => addItemMengeOptions(sub.setName('rein').setDescription('Legt bis zu 12 Items ins Lager')))
-    .addSubcommand(sub => addItemMengeOptions(sub.setName('raus').setDescription('Nimmt bis zu 12 Items aus dem Lager')))
+    .addSubcommand(sub =>
+      sub
+        .setName('rein')
+        .setDescription('Legt Items ins Lager')
+        .addStringOption(o =>
+          o
+            .setName('items')
+            .setDescription('Format: Item:Menge, Item:Menge, ... (z.B. Holz:5, Stein:12, Eisen:3)')
+            .setRequired(true)
+        )
+    )
+    .addSubcommand(sub =>
+      sub
+        .setName('raus')
+        .setDescription('Nimmt Items aus dem Lager')
+        .addStringOption(o =>
+          o
+            .setName('items')
+            .setDescription('Format: Item:Menge, Item:Menge, ... (z.B. Holz:5, Stein:12)')
+            .setRequired(true)
+        )
+    )
     .addSubcommand(sub =>
       sub
         .setName('liste')
@@ -82,8 +123,8 @@ module.exports = {
           {
             name: '📥 `/lager rein` — Items hinzufügen',
             value: 'Mit diesem Command legst du Items ins Lager.\n' +
-                   '**Format:** item1 + menge1, item2 + menge2, ... (bis zu 12 Items)\n' +
-                   '**Beispiel:** item1: "Holz", menge1: 5, item2: "Stein", menge2: 12',
+                   '**Format:** Item:Menge, Item:Menge, ...\n' +
+                   '**Beispiel:** Drogen Handys:20, Tabletts:19, Notizbuch:1, Patronen:20, Pistole:1',
             inline: false
           },
           {
@@ -183,20 +224,12 @@ module.exports = {
       return;
     }
 
+    const raw = interaction.options.getString('items');
+    const { entries, errors } = parseItemList(raw);
+
     const results = [];
-    const errors = [];
 
-    for (let i = 1; i <= MAX_ITEMS; i++) {
-      const item = interaction.options.getString(`item${i}`);
-      const menge = interaction.options.getInteger(`menge${i}`);
-
-      if (!item && !menge) continue;
-
-      if (!item || !menge) {
-        errors.push(`❌ Feld ${i}: sowohl \`item${i}\` als auch \`menge${i}\` müssen gesetzt sein`);
-        continue;
-      }
-
+    for (const { item, menge } of entries) {
       const name = item.trim();
 
       if (sub === 'rein') {
