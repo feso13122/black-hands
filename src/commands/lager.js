@@ -121,21 +121,21 @@ module.exports = {
             inline: false
           },
           {
-            name: '📥 `/lager rein` — Items hinzufügen',
+            name: "📥 '/lager rein' — Items hinzufügen",
             value: 'Mit diesem Command legst du Items ins Lager.\n' +
                    '**Format:** Item:Menge, Item:Menge, ...\n' +
                    '**Beispiel:** Drogen Handys:20, Tabletts:19, Notizbuch:1, Patronen:20, Pistole:1',
             inline: false
           },
           {
-            name: '📤 `/lager raus` — Items entnehmen',
+            name: "📤 '/lager raus' — Items entnehmen",
             value: 'Mit diesem Command nimmst du Items aus dem Lager.\n' +
                    '**Format:** Wie bei `/lager rein`\n' +
                    '**Hinweis:** Wenn nicht genug vorhanden ist, wird eine Fehlermeldung angezeigt.',
             inline: false
           },
           {
-            name: '📋 `/lager liste` — Lagerliste anzeigen',
+            name: "📋 '/lager liste' — Lagerliste anzeigen",
             value: 'Aktualisiert die zentrale Nachricht mit dem aktuellen Bestand.',
             inline: false
           },
