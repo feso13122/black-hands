@@ -4,6 +4,15 @@ const { baseEmbed, errorEmbed, successEmbed } = require('../utils/embeds');
 const { canUseAdminCommands } = require('../utils/permissions');
 const blacklistStore = require('../utils/blacklistStore');
 
+function formatEntry(e) {
+  const parts = [];
+  if (e.userId) parts.push(`<@${e.userId}>`);
+  if (e.faction) parts.push(`**${e.faction}**`);
+  parts.push(e.reason);
+  parts.push(`hinzugefügt von <@${e.addedBy}>`);
+  return `• ${parts.join(' — ')}`;
+}
+
 async function postBlacklist(interaction) {
   if (!config.blacklistListChannelId || config.blacklistListChannelId.startsWith('CHANNEL_ID')) {
     return null;
@@ -19,7 +28,7 @@ async function postBlacklist(interaction) {
     .setDescription(
       entries.length === 0
         ? 'Die Blacklist ist aktuell leer.'
-        : entries.map(e => `<@${e.userId}> — **${e.faction}** — ${e.reason}`).join('\n')
+        : entries.map(formatEntry).join('\n')
     );
 
   const existingMessageId = blacklistStore.getListMessageId();
@@ -43,19 +52,24 @@ module.exports = {
     .addSubcommand(sub =>
       sub
         .setName('add')
-        .setDescription('Fügt einen Nutzer zur Blacklist hinzu')
-        .addUserOption(o => o.setName('nutzer').setDescription('Betroffener Nutzer').setRequired(true))
-        .addStringOption(o => o.setName('fraktion').setDescription('Fraktion').setRequired(true))
+        .setDescription('Fügt einen Nutzer und/oder eine Fraktion zur Blacklist hinzu')
         .addStringOption(o => o.setName('grund').setDescription('Grund').setRequired(true))
+        .addUserOption(o => o.setName('nutzer').setDescription('Betroffener Nutzer (optional)').setRequired(false))
+        .addStringOption(o =>
+          o
+            .setName('fraktion')
+            .setDescription('Fraktion (optional - kann auch ohne Nutzer geblacklistet werden)')
+            .setRequired(false)
+        )
     )
     .addSubcommand(sub =>
       sub
         .setName('remove')
-        .setDescription('Entfernt einen Nutzer von der Blacklist')
+        .setDescription('Entfernt einen Eintrag von der Blacklist')
         .addStringOption(o =>
           o
-            .setName('nutzer')
-            .setDescription('Nutzer, der auf der Blacklist steht')
+            .setName('eintrag')
+            .setDescription('Nutzer oder Fraktion, die auf der Blacklist steht')
             .setRequired(true)
             .setAutocomplete(true)
         )
@@ -64,14 +78,22 @@ module.exports = {
   async autocomplete(interaction) {
     const focused = interaction.options.getFocused().toLowerCase();
     const choices = [];
+
     for (const entry of blacklistStore.getAll()) {
-      const user = await interaction.client.users.fetch(entry.userId).catch(() => null);
-      const tag = user ? user.tag : `Unbekannt (${entry.userId})`;
-      const label = `${tag} — ${entry.faction} — ${entry.reason}`;
-      if (label.toLowerCase().includes(focused) || entry.userId.includes(focused)) {
-        choices.push({ name: label.slice(0, 100), value: entry.userId });
+      let label;
+      if (entry.userId) {
+        const user = await interaction.client.users.fetch(entry.userId).catch(() => null);
+        const tag = user ? user.tag : `Unbekannt (${entry.userId})`;
+        label = entry.faction ? `${tag} — ${entry.faction} — ${entry.reason}` : `${tag} — ${entry.reason}`;
+      } else {
+        label = `${entry.faction} — ${entry.reason}`;
+      }
+
+      if (label.toLowerCase().includes(focused)) {
+        choices.push({ name: label.slice(0, 100), value: entry.key });
       }
     }
+
     await interaction.respond(choices.slice(0, 25));
   },
 
@@ -91,10 +113,18 @@ module.exports = {
       const fraktion = interaction.options.getString('fraktion');
       const grund = interaction.options.getString('grund');
 
+      if (!user && !fraktion) {
+        await interaction.reply({
+          embeds: [errorEmbed('Gib mindestens einen Nutzer oder eine Fraktion an.', interaction.client)],
+          ephemeral: true
+        });
+        return;
+      }
+
       blacklistStore.addEntry({
-        userId: user.id,
-        tag: user.tag,
-        faction: fraktion,
+        userId: user ? user.id : null,
+        tag: user ? user.tag : null,
+        faction: fraktion || null,
         reason: grund,
         addedBy: interaction.user.id,
         addedAt: Date.now()
@@ -103,39 +133,41 @@ module.exports = {
       const channel = await postBlacklist(interaction);
       if (!channel) {
         await interaction.reply({
-          embeds: [errorEmbed('Nutzer gespeichert, aber der Blacklist-Channel (`blacklistListChannelId`) wurde nicht gefunden.', interaction.client)],
+          embeds: [errorEmbed('Eintrag gespeichert, aber der Blacklist-Channel (`blacklistListChannelId`) wurde nicht gefunden.', interaction.client)],
           ephemeral: true
         });
         return;
       }
 
+      const target = user ? `${user}${fraktion ? ` (${fraktion})` : ''}` : `**${fraktion}**`;
       await interaction.reply({
-        embeds: [successEmbed(`${user} wurde mit Fraktion **${fraktion}** zur Blacklist hinzugefügt.`, interaction.client)],
+        embeds: [successEmbed(`${target} wurde zur Blacklist hinzugefügt.`, interaction.client)],
         ephemeral: true
       });
       return;
     }
 
     if (sub === 'remove') {
-      const userId = interaction.options.getString('nutzer');
-      const removed = blacklistStore.removeEntry(userId);
+      const key = interaction.options.getString('eintrag');
+      const removed = blacklistStore.removeEntry(key);
 
       if (!removed) {
         await interaction.reply({
-          embeds: [errorEmbed('Dieser Nutzer steht nicht auf der Blacklist.', interaction.client)],
+          embeds: [errorEmbed('Dieser Eintrag steht nicht auf der Blacklist.', interaction.client)],
           ephemeral: true
         });
         return;
       }
 
-      const user = await interaction.client.users.fetch(userId).catch(() => null);
       await postBlacklist(interaction);
 
+      const target = removed.userId ? `<@${removed.userId}>` : `**${removed.faction}**`;
+      const details = [removed.faction && removed.userId ? removed.faction : null, removed.reason]
+        .filter(Boolean)
+        .join(' — ');
+
       await interaction.reply({
-        embeds: [successEmbed(
-          `${user ? user : `<@${userId}>`} wurde von der Blacklist entfernt (war: **${removed.faction}** — ${removed.reason}).`,
-          interaction.client
-        )],
+        embeds: [successEmbed(`${target} wurde von der Blacklist entfernt (war: ${details}).`, interaction.client)],
         ephemeral: true
       });
     }
