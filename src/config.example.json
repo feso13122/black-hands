@@ -46,5 +46,9 @@
 
   "abstimmungChannelId": "CHANNEL_ID_FUER_ABSTIMMUNGEN",
 
-  "sanctionKatalogChannelId": "CHANNEL_ID_FUER_DEN_SANKTIONSKATALOG"
+  "sanctionKatalogChannelId": "CHANNEL_ID_FUER_DEN_SANKTIONSKATALOG",
+
+  "autofarbeListChannelId": "CHANNEL_ID_FUER_DIE_AUTOFARBE_LISTE",
+
+  "aufstellungChannelId": "CHANNEL_ID_FUER_AUFSTELLUNGS_ANKUENDIGUNGEN"
 }

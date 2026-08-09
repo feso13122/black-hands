@@ -16,6 +16,8 @@ const klamottenStore = require('../utils/klamottenStore');
 const { updateKlamottenPanel, CATEGORY_LABELS } = require('../utils/klamottenPanel');
 const abstimmungStore = require('../utils/abstimmungStore');
 const { buildPollEmbed, buildPollRow } = require('../utils/abstimmungPanel');
+const autofarbeStore = require('../utils/autofarbeStore');
+const { updateAutofarbePanel, CATEGORY_LABELS: AUTOFARBE_CATEGORY_LABELS } = require('../utils/autofarbePanel');
 
 function sanitizeChannelName(input) {
   return input
@@ -413,6 +415,48 @@ module.exports = {
           channel
             ? `**${label}** wurde auf **${wert}** gesetzt. Panel in ${channel} aktualisiert.`
             : `**${label}** wurde auf **${wert}** gesetzt, aber der Klamotten-Channel (\`klamottenListChannelId\`) wurde nicht gefunden.`,
+          client
+        )],
+        ephemeral: true
+      });
+      return;
+    }
+
+    // Select-Menu: Autofarbe-Kategorie wählen -> Modal öffnen
+    if (interaction.isStringSelectMenu() && interaction.customId === 'autofarbe_select') {
+      const category = interaction.values[0];
+      const label = AUTOFARBE_CATEGORY_LABELS[category] || category;
+
+      const modal = new ModalBuilder()
+        .setCustomId(`autofarbe_modal_${category}`)
+        .setTitle(`${label} aktualisieren`);
+
+      const valueInput = new TextInputBuilder()
+        .setCustomId('wert')
+        .setLabel(`Neuer Wert für ${label}`)
+        .setStyle(TextInputStyle.Short)
+        .setMaxLength(100)
+        .setRequired(true);
+
+      modal.addComponents(new ActionRowBuilder().addComponents(valueInput));
+      await interaction.showModal(modal);
+      return;
+    }
+
+    // Modal-Submit: Autofarbe-Wert speichern
+    if (interaction.isModalSubmit() && interaction.customId.startsWith('autofarbe_modal_')) {
+      const category = interaction.customId.replace('autofarbe_modal_', '');
+      const label = AUTOFARBE_CATEGORY_LABELS[category] || category;
+      const wert = interaction.fields.getTextInputValue('wert').trim();
+
+      autofarbeStore.set(category, wert);
+      const channel = await updateAutofarbePanel(client);
+
+      await interaction.reply({
+        embeds: [successEmbed(
+          channel
+            ? `**${label}** wurde auf **${wert}** gesetzt. Panel in ${channel} aktualisiert.`
+            : `**${label}** wurde auf **${wert}** gesetzt, aber der Autofarbe-Channel (\`autofarbeListChannelId\`) wurde nicht gefunden.`,
           client
         )],
         ephemeral: true

@@ -14,8 +14,10 @@ Ein Discord.js-Bot mit:
 - `/test-willkommen` und `/test-leave` zum Testen der Willkommens-/Leave-Embeds, nur für den Bot-Owner
 - Lager-System (`/lager rein`, `/lager raus`, `/lager liste`) mit eigener Channel-Sperre, Rollen-Berechtigung und Log-Channel
 - `/serverstats` erstellt zwei Voice-Channels, die Mitgliederzahl und Rollen-Anzahl im Namen zeigen und sich automatisch aktualisieren
+- `/aufstellung` kündigt eine Aufstellung mit Datum/Uhrzeit an und pingt dabei eine feste Rolle
 - `/funk` ändert Funk-Frequenz und Passwort und pflegt eine Funkliste-Nachricht
 - `/klamotten` pflegt ein Kleidungs-Panel (Torso/Hose/Shirt/Aufkleber) über ein Auswahlmenü + Modal
+- `/autofarbe` pflegt ein Autofarbe-Panel (Primary Color/Secondary Color/1. Sticker) über ein Auswahlmenü + Modal
 - Blacklist-System (`/blacklist add`, `/blacklist remove`) mit automatisch gepflegter Liste
 - Abstimmungs-System (`/abstimmung start`, `/abstimmung end`) mit Ja/Nein-Buttons
 - Zentrale `config.json` für alle Channel-/Rollen-IDs, Token separat in `.env`
@@ -58,6 +60,8 @@ Ein Discord.js-Bot mit:
    - `serverStatsRoleId` (Rolle, deren Mitgliederzahl `/serverstats` im zweiten Stats-Channel anzeigt)
    - `funkListChannelId` (Channel für die Funkliste-Nachricht mit aktuellem Funk und Passwort)
    - `klamottenListChannelId` (Channel für das Klamotten-Panel mit Torso/Hose/Shirt/Aufkleber)
+   - `autofarbeListChannelId` (Channel für das Autofarbe-Panel mit Primary Color/Secondary Color/1. Sticker)
+   - `aufstellungChannelId` (Channel für Aufstellungs-Ankündigungen)
    - `blacklistListChannelId` (Channel für die laufend aktualisierte Blacklist)
    - `abstimmungChannelId` (Channel, in den `/abstimmung start` die Abstimmungs-Nachricht postet)
 
@@ -152,6 +156,10 @@ Alle drei sind auf Administratoren/`commandRoleIds` beschränkt. Im Hintergrund 
 
 Jede Aktion (`rein`/`raus`) aktualisiert automatisch die Lagerliste-Nachricht in `lagerListChannelId` (eine einzige Nachricht, die bearbeitet statt neu gesendet wird — wie bei der Sanktionsliste) und postet zusätzlich einen Log-Eintrag (Item, Menge, neuer Bestand, wer es ausgeführt hat) in `lagerLogChannelId`. Die Daten liegen in `data/inventoryData.json`.
 
+## Aufstellung ankündigen
+
+`/aufstellung datum:<TT.MM.JJJJ> uhrzeit:<HH:MM>` (nur für Administratoren/`commandRoleIds`, läuft im allgemeinen `commandChannelId`) postet eine neue Ankündigung "📢 Aufstellung ist am ..." in `aufstellungChannelId` und erwähnt dabei immer Rolle `1535782072491180153` im Nachrichtentext (echter Ping, da jede Ankündigung eine neue Nachricht ist statt einer bearbeiteten). Es gibt keine Liste/Historie, jede Ausführung postet einfach eine neue Ankündigung.
+
 ## Server-Stats-Channel
 
 `/serverstats` (nur für Administratoren/`commandRoleIds`) erstellt beim ersten Ausführen zwei gesperrte Voice-Channels (niemand kann ihnen beitreten, `@everyone` sieht sie nur):
@@ -175,6 +183,10 @@ Da Discord bei bearbeiteten Nachrichten keine neue Benachrichtigung auslöst, pi
 - Nach dem Absenden wird der Wert gespeichert und das Panel in `klamottenListChannelId` sofort aktualisiert.
 
 Die Daten liegen in `data/klamottenData.json`.
+
+## Autofarbe-Panel
+
+`/autofarbe` (nur für Administratoren/`commandRoleIds`, läuft im allgemeinen `commandChannelId`) funktioniert genau wie `/klamotten`, nur für die Felder **Primary Color**, **Secondary Color** und **1. Sticker** — Panel-Embed **"🚗 So ist unsere Autofarbe"** in `autofarbeListChannelId`, Auswahlmenü + Modal (Zahlen und Buchstaben erlaubt) zum Ändern. Die Daten liegen in `data/autofarbeData.json`.
 
 ## Blacklist
 
@@ -231,6 +243,7 @@ black hands/
     │   ├── serverStatsData.json Server-Stats-Channel-IDs
     │   ├── funkData.json       Aktueller Funk und Passwort
     │   ├── klamottenData.json  Torso/Hose/Shirt/Aufkleber
+    │   ├── autofarbeData.json  Primary/Secondary Color, Sticker
     │   ├── blacklistData.json  Blacklist-Einträge
     │   ├── abstimmungData.json Aktive Abstimmung
     │   └── sanctionKatalogData.json Sanktionskatalog-Message-ID
@@ -252,6 +265,8 @@ black hands/
     │   ├── serverstats.js      Erstellt/aktualisiert die Stats-Channels
     │   ├── funk.js             Ändert Funk-Frequenz und Passwort
     │   ├── klamotten.js        Öffnet das Klamotten-Auswahlmenü
+    │   ├── autofarbe.js        Öffnet das Autofarbe-Auswahlmenü
+    │   ├── aufstellung.js      Kündigt eine Aufstellung an
     │   ├── blacklist.js        /blacklist add, /blacklist remove
     │   └── abstimmung.js       /abstimmung start, /abstimmung end
     ├── events/
@@ -304,6 +319,8 @@ black hands/
         ├── funkStore.js         Lesen/Schreiben von data/funkData.json
         ├── klamottenStore.js    Lesen/Schreiben von data/klamottenData.json
         ├── klamottenPanel.js    Baut/aktualisiert das Klamotten-Panel
+        ├── autofarbeStore.js    Lesen/Schreiben von data/autofarbeData.json
+        ├── autofarbePanel.js    Baut/aktualisiert das Autofarbe-Panel
         ├── blacklistStore.js    Lesen/Schreiben von data/blacklistData.json
         ├── abstimmungStore.js   Lesen/Schreiben von data/abstimmungData.json
         ├── abstimmungPanel.js   Baut das Abstimmungs-Embed & die Ja/Nein-Buttons
