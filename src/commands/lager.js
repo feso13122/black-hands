@@ -5,34 +5,41 @@ const { canUseLager } = require('../utils/permissions');
 const inventoryStore = require('../utils/inventoryStore');
 const { postInventoryList, postLagerLog } = require('../utils/lagerPanel');
 
-const MAX_ITEMS = 20;
-
-// Discord erlaubt max. 25 Optionen pro (Sub-)Command - getrennte item/menge-
-// Felder für 20 Items wären 40 Optionen und damit nicht möglich. Deshalb ein
-// Feld pro Item im Format "Name Menge" (z. B. "Pistole 5").
-function addItemOptions(sub) {
-  for (let i = 1; i <= MAX_ITEMS; i++) {
-    sub.addStringOption(o =>
-      o
-        .setName(`item${i}`)
-        .setDescription('Format: Name Menge, z. B. "Pistole 5"')
-        .setRequired(i === 1)
-    );
-  }
-  return sub;
-}
-
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('lager')
     .setDescription('Lagerbestand verwalten')
-    .addSubcommand(sub => addItemOptions(sub.setName('rein').setDescription('Legt bis zu 20 Items ins Lager (item1 Pflicht, item2-20 optional)')))
-    .addSubcommand(sub => addItemOptions(sub.setName('raus').setDescription('Nimmt bis zu 20 Items aus dem Lager (item1 Pflicht, item2-20 optional)')))
+    .addSubcommand(sub =>
+      sub
+        .setName('rein')
+        .setDescription('Legt Items ins Lager')
+        .addStringOption(o => o.setName('item').setDescription('Name des Items').setRequired(true))
+        .addIntegerOption(o => o.setName('menge').setDescription('Menge').setRequired(true).setMinValue(1))
+    )
+    .addSubcommand(sub =>
+      sub
+        .setName('raus')
+        .setDescription('Nimmt Items aus dem Lager')
+        .addStringOption(o =>
+          o.setName('item').setDescription('Name des Items').setRequired(true).setAutocomplete(true)
+        )
+        .addIntegerOption(o => o.setName('menge').setDescription('Menge').setRequired(true).setMinValue(1))
+    )
     .addSubcommand(sub =>
       sub
         .setName('liste')
         .setDescription('Aktualisiert die Lagerliste-Nachricht')
     ),
+
+  async autocomplete(interaction) {
+    const focused = interaction.options.getFocused().toLowerCase();
+    const choices = inventoryStore.getAll()
+      .filter(i => i.name.toLowerCase().includes(focused))
+      .slice(0, 25)
+      .map(i => ({ name: `${i.name} (${i.quantity}x vorhanden)`, value: i.name }));
+
+    await interaction.respond(choices);
+  },
 
   async execute(interaction) {
     const sub = interaction.options.getSubcommand();
@@ -91,58 +98,39 @@ module.exports = {
       return;
     }
 
-    const lines = [];
-    for (let i = 1; i <= MAX_ITEMS; i++) {
-      const value = interaction.options.getString(`item${i}`);
-      if (value) lines.push(value.trim());
-    }
+    const item = interaction.options.getString('item').trim();
+    const menge = interaction.options.getInteger('menge');
 
-    const results = [];
-    const errors = [];
-
-    for (const line of lines) {
-      const match = line.match(/^(.+?)\s+(\d+)$/);
-      if (!match) {
-        errors.push(`❌ "${line}" — Format ungültig (erwartet: Name Menge)`);
-        continue;
-      }
-
-      const item = match[1].trim();
-      const menge = parseInt(match[2], 10);
-
-      if (menge < 1) {
-        errors.push(`❌ "${line}" — Menge muss mindestens 1 sein`);
-        continue;
-      }
-
-      if (sub === 'rein') {
-        const total = inventoryStore.addStock(item, menge);
-        results.push({ item, menge, total });
-      } else {
-        const total = inventoryStore.removeStock(item, menge);
-        if (total === null) {
-          errors.push(`❌ **${item}** — nicht im Lager oder Bestand reicht nicht aus`);
-        } else {
-          results.push({ item, menge, total });
-        }
-      }
-    }
-
-    if (results.length > 0) {
+    if (sub === 'rein') {
+      const total = inventoryStore.addStock(item, menge);
       await postInventoryList(interaction.client);
-      await postLagerLog(interaction.client, { action: sub, executor: interaction.user, results });
+      await postLagerLog(interaction.client, { action: 'rein', executor: interaction.user, results: [{ item, menge, total }] });
+
+      await interaction.reply({
+        embeds: [successEmbed(`**${menge}x ${item}** wurde ins Lager gelegt. Neuer Bestand: **${total}x**.`, interaction.client)],
+        ephemeral: true
+      });
+      return;
     }
 
-    const summaryLines = [
-      ...results.map(r => `✅ **${r.item}** — ${r.menge}x — Neuer Bestand: ${r.total}x`),
-      ...errors
-    ];
+    if (sub === 'raus') {
+      const total = inventoryStore.removeStock(item, menge);
 
-    const summaryEmbed = baseEmbed(interaction.client)
-      .setColor(errors.length > 0 ? '#FEE75C' : '#57F287')
-      .setTitle(sub === 'rein' ? '📥 Lager: Ware rein' : '📤 Lager: Ware raus')
-      .setDescription(summaryLines.join('\n').slice(0, 4000));
+      if (total === null) {
+        await interaction.reply({
+          embeds: [errorEmbed(`**${item}** ist nicht im Lager oder der Bestand reicht nicht aus.`, interaction.client)],
+          ephemeral: true
+        });
+        return;
+      }
 
-    await interaction.reply({ embeds: [summaryEmbed], ephemeral: true });
+      await postInventoryList(interaction.client);
+      await postLagerLog(interaction.client, { action: 'raus', executor: interaction.user, results: [{ item, menge, total }] });
+
+      await interaction.reply({
+        embeds: [successEmbed(`**${menge}x ${item}** wurde aus dem Lager genommen. Neuer Bestand: **${total}x**.`, interaction.client)],
+        ephemeral: true
+      });
+    }
   }
 };
