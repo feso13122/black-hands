@@ -34,5 +34,7 @@
   "lagerCommandChannelId": "CHANNEL_ID_IN_DEM_LAGER_BEFEHLE_AUSGEFUEHRT_WERDEN_DUERFEN",
   "lagerListChannelId": "CHANNEL_ID_FUER_DIE_LAGERLISTE",
   "lagerLogChannelId": "CHANNEL_ID_FUER_LAGER_LOGS",
-  "lagerRoleIds": ["ROLLEN_ID_1", "ROLLEN_ID_2"]
+  "lagerRoleIds": ["ROLLEN_ID_1", "ROLLEN_ID_2"],
+
+  "serverStatsRoleId": "ROLLEN_ID_DEREN_ANZAHL_IM_STATS_CHANNEL_ANGEZEIGT_WIRD"
 }

@@ -7,7 +7,7 @@ function load() {
   try {
     return JSON.parse(fs.readFileSync(DATA_PATH, 'utf8'));
   } catch {
-    return { channelId: null };
+    return { memberCountChannelId: null, roleCountChannelId: null };
   }
 }
 
@@ -16,12 +16,29 @@ function save(data) {
   fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
 }
 
-function getChannelId() {
-  return load().channelId;
+function getMemberCountChannelId() {
+  return load().memberCountChannelId || null;
 }
 
-function setChannelId(channelId) {
-  save({ channelId });
+function setMemberCountChannelId(channelId) {
+  const data = load();
+  data.memberCountChannelId = channelId;
+  save(data);
 }
 
-module.exports = { getChannelId, setChannelId };
+function getRoleCountChannelId() {
+  return load().roleCountChannelId || null;
+}
+
+function setRoleCountChannelId(channelId) {
+  const data = load();
+  data.roleCountChannelId = channelId;
+  save(data);
+}
+
+module.exports = {
+  getMemberCountChannelId,
+  setMemberCountChannelId,
+  getRoleCountChannelId,
+  setRoleCountChannelId
+};

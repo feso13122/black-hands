@@ -1,13 +1,12 @@
 const { SlashCommandBuilder } = require('discord.js');
 const { errorEmbed, successEmbed } = require('../utils/embeds');
 const { canUseAdminCommands } = require('../utils/permissions');
-const serverStatsStore = require('../utils/serverStatsStore');
-const { createServerStatsChannel, updateServerStatsChannel } = require('../utils/serverStats');
+const { ensureMemberCountChannel, ensureRoleCountChannel } = require('../utils/serverStats');
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('serverstats')
-    .setDescription('Erstellt/aktualisiert den Channel mit der Mitgliederzahl (ohne Bots).'),
+    .setDescription('Erstellt/aktualisiert die Stats-Channels (Mitgliederzahl, Rollen-Anzahl).'),
 
   async execute(interaction) {
     if (!canUseAdminCommands(interaction.member)) {
@@ -20,23 +19,21 @@ module.exports = {
 
     await interaction.deferReply({ ephemeral: true });
 
-    const existingChannelId = serverStatsStore.getChannelId();
-    const existingChannel = existingChannelId
-      ? await interaction.guild.channels.fetch(existingChannelId).catch(() => null)
-      : null;
+    const { channel: memberChannel, created: memberCreated } = await ensureMemberCountChannel(interaction.guild);
+    const roleResult = await ensureRoleCountChannel(interaction.guild);
 
-    if (existingChannel) {
-      const updated = await updateServerStatsChannel(interaction.guild);
-      await interaction.editReply({
-        embeds: [successEmbed(`Der Server-Stats-Channel existiert bereits: ${updated}. Er wurde jetzt aktualisiert und läuft danach automatisch alle 10 Minuten weiter.`, interaction.client)]
-      });
-      return;
+    const lines = [
+      `${memberCreated ? '✅ Erstellt' : '🔄 Aktualisiert'}: ${memberChannel} (Mitgliederzahl ohne Bots)`
+    ];
+
+    if (roleResult) {
+      lines.push(`${roleResult.created ? '✅ Erstellt' : '🔄 Aktualisiert'}: ${roleResult.channel} (Anzahl mit Rolle)`);
+    } else {
+      lines.push('⚠️ Kein `serverStatsRoleId` in der config.json eingetragen — der Rollen-Channel wurde übersprungen.');
     }
 
-    const channel = await createServerStatsChannel(interaction.guild);
-
     await interaction.editReply({
-      embeds: [successEmbed(`Server-Stats-Channel wurde erstellt: ${channel}. Er zeigt die Mitgliederzahl (ohne Bots) und aktualisiert sich automatisch alle 10 Minuten.`, interaction.client)]
+      embeds: [successEmbed(lines.join('\n'), interaction.client)]
     });
   }
 };

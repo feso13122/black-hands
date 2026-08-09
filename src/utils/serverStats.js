@@ -1,8 +1,13 @@
 const { ChannelType, PermissionFlagsBits } = require('discord.js');
+const config = require('../config.json');
 const serverStatsStore = require('./serverStatsStore');
 
-function buildStatsName(memberCount) {
-  return `👥 Mitglieder: ${memberCount}`;
+function buildMemberCountName(count) {
+  return `👥 Mitglieder: ${count}`;
+}
+
+function buildRoleCountName(count) {
+  return `Black Hand: ${count}`;
 }
 
 // Zählt nur echte Mitglieder, keine Bots. guild.members.fetch() holt dafür
@@ -13,11 +18,14 @@ async function countHumanMembers(guild) {
   return members.filter(m => !m.user.bot).size;
 }
 
-async function createServerStatsChannel(guild) {
-  const count = await countHumanMembers(guild);
+async function countRoleMembers(guild, roleId) {
+  const members = await guild.members.fetch();
+  return members.filter(m => m.roles.cache.has(roleId)).size;
+}
 
-  const channel = await guild.channels.create({
-    name: buildStatsName(count),
+async function createStatsChannel(guild, name) {
+  return guild.channels.create({
+    name,
     type: ChannelType.GuildVoice,
     permissionOverwrites: [
       {
@@ -27,28 +35,71 @@ async function createServerStatsChannel(guild) {
       }
     ]
   });
-
-  serverStatsStore.setChannelId(channel.id);
-  return channel;
 }
 
-async function updateServerStatsChannel(guild) {
-  const channelId = serverStatsStore.getChannelId();
-  if (!channelId) return null;
-
-  const channel = await guild.channels.fetch(channelId).catch(() => null);
-  if (!channel) return null;
-
+// Legt den Channel an, falls er noch nicht existiert, sonst wird nur sein
+// Name aktualisiert. So kann dieselbe Funktion für /serverstats (Erstellen)
+// und den Scheduler (Aktualisieren) verwendet werden.
+async function ensureMemberCountChannel(guild) {
   const count = await countHumanMembers(guild);
-  const newName = buildStatsName(count);
+  const name = buildMemberCountName(count);
 
-  if (channel.name !== newName) {
-    await channel.setName(newName).catch(err => {
-      console.error('Fehler beim Aktualisieren des Server-Stats-Channels:', err.message);
-    });
+  const existingId = serverStatsStore.getMemberCountChannelId();
+  const existing = existingId ? await guild.channels.fetch(existingId).catch(() => null) : null;
+
+  if (existing) {
+    if (existing.name !== name) {
+      await existing.setName(name).catch(err => {
+        console.error('Fehler beim Aktualisieren des Mitglieder-Stats-Channels:', err.message);
+      });
+    }
+    return { channel: existing, created: false };
   }
 
-  return channel;
+  const channel = await createStatsChannel(guild, name);
+  serverStatsStore.setMemberCountChannelId(channel.id);
+  return { channel, created: true };
 }
 
-module.exports = { createServerStatsChannel, updateServerStatsChannel, countHumanMembers };
+// Gibt null zurück, wenn keine serverStatsRoleId konfiguriert ist.
+async function ensureRoleCountChannel(guild) {
+  if (!config.serverStatsRoleId || config.serverStatsRoleId.startsWith('ROLLEN_ID')) {
+    return null;
+  }
+
+  const count = await countRoleMembers(guild, config.serverStatsRoleId);
+  const name = buildRoleCountName(count);
+
+  const existingId = serverStatsStore.getRoleCountChannelId();
+  const existing = existingId ? await guild.channels.fetch(existingId).catch(() => null) : null;
+
+  if (existing) {
+    if (existing.name !== name) {
+      await existing.setName(name).catch(err => {
+        console.error('Fehler beim Aktualisieren des Rollen-Stats-Channels:', err.message);
+      });
+    }
+    return { channel: existing, created: false };
+  }
+
+  const channel = await createStatsChannel(guild, name);
+  serverStatsStore.setRoleCountChannelId(channel.id);
+  return { channel, created: true };
+}
+
+async function updateServerStatsChannels(guild) {
+  await ensureMemberCountChannel(guild).catch(err => {
+    console.error('Fehler beim Mitglieder-Stats-Update:', err.message);
+  });
+  await ensureRoleCountChannel(guild).catch(err => {
+    console.error('Fehler beim Rollen-Stats-Update:', err.message);
+  });
+}
+
+module.exports = {
+  ensureMemberCountChannel,
+  ensureRoleCountChannel,
+  updateServerStatsChannels,
+  countHumanMembers,
+  countRoleMembers
+};

@@ -51,6 +51,7 @@ Ein Discord.js-Bot mit:
    - `commandChannelId` (einziger Channel, in dem überhaupt irgendein Slash-Command benutzt werden darf — siehe unten)
    - `twitchNotificationChannelId` (Channel für Live-Benachrichtigungen), `twitchPingRoleId` (Rolle, die dabei erwähnt wird), `twitchCheckIntervalMs` (wie oft geprüft wird, Standard 60000 = 1 Minute)
    - `lagerCommandChannelId` (einziger Channel, in dem `/lager` benutzt werden darf — unabhängig von `commandChannelId`), `lagerListChannelId` (Channel für die laufend aktualisierte Lagerliste), `lagerLogChannelId` (Channel für Rein/Raus-Logs), `lagerRoleIds` (zusätzliche Rollen-IDs, die `/lager` benutzen dürfen, unabhängig von `commandRoleIds`)
+   - `serverStatsRoleId` (Rolle, deren Mitgliederzahl `/serverstats` im zweiten Stats-Channel anzeigt)
 
    Diese Datei kannst du jederzeit ersetzen/neu einspielen — das Clip-Channel-Tracking liegt bewusst getrennt in `data/clipData.json` und bleibt davon unberührt. Bei Docker/Portainer wird `config.json` **nicht** als Volume gemountet, sondern kommt aus dem Image (Dockerfile `COPY`) — nach einer Änderung also committen, pushen und den Stack neu bauen lassen.
 
@@ -144,9 +145,12 @@ Alle drei sind auf Administratoren, `commandRoleIds` **und** `lagerRoleIds` besc
 
 ## Server-Stats-Channel
 
-`/serverstats` (nur für Administratoren/`commandRoleIds`) erstellt beim ersten Ausführen einen gesperrten Voice-Channel (niemand kann ihm beitreten, `@everyone` sieht ihn nur), dessen Name die aktuelle Mitgliederzahl zeigt — **ohne Bots**, z. B. `👥 Mitglieder: 123`. Läuft er bereits, aktualisiert der Befehl ihn sofort einmalig.
+`/serverstats` (nur für Administratoren/`commandRoleIds`) erstellt beim ersten Ausführen zwei gesperrte Voice-Channels (niemand kann ihnen beitreten, `@everyone` sieht sie nur):
 
-Danach hält sich der Name automatisch alle 10 Minuten aktuell (`serverStatsScheduler.js`) — häufiger geht wegen Discords Rate-Limit für Channel-Umbenennungen nicht sinnvoll. Der Channel wird per ID in `data/serverStatsData.json` gemerkt, komplett getrennt von `config.json`.
+- `👥 Mitglieder: <Zahl>` — alle Mitglieder **ohne Bots**.
+- `Black Hand: <Zahl>` — nur Mitglieder mit der Rolle aus `serverStatsRoleId`. Ist `serverStatsRoleId` nicht gesetzt, wird dieser Channel übersprungen.
+
+Laufen die Channels bereits, aktualisiert der Befehl sie sofort einmalig. Danach halten sich beide Namen automatisch alle 10 Minuten aktuell (`serverStatsScheduler.js`) — häufiger geht wegen Discords Rate-Limit für Channel-Umbenennungen nicht sinnvoll. Die Channel-IDs werden in `data/serverStatsData.json` gemerkt, komplett getrennt von `config.json`.
 
 ## Projektstruktur
 
