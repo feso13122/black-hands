@@ -10,10 +10,44 @@ const MAX_ITEMS = 20;
 function addItemMengeOptions(sub) {
   sub.addStringOption(o => o.setName('item1').setDescription('Name des Items').setRequired(true));
   sub.addIntegerOption(o => o.setName('menge1').setDescription('Menge').setRequired(true).setMinValue(1));
-  for (let i = 2; i <= MAX_ITEMS; i++) {
-    sub.addStringOption(o => o.setName(`item${i}`).setDescription('Name des Items').setRequired(false));
-    sub.addIntegerOption(o => o.setName(`menge${i}`).setDescription('Menge').setRequired(false).setMinValue(1));
-  }
+  sub.addStringOption(o => o.setName('item2').setDescription('Name des Items').setRequired(false));
+  sub.addIntegerOption(o => o.setName('menge2').setDescription('Menge').setRequired(false).setMinValue(1));
+  sub.addStringOption(o => o.setName('item3').setDescription('Name des Items').setRequired(false));
+  sub.addIntegerOption(o => o.setName('menge3').setDescription('Menge').setRequired(false).setMinValue(1));
+  sub.addStringOption(o => o.setName('item4').setDescription('Name des Items').setRequired(false));
+  sub.addIntegerOption(o => o.setName('menge4').setDescription('Menge').setRequired(false).setMinValue(1));
+  sub.addStringOption(o => o.setName('item5').setDescription('Name des Items').setRequired(false));
+  sub.addIntegerOption(o => o.setName('menge5').setDescription('Menge').setRequired(false).setMinValue(1));
+  sub.addStringOption(o => o.setName('item6').setDescription('Name des Items').setRequired(false));
+  sub.addIntegerOption(o => o.setName('menge6').setDescription('Menge').setRequired(false).setMinValue(1));
+  sub.addStringOption(o => o.setName('item7').setDescription('Name des Items').setRequired(false));
+  sub.addIntegerOption(o => o.setName('menge7').setDescription('Menge').setRequired(false).setMinValue(1));
+  sub.addStringOption(o => o.setName('item8').setDescription('Name des Items').setRequired(false));
+  sub.addIntegerOption(o => o.setName('menge8').setDescription('Menge').setRequired(false).setMinValue(1));
+  sub.addStringOption(o => o.setName('item9').setDescription('Name des Items').setRequired(false));
+  sub.addIntegerOption(o => o.setName('menge9').setDescription('Menge').setRequired(false).setMinValue(1));
+  sub.addStringOption(o => o.setName('item10').setDescription('Name des Items').setRequired(false));
+  sub.addIntegerOption(o => o.setName('menge10').setDescription('Menge').setRequired(false).setMinValue(1));
+  sub.addStringOption(o => o.setName('item11').setDescription('Name des Items').setRequired(false));
+  sub.addIntegerOption(o => o.setName('menge11').setDescription('Menge').setRequired(false).setMinValue(1));
+  sub.addStringOption(o => o.setName('item12').setDescription('Name des Items').setRequired(false));
+  sub.addIntegerOption(o => o.setName('menge12').setDescription('Menge').setRequired(false).setMinValue(1));
+  sub.addStringOption(o => o.setName('item13').setDescription('Name des Items').setRequired(false));
+  sub.addIntegerOption(o => o.setName('menge13').setDescription('Menge').setRequired(false).setMinValue(1));
+  sub.addStringOption(o => o.setName('item14').setDescription('Name des Items').setRequired(false));
+  sub.addIntegerOption(o => o.setName('menge14').setDescription('Menge').setRequired(false).setMinValue(1));
+  sub.addStringOption(o => o.setName('item15').setDescription('Name des Items').setRequired(false));
+  sub.addIntegerOption(o => o.setName('menge15').setDescription('Menge').setRequired(false).setMinValue(1));
+  sub.addStringOption(o => o.setName('item16').setDescription('Name des Items').setRequired(false));
+  sub.addIntegerOption(o => o.setName('menge16').setDescription('Menge').setRequired(false).setMinValue(1));
+  sub.addStringOption(o => o.setName('item17').setDescription('Name des Items').setRequired(false));
+  sub.addIntegerOption(o => o.setName('menge17').setDescription('Menge').setRequired(false).setMinValue(1));
+  sub.addStringOption(o => o.setName('item18').setDescription('Name des Items').setRequired(false));
+  sub.addIntegerOption(o => o.setName('menge18').setDescription('Menge').setRequired(false).setMinValue(1));
+  sub.addStringOption(o => o.setName('item19').setDescription('Name des Items').setRequired(false));
+  sub.addIntegerOption(o => o.setName('menge19').setDescription('Menge').setRequired(false).setMinValue(1));
+  sub.addStringOption(o => o.setName('item20').setDescription('Name des Items').setRequired(false));
+  sub.addIntegerOption(o => o.setName('menge20').setDescription('Menge').setRequired(false).setMinValue(1));
   return sub;
 }
 
