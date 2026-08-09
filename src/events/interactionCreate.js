@@ -20,8 +20,6 @@ const autofarbeStore = require('../utils/autofarbeStore');
 const { updateAutofarbePanel, CATEGORY_LABELS: AUTOFARBE_CATEGORY_LABELS } = require('../utils/autofarbePanel');
 const aufstellungStore = require('../utils/aufstellungStore');
 const { buildAufstellungEmbed, buildAufstellungRow } = require('../utils/aufstellungPanel');
-const inventoryStore = require('../utils/inventoryStore');
-const { postInventoryList, postLagerLog } = require('../utils/lagerPanel');
 
 function sanitizeChannelName(input) {
   return input
@@ -487,75 +485,6 @@ module.exports = {
         embeds: [buildAufstellungEmbed(client, poll.unix, updated)],
         components: [buildAufstellungRow()]
       });
-      return;
-    }
-
-    // Modal-Submit: Lager rein/raus - bis zu 20 Items auf einmal
-    if (interaction.isModalSubmit() && (interaction.customId === 'lager_rein_modal' || interaction.customId === 'lager_raus_modal')) {
-      const action = interaction.customId === 'lager_rein_modal' ? 'rein' : 'raus';
-      const raw = interaction.fields.getTextInputValue('items');
-      const lines = raw.split('\n').map(l => l.trim()).filter(l => l.length > 0);
-
-      if (lines.length === 0) {
-        await interaction.reply({ embeds: [errorEmbed('Keine Items angegeben.', client)], ephemeral: true });
-        return;
-      }
-
-      if (lines.length > 20) {
-        await interaction.reply({
-          embeds: [errorEmbed(`Maximal 20 Items pro Durchgang, du hast ${lines.length} angegeben.`, client)],
-          ephemeral: true
-        });
-        return;
-      }
-
-      const results = [];
-      const errors = [];
-
-      for (const line of lines) {
-        const match = line.match(/^(.+?)\s+(\d+)$/);
-        if (!match) {
-          errors.push(`❌ "${line}" — Format ungültig (erwartet: Name Menge)`);
-          continue;
-        }
-
-        const item = match[1].trim();
-        const menge = parseInt(match[2], 10);
-
-        if (menge < 1) {
-          errors.push(`❌ "${line}" — Menge muss mindestens 1 sein`);
-          continue;
-        }
-
-        if (action === 'rein') {
-          const total = inventoryStore.addStock(item, menge);
-          results.push({ item, menge, total });
-        } else {
-          const total = inventoryStore.removeStock(item, menge);
-          if (total === null) {
-            errors.push(`❌ **${item}** — nicht im Lager oder Bestand reicht nicht aus`);
-          } else {
-            results.push({ item, menge, total });
-          }
-        }
-      }
-
-      if (results.length > 0) {
-        await postInventoryList(client);
-        await postLagerLog(client, { action, executor: interaction.user, results });
-      }
-
-      const summaryLines = [
-        ...results.map(r => `✅ **${r.item}** — ${r.menge}x — Neuer Bestand: ${r.total}x`),
-        ...errors
-      ];
-
-      const summaryEmbed = baseEmbed(client)
-        .setColor(errors.length > 0 ? '#FEE75C' : '#57F287')
-        .setTitle(action === 'rein' ? '📥 Lager: Ware rein' : '📤 Lager: Ware raus')
-        .setDescription(summaryLines.join('\n').slice(0, 4000));
-
-      await interaction.reply({ embeds: [summaryEmbed], ephemeral: true });
     }
   }
 };
