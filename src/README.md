@@ -160,6 +160,8 @@ Jede Aktion (`rein`/`raus`) aktualisiert automatisch die Lagerliste-Nachricht in
 
 `/aufstellung datum:<TT.MM.JJJJ> uhrzeit:<HH:MM>` (nur für Administratoren/`commandRoleIds`, läuft im allgemeinen `commandChannelId`) postet eine neue Ankündigung "📢 Aufstellung ist am ..." in `aufstellungChannelId` und erwähnt dabei immer Rolle `1535782072491180153` im Nachrichtentext (echter Ping, da jede Ankündigung eine neue Nachricht ist statt einer bearbeiteten). Es gibt keine Liste/Historie, jede Ausführung postet einfach eine neue Ankündigung.
 
+Unter der Ankündigung stehen zwei Buttons — **"Da"** und **"Nicht da"** — mit denen jeder angeben kann, ob er kommt. Klicks werden live im Embed als Mitglieder-Liste mit Zähler angezeigt (`✅ Da (n)` / `❌ Nicht da (n)`), erneutes Klicken wechselt die Angabe. Die Zuordnung läuft über die jeweilige Nachrichten-ID in `data/aufstellungData.json`, mehrere gleichzeitig laufende Aufstellungen tracken unabhängig voneinander.
+
 ## Server-Stats-Channel
 
 `/serverstats` (nur für Administratoren/`commandRoleIds`) erstellt beim ersten Ausführen zwei gesperrte Voice-Channels (niemand kann ihnen beitreten, `@everyone` sieht sie nur):
@@ -244,6 +246,7 @@ black hands/
     │   ├── funkData.json       Aktueller Funk und Passwort
     │   ├── klamottenData.json  Torso/Hose/Shirt/Aufkleber
     │   ├── autofarbeData.json  Primary/Secondary Color, Sticker
+    │   ├── aufstellungData.json Anwesenheit pro Aufstellungs-Nachricht
     │   ├── blacklistData.json  Blacklist-Einträge
     │   ├── abstimmungData.json Aktive Abstimmung
     │   └── sanctionKatalogData.json Sanktionskatalog-Message-ID
@@ -321,6 +324,8 @@ black hands/
         ├── klamottenPanel.js    Baut/aktualisiert das Klamotten-Panel
         ├── autofarbeStore.js    Lesen/Schreiben von data/autofarbeData.json
         ├── autofarbePanel.js    Baut/aktualisiert das Autofarbe-Panel
+        ├── aufstellungStore.js  Lesen/Schreiben von data/aufstellungData.json
+        ├── aufstellungPanel.js  Baut das Aufstellungs-Embed & die Da/Nicht-da-Buttons
         ├── blacklistStore.js    Lesen/Schreiben von data/blacklistData.json
         ├── abstimmungStore.js   Lesen/Schreiben von data/abstimmungData.json
         ├── abstimmungPanel.js   Baut das Abstimmungs-Embed & die Ja/Nein-Buttons

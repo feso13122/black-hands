@@ -1,7 +1,9 @@
 const { SlashCommandBuilder } = require('discord.js');
 const config = require('../config.json');
-const { baseEmbed, errorEmbed, successEmbed } = require('../utils/embeds');
+const { errorEmbed, successEmbed } = require('../utils/embeds');
 const { canUseAdminCommands } = require('../utils/permissions');
+const aufstellungStore = require('../utils/aufstellungStore');
+const { buildAufstellungEmbed, buildAufstellungRow } = require('../utils/aufstellungPanel');
 
 const PING_ROLE_ID = '1535782072491180153';
 
@@ -65,16 +67,17 @@ module.exports = {
     }
 
     const unix = Math.floor(start.getTime() / 1000);
+    const emptyPoll = { da: [], nichtDa: [] };
 
-    const embed = baseEmbed(interaction.client)
-      .setColor('#5865F2')
-      .setTitle('📢 Aufstellung')
-      .setDescription(`Aufstellung ist am <t:${unix}:F> (<t:${unix}:R>).`);
-
-    await channel.send({ content: `<@&${PING_ROLE_ID}>`, embeds: [embed] });
+    const message = await channel.send({
+      content: `<@&${PING_ROLE_ID}>`,
+      embeds: [buildAufstellungEmbed(interaction.client, unix, emptyPoll)],
+      components: [buildAufstellungRow()]
+    });
+    aufstellungStore.createPoll(message.id, unix);
 
     await interaction.reply({
-      embeds: [successEmbed(`Aufstellung wurde in ${channel} angekündigt.`, interaction.client)],
+      embeds: [successEmbed(`Aufstellung wurde in ${channel} angekündigt. Mitglieder können über die Buttons angeben, ob sie da sind.`, interaction.client)],
       ephemeral: true
     });
   }

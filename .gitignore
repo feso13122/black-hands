@@ -28,6 +28,7 @@ src/data/blacklistData.json
 src/data/abstimmungData.json
 src/data/sanctionKatalogData.json
 src/data/autofarbeData.json
+src/data/aufstellungData.json
 
 # IDE
 .vscode/

@@ -18,6 +18,8 @@ const abstimmungStore = require('../utils/abstimmungStore');
 const { buildPollEmbed, buildPollRow } = require('../utils/abstimmungPanel');
 const autofarbeStore = require('../utils/autofarbeStore');
 const { updateAutofarbePanel, CATEGORY_LABELS: AUTOFARBE_CATEGORY_LABELS } = require('../utils/autofarbePanel');
+const aufstellungStore = require('../utils/aufstellungStore');
+const { buildAufstellungEmbed, buildAufstellungRow } = require('../utils/aufstellungPanel');
 
 function sanitizeChannelName(input) {
   return input
@@ -460,6 +462,28 @@ module.exports = {
           client
         )],
         ephemeral: true
+      });
+      return;
+    }
+
+    // Button: Aufstellung - Da/Nicht da
+    if (interaction.isButton() && (interaction.customId === 'aufstellung_da' || interaction.customId === 'aufstellung_nicht_da')) {
+      const poll = aufstellungStore.getPoll(interaction.message.id);
+
+      if (!poll) {
+        await interaction.reply({
+          embeds: [errorEmbed('Diese Aufstellung wird nicht mehr getrackt.', client)],
+          ephemeral: true
+        });
+        return;
+      }
+
+      const choice = interaction.customId === 'aufstellung_da' ? 'da' : 'nichtDa';
+      const updated = aufstellungStore.setVote(interaction.message.id, interaction.user.id, choice);
+
+      await interaction.update({
+        embeds: [buildAufstellungEmbed(client, poll.unix, updated)],
+        components: [buildAufstellungRow()]
       });
     }
   }
