@@ -178,8 +178,8 @@ Die Daten liegen in `data/klamottenData.json`.
 
 ## Blacklist
 
-- `/blacklist add grund:<Grund> [nutzer:<@Nutzer>] [fraktion:<Fraktion>]` fügt einen Eintrag zur Blacklist hinzu. `nutzer` und `fraktion` sind beide optional, aber mindestens einer muss angegeben werden — es kann also auch **nur eine Fraktion ohne Nutzer** geblacklistet werden. Aktualisiert die Blacklist-Nachricht in `blacklistListChannelId`.
-- `/blacklist remove eintrag:<...>` entfernt einen Eintrag wieder — per Autocomplete wählbar, egal ob es ein Nutzer- oder ein reiner Fraktions-Eintrag ist. Die Vorschau zeigt die gespeicherten Werte (Tag/Fraktion/Grund) direkt an, die Bestätigung nennt sie danach noch einmal.
+- `/blacklist add fraktion:<Fraktion/Ingame-Charaktername> grund:<Grund>` fügt einen Eintrag zur Blacklist hinzu. `fraktion` ist reiner Freitext (kein Discord-User-Feld, also kein `@`-Erwähnen nötig) — praktisch für Leute, die z. B. nur per Ingame-Charakternamen bekannt sind. Aktualisiert die Blacklist-Nachricht in `blacklistListChannelId`.
+- `/blacklist remove eintrag:<...>` entfernt einen Eintrag wieder — per Autocomplete über die gespeicherten Fraktions-/Charakternamen wählbar.
 
 Beide auf Administratoren/`commandRoleIds` beschränkt, laufen im allgemeinen `commandChannelId`. Die Liste ist eine einzige Nachricht, die bearbeitet statt neu gesendet wird, und zeigt bei jedem Eintrag zusätzlich, wer ihn hinzugefügt hat. Die Daten liegen in `data/blacklistData.json`.
 

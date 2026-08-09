@@ -16,28 +16,26 @@ function save(data) {
   fs.writeFileSync(DATA_PATH, JSON.stringify(data, null, 2));
 }
 
-// Nutzer-Einträge werden über die User-ID identifiziert, reine
-// Fraktions-Einträge (ohne Nutzer) über den normalisierten Fraktionsnamen.
-function buildKey(userId, faction) {
-  return userId || `faction:${(faction || '').toLowerCase()}`;
+function buildKey(faction) {
+  return faction.trim().toLowerCase();
 }
 
 function getAll() {
   const data = load();
-  return data.entries.map(e => ({ ...e, key: e.key || buildKey(e.userId, e.faction) }));
+  return data.entries.map(e => ({ ...e, key: e.key || buildKey(e.faction) }));
 }
 
 function addEntry(entry) {
   const data = load();
-  const key = buildKey(entry.userId, entry.faction);
-  data.entries = data.entries.filter(e => buildKey(e.userId, e.faction) !== key);
+  const key = buildKey(entry.faction);
+  data.entries = data.entries.filter(e => buildKey(e.faction) !== key);
   data.entries.push({ ...entry, key });
   save(data);
 }
 
 function removeEntry(key) {
   const data = load();
-  const idx = data.entries.findIndex(e => (e.key || buildKey(e.userId, e.faction)) === key);
+  const idx = data.entries.findIndex(e => (e.key || buildKey(e.faction)) === key);
   if (idx === -1) return null;
   const [removed] = data.entries.splice(idx, 1);
   save(data);
