@@ -176,8 +176,8 @@ Die Daten liegen in `data/klamottenData.json`.
 
 ## Blacklist
 
-- `/blacklist add nutzer:<@Nutzer> grund:<Grund>` fügt einen Nutzer mit Grund zur Blacklist hinzu und aktualisiert die Blacklist-Nachricht in `blacklistListChannelId`.
-- `/blacklist remove nutzer:<...>` entfernt ihn wieder. Autocomplete zeigt nur Nutzer, die aktuell auf der Blacklist stehen.
+- `/blacklist add nutzer:<@Nutzer> fraktion:<Fraktion> grund:<Grund>` fügt einen Nutzer mit Fraktion und Grund zur Blacklist hinzu und aktualisiert die Blacklist-Nachricht in `blacklistListChannelId`.
+- `/blacklist remove nutzer:<...>` entfernt ihn wieder. Das Autocomplete-Feld zeigt die gespeicherten Werte (Tag — Fraktion — Grund) direkt in der Vorschau, die Bestätigung nennt sie danach noch einmal.
 
 Beide auf Administratoren/`commandRoleIds` beschränkt, laufen im allgemeinen `commandChannelId`. Die Liste ist eine einzige Nachricht, die bearbeitet statt neu gesendet wird. Die Daten liegen in `data/blacklistData.json`.
 
