@@ -32,5 +32,7 @@
   "twitchCheckIntervalMs": 60000,
 
   "lagerCommandChannelId": "CHANNEL_ID_IN_DEM_LAGER_BEFEHLE_AUSGEFUEHRT_WERDEN_DUERFEN",
-  "lagerListChannelId": "CHANNEL_ID_FUER_DIE_LAGERLISTE"
+  "lagerListChannelId": "CHANNEL_ID_FUER_DIE_LAGERLISTE",
+  "lagerLogChannelId": "CHANNEL_ID_FUER_LAGER_LOGS",
+  "lagerRoleIds": ["ROLLEN_ID_1", "ROLLEN_ID_2"]
 }

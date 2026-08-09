@@ -32,5 +32,7 @@
   "twitchCheckIntervalMs": 60000,
 
   "lagerCommandChannelId": "1535440487031377940",
-  "lagerListChannelId": "1535800114487103609"
+  "lagerListChannelId": "1535800114487103609",
+  "lagerLogChannelId": "1535803065800724640",
+  "lagerRoleIds": ["1535782072491180153"]
 }

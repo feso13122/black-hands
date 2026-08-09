@@ -1,7 +1,7 @@
 const { SlashCommandBuilder } = require('discord.js');
 const config = require('../config.json');
 const { baseEmbed, errorEmbed, successEmbed } = require('../utils/embeds');
-const { canUseAdminCommands } = require('../utils/permissions');
+const { canUseLager } = require('../utils/permissions');
 const inventoryStore = require('../utils/inventoryStore');
 
 async function postInventoryList(interaction) {
@@ -36,6 +36,25 @@ async function postInventoryList(interaction) {
   return channel;
 }
 
+async function postLagerLog(interaction, { action, item, menge, total }) {
+  if (!config.lagerLogChannelId || config.lagerLogChannelId.startsWith('CHANNEL_ID')) return;
+
+  const channel = await interaction.guild.channels.fetch(config.lagerLogChannelId).catch(() => null);
+  if (!channel || !channel.isTextBased()) return;
+
+  const embed = baseEmbed(interaction.client)
+    .setColor(action === 'rein' ? '#57F287' : '#ED4245')
+    .setTitle(action === 'rein' ? '📥 Lager: Ware rein' : '📤 Lager: Ware raus')
+    .addFields(
+      { name: 'Item', value: item, inline: true },
+      { name: 'Menge', value: `${menge}x`, inline: true },
+      { name: 'Neuer Bestand', value: `${total}x`, inline: true },
+      { name: 'Ausgeführt von', value: `${interaction.user}`, inline: false }
+    );
+
+  await channel.send({ embeds: [embed] });
+}
+
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('lager')
@@ -55,6 +74,11 @@ module.exports = {
           o.setName('item').setDescription('Name des Items').setRequired(true).setAutocomplete(true)
         )
         .addIntegerOption(o => o.setName('menge').setDescription('Menge').setRequired(true).setMinValue(1))
+    )
+    .addSubcommand(sub =>
+      sub
+        .setName('liste')
+        .setDescription('Aktualisiert die Lagerliste-Nachricht')
     ),
 
   async autocomplete(interaction) {
@@ -82,7 +106,7 @@ module.exports = {
       return;
     }
 
-    if (!canUseAdminCommands(interaction.member)) {
+    if (!canUseLager(interaction.member)) {
       await interaction.reply({
         embeds: [errorEmbed('Du hast keine Berechtigung, diesen Befehl zu benutzen.', interaction.client)],
         ephemeral: true
@@ -91,12 +115,31 @@ module.exports = {
     }
 
     const sub = interaction.options.getSubcommand();
+
+    if (sub === 'liste') {
+      const channel = await postInventoryList(interaction);
+      if (!channel) {
+        await interaction.reply({
+          embeds: [errorEmbed('Der Lagerliste-Channel (`lagerListChannelId`) wurde nicht gefunden.', interaction.client)],
+          ephemeral: true
+        });
+        return;
+      }
+
+      await interaction.reply({
+        embeds: [successEmbed(`Die Lagerliste in ${channel} wurde aktualisiert.`, interaction.client)],
+        ephemeral: true
+      });
+      return;
+    }
+
     const item = interaction.options.getString('item').trim();
     const menge = interaction.options.getInteger('menge');
 
     if (sub === 'rein') {
       const total = inventoryStore.addStock(item, menge);
       await postInventoryList(interaction);
+      await postLagerLog(interaction, { action: 'rein', item, menge, total });
 
       await interaction.reply({
         embeds: [successEmbed(`**${menge}x ${item}** wurde ins Lager gelegt. Neuer Bestand: **${total}x**.`, interaction.client)],
@@ -117,6 +160,7 @@ module.exports = {
       }
 
       await postInventoryList(interaction);
+      await postLagerLog(interaction, { action: 'raus', item, menge, total });
 
       await interaction.reply({
         embeds: [successEmbed(`**${menge}x ${item}** wurde aus dem Lager genommen. Neuer Bestand: **${total}x**.`, interaction.client)],

@@ -23,4 +23,10 @@ function canManageAllianceAndSanctions(member) {
   return hasAnyRole(member, config.allianceSanctionRoleIds);
 }
 
-module.exports = { canUseAdminCommands, canManageAllianceAndSanctions, isOwner };
+function canUseLager(member) {
+  if (!member) return false;
+  if (canUseAdminCommands(member)) return true;
+  return hasAnyRole(member, config.lagerRoleIds);
+}
+
+module.exports = { canUseAdminCommands, canManageAllianceAndSanctions, canUseLager, isOwner };

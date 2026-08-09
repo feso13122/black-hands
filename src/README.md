@@ -12,7 +12,7 @@ Ein Discord.js-Bot mit:
 - Alle Slash-Commands sind auf einen einzigen Channel gesperrt (`commandChannelId`)
 - Twitch-Live-Benachrichtigungen (`/addstreamer`, `/removestreamer`, `/streamers`) mit automatischem Live-Check
 - `/test-willkommen` und `/test-leave` zum Testen der Willkommens-/Leave-Embeds, nur für den Bot-Owner
-- Lager-System (`/lager rein`, `/lager raus`) mit eigener Channel-Sperre und automatisch gepflegter Lagerliste
+- Lager-System (`/lager rein`, `/lager raus`, `/lager liste`) mit eigener Channel-Sperre, Rollen-Berechtigung und Log-Channel
 - `/serverstats` erstellt einen Voice-Channel, der die Mitgliederzahl (ohne Bots) im Namen zeigt und sich automatisch aktualisiert
 - Zentrale `config.json` für alle Channel-/Rollen-IDs, Token separat in `.env`
 
@@ -50,7 +50,7 @@ Ein Discord.js-Bot mit:
    - `commandListChannelId` (Channel, in den `/command-liste` die Befehlsübersicht postet)
    - `commandChannelId` (einziger Channel, in dem überhaupt irgendein Slash-Command benutzt werden darf — siehe unten)
    - `twitchNotificationChannelId` (Channel für Live-Benachrichtigungen), `twitchPingRoleId` (Rolle, die dabei erwähnt wird), `twitchCheckIntervalMs` (wie oft geprüft wird, Standard 60000 = 1 Minute)
-   - `lagerCommandChannelId` (einziger Channel, in dem `/lager rein`/`/lager raus` benutzt werden dürfen — unabhängig von `commandChannelId`), `lagerListChannelId` (Channel für die laufend aktualisierte Lagerliste)
+   - `lagerCommandChannelId` (einziger Channel, in dem `/lager` benutzt werden darf — unabhängig von `commandChannelId`), `lagerListChannelId` (Channel für die laufend aktualisierte Lagerliste), `lagerLogChannelId` (Channel für Rein/Raus-Logs), `lagerRoleIds` (zusätzliche Rollen-IDs, die `/lager` benutzen dürfen, unabhängig von `commandRoleIds`)
 
    Diese Datei kannst du jederzeit ersetzen/neu einspielen — das Clip-Channel-Tracking liegt bewusst getrennt in `data/clipData.json` und bleibt davon unberührt. Bei Docker/Portainer wird `config.json` **nicht** als Volume gemountet, sondern kommt aus dem Image (Dockerfile `COPY`) — nach einer Änderung also committen, pushen und den Stack neu bauen lassen.
 
@@ -138,8 +138,9 @@ Alle drei sind auf Administratoren/`commandRoleIds` beschränkt. Im Hintergrund 
 
 - `/lager rein item:<Name> menge:<Zahl>` legt Items ins Lager (legt das Item automatisch an, falls neu).
 - `/lager raus item:<Name> menge:<Zahl>` nimmt Items raus — schlägt fehl, wenn nicht genug Bestand da ist. Das `item`-Feld ist ein Autocomplete-Feld und schlägt nur tatsächlich vorhandene Items mit ihrem aktuellen Bestand vor. Fällt der Bestand auf 0, wird das Item aus der Liste entfernt.
+- `/lager liste` aktualisiert die Lagerliste-Nachricht, ohne den Bestand zu verändern.
 
-Beide sind auf Administratoren/`commandRoleIds` beschränkt **und** haben eine eigene, unabhängige Channel-Sperre: Sie funktionieren ausschließlich in `lagerCommandChannelId`, unabhängig vom globalen `commandChannelId`. Jede Aktion aktualisiert automatisch die Lagerliste-Nachricht in `lagerListChannelId` (eine einzige Nachricht, die bearbeitet statt neu gesendet wird — wie bei der Sanktionsliste). Die Daten liegen in `data/inventoryData.json`.
+Alle drei sind auf Administratoren, `commandRoleIds` **und** `lagerRoleIds` beschränkt **und** haben eine eigene, unabhängige Channel-Sperre: Sie funktionieren ausschließlich in `lagerCommandChannelId`, unabhängig vom globalen `commandChannelId`. Jede Aktion aktualisiert automatisch die Lagerliste-Nachricht in `lagerListChannelId` (eine einzige Nachricht, die bearbeitet statt neu gesendet wird — wie bei der Sanktionsliste) und postet zusätzlich einen Log-Eintrag (Item, Menge, neuer Bestand, wer es ausgeführt hat) in `lagerLogChannelId`. Die Daten liegen in `data/inventoryData.json`.
 
 ## Server-Stats-Channel
 
