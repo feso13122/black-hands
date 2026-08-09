@@ -112,39 +112,14 @@ module.exports = {
 
       const infoEmbed = baseEmbed(interaction.client)
         .setColor('#5865F2')
-        .setTitle('📦 Lager-System Erklärung')
-        .setDescription('Hier erfährst du alles über die Lagerverwaltung.')
-        .addFields(
-          {
-            name: '❓ Was ist das Lager?',
-            value: 'Das Lager ist ein zentrales Inventar-System, in dem du Waren/Items speichern und verwalten kannst. Jeder kann Items hinzufügen oder entnehmen.',
-            inline: false
-          },
-          {
-            name: "📥 '/lager rein' — Items hinzufügen",
-            value: 'Mit diesem Command legst du Items ins Lager.\n' +
-                   '**Format:** Item:Menge, Item:Menge, ...\n' +
-                   '**Beispiel:** Drogen Handys:20, Tabletts:19, Notizbuch:1, Patronen:20, Pistole:1',
-            inline: false
-          },
-          {
-            name: "📤 '/lager raus' — Items entnehmen",
-            value: 'Mit diesem Command nimmst du Items aus dem Lager.\n' +
-                   '**Format:** Wie bei `/lager rein`\n' +
-                   '**Hinweis:** Wenn nicht genug vorhanden ist, wird eine Fehlermeldung angezeigt.',
-            inline: false
-          },
-          {
-            name: "📋 '/lager liste' — Lagerliste anzeigen",
-            value: 'Aktualisiert die zentrale Nachricht mit dem aktuellen Bestand.',
-            inline: false
-          },
-          {
-            name: '📍 Verfügbare Kanäle',
-            value: `**Lager-Befehle:** <#${config.lagerCommandChannelId}> ('/lager rein', '/lager raus')\n` +
-                   `**Allgemeines:** <#${config.commandChannelId}> ('/lager liste', '/lager info')`,
-            inline: false
-          }
+        .setTitle('📦 Lager-System')
+        .setDescription(
+          '**`/lager rein` Item:Menge, Item:Menge, ...**\n' +
+          'Ihr könnt mehrere Items auf einmal eintragen.\n' +
+          '**Beispiel:** Handys:20, Tabletts:19, Pistole:1\n\n' +
+          '**`/lager raus` Item:Menge, Item:Menge, ...**\n' +
+          'Ihr könnt mehrere Items auf einmal rausnehmen.\n' +
+          '**Format:** Genauso wie bei `/lager rein`'
         );
 
       const existingMessageId = lagerInfoStore.getInfoMessageId();
