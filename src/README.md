@@ -157,7 +157,7 @@ Jede Aktion (`rein`/`raus`) aktualisiert automatisch die Lagerliste-Nachricht in
 `/serverstats` (nur für Administratoren/`commandRoleIds`) erstellt beim ersten Ausführen zwei gesperrte Voice-Channels (niemand kann ihnen beitreten, `@everyone` sieht sie nur):
 
 - `👥 Mitglieder: <Zahl>` — alle Mitglieder **ohne Bots**.
-- `Black Hand: <Zahl>` — nur Mitglieder mit der Rolle aus `serverStatsRoleId`. Ist `serverStatsRoleId` nicht gesetzt, wird dieser Channel übersprungen.
+- `Black Hands: <Zahl>` — nur Mitglieder mit der Rolle aus `serverStatsRoleId`. Ist `serverStatsRoleId` nicht gesetzt, wird dieser Channel übersprungen.
 
 Beide Zahlen kommen aus **einem einzigen** `guild.members.fetch()`-Aufruf pro Aktualisierung — Discord limitiert volle Member-Abfragen scharf, zwei Aufrufe kurz hintereinander lösen sonst einen `GatewayRateLimitError` aus.
 

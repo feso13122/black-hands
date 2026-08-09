@@ -7,7 +7,7 @@ function buildMemberCountName(count) {
 }
 
 function buildRoleCountName(count) {
-  return `Black Hand: ${count}`;
+  return `Black Hands: ${count}`;
 }
 
 async function createStatsChannel(guild, name) {
