@@ -29,6 +29,7 @@ src/data/abstimmungData.json
 src/data/sanctionKatalogData.json
 src/data/autofarbeData.json
 src/data/aufstellungData.json
+src/data/lagerInfoData.json
 
 # IDE
 .vscode/
