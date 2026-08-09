@@ -13,6 +13,7 @@ Ein Discord.js-Bot mit:
 - Twitch-Live-Benachrichtigungen (`/addstreamer`, `/removestreamer`, `/streamers`) mit automatischem Live-Check
 - `/test-willkommen` und `/test-leave` zum Testen der Willkommens-/Leave-Embeds, nur für den Bot-Owner
 - Lager-System (`/lager rein`, `/lager raus`) mit eigener Channel-Sperre und automatisch gepflegter Lagerliste
+- `/serverstats` erstellt einen Voice-Channel, der die Mitgliederzahl (ohne Bots) im Namen zeigt und sich automatisch aktualisiert
 - Zentrale `config.json` für alle Channel-/Rollen-IDs, Token separat in `.env`
 
 ## Setup
@@ -140,6 +141,12 @@ Alle drei sind auf Administratoren/`commandRoleIds` beschränkt. Im Hintergrund 
 
 Beide sind auf Administratoren/`commandRoleIds` beschränkt **und** haben eine eigene, unabhängige Channel-Sperre: Sie funktionieren ausschließlich in `lagerCommandChannelId`, unabhängig vom globalen `commandChannelId`. Jede Aktion aktualisiert automatisch die Lagerliste-Nachricht in `lagerListChannelId` (eine einzige Nachricht, die bearbeitet statt neu gesendet wird — wie bei der Sanktionsliste). Die Daten liegen in `data/inventoryData.json`.
 
+## Server-Stats-Channel
+
+`/serverstats` (nur für Administratoren/`commandRoleIds`) erstellt beim ersten Ausführen einen gesperrten Voice-Channel (niemand kann ihm beitreten, `@everyone` sieht ihn nur), dessen Name die aktuelle Mitgliederzahl zeigt — **ohne Bots**, z. B. `👥 Mitglieder: 123`. Läuft er bereits, aktualisiert der Befehl ihn sofort einmalig.
+
+Danach hält sich der Name automatisch alle 10 Minuten aktuell (`serverStatsScheduler.js`) — häufiger geht wegen Discords Rate-Limit für Channel-Umbenennungen nicht sinnvoll. Der Channel wird per ID in `data/serverStatsData.json` gemerkt, komplett getrennt von `config.json`.
+
 ## Projektstruktur
 
 ```
@@ -157,7 +164,8 @@ black hands/
     │   ├── allianceData.json   Aktive Bündnisse
     │   ├── absenceData.json    Aktuelle Abmeldungen
     │   ├── twitchStreamers.json Überwachte Twitch-Streamer
-    │   └── inventoryData.json  Lagerbestand
+    │   ├── inventoryData.json  Lagerbestand
+    │   └── serverStatsData.json Server-Stats-Channel-ID
     ├── commands/
     │   ├── setup-clip-panel.js Postet das Clip-Channel-Panel
     │   ├── clip-unlock.js      Admin-Befehl: weiteren Clip-Channel freischalten
@@ -172,7 +180,8 @@ black hands/
     │   ├── streamers.js        Überwachte Twitch-Streamer anzeigen
     │   ├── test-willkommen.js  [Nur Owner] Willkommens-Embed testen
     │   ├── test-leave.js       [Nur Owner] Leave-Embed testen
-    │   └── lager.js            /lager rein, /lager raus
+    │   ├── lager.js            /lager rein, /lager raus
+    │   └── serverstats.js      Erstellt/aktualisiert den Mitgliederzahl-Channel
     ├── events/
     │   ├── ready.js
     │   ├── guildMemberAdd.js   Willkommen + Autorole + Log
@@ -201,6 +210,9 @@ black hands/
         ├── twitchScheduler.js   Prüft periodisch, ob Streamer live sind
         ├── memberEmbeds.js      Baut Willkommen/Leave-Embeds (auch für Test-Commands)
         ├── inventoryStore.js    Lesen/Schreiben von data/inventoryData.json
+        ├── serverStats.js       Erstellt/aktualisiert den Mitgliederzahl-Channel
+        ├── serverStatsStore.js  Lesen/Schreiben von data/serverStatsData.json
+        ├── serverStatsScheduler.js Aktualisiert den Channel-Namen alle 10 Minuten
         ├── permissions.js       Rollen-/Admin-/Owner-Check für geschützte Commands
         └── deployCommands.js    Registriert Slash-Commands bei Discord (von ready.js aufgerufen)
 ```

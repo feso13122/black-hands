@@ -21,6 +21,7 @@ src/data/sanctionsData.json
 src/data/allianceData.json
 src/data/absenceData.json
 src/data/inventoryData.json
+src/data/serverStatsData.json
 
 # IDE
 .vscode/

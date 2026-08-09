@@ -2,6 +2,7 @@ const { ActivityType } = require('discord.js');
 const { deployCommands } = require('../utils/deployCommands');
 const { startAbsenceScheduler } = require('../utils/absenceScheduler');
 const { startTwitchScheduler } = require('../utils/twitchScheduler');
+const { startServerStatsScheduler } = require('../utils/serverStatsScheduler');
 
 module.exports = {
   name: 'ready',
@@ -30,5 +31,6 @@ module.exports = {
 
     startAbsenceScheduler(client);
     startTwitchScheduler(client);
+    startServerStatsScheduler(client);
   }
 };
