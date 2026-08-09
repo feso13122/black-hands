@@ -100,8 +100,8 @@ module.exports = {
           },
           {
             name: '📍 Verfügbare Kanäle',
-            value: `**Lager-Befehle:** <#${config.lagerCommandChannelId}> (`/lager rein`, `/lager raus`)\n` +
-                   `**Allgemeines:** <#${config.commandChannelId}> (`/lager liste`, `/lager info`)`,
+            value: `**Lager-Befehle:** <#${config.lagerCommandChannelId}> ('/lager rein', '/lager raus')\n` +
+                   `**Allgemeines:** <#${config.commandChannelId}> ('/lager liste', '/lager info')`,
             inline: false
           }
         );
