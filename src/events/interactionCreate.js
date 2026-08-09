@@ -12,6 +12,8 @@ const { sendLog } = require('../utils/logger');
 const clipStore = require('../utils/clipStore');
 const absenceStore = require('../utils/absenceStore');
 const { updateAbsencePanel } = require('../utils/absencePanel');
+const klamottenStore = require('../utils/klamottenStore');
+const { updateKlamottenPanel, CATEGORY_LABELS } = require('../utils/klamottenPanel');
 
 function sanitizeChannelName(input) {
   return input
@@ -309,6 +311,48 @@ module.exports = {
       const unix = Math.floor(until.getTime() / 1000);
       await interaction.reply({
         embeds: [successEmbed(`Du bist jetzt abgemeldet bis <t:${unix}:f>. Danach wirst du automatisch wieder aus der Liste entfernt.`, client)],
+        ephemeral: true
+      });
+      return;
+    }
+
+    // Select-Menu: Klamotten-Kategorie wählen -> Modal öffnen
+    if (interaction.isStringSelectMenu() && interaction.customId === 'klamotten_select') {
+      const category = interaction.values[0];
+      const label = CATEGORY_LABELS[category] || category;
+
+      const modal = new ModalBuilder()
+        .setCustomId(`klamotten_modal_${category}`)
+        .setTitle(`${label} aktualisieren`);
+
+      const valueInput = new TextInputBuilder()
+        .setCustomId('wert')
+        .setLabel(`Neuer Wert für ${label}`)
+        .setStyle(TextInputStyle.Short)
+        .setMaxLength(100)
+        .setRequired(true);
+
+      modal.addComponents(new ActionRowBuilder().addComponents(valueInput));
+      await interaction.showModal(modal);
+      return;
+    }
+
+    // Modal-Submit: Klamotten-Wert speichern
+    if (interaction.isModalSubmit() && interaction.customId.startsWith('klamotten_modal_')) {
+      const category = interaction.customId.replace('klamotten_modal_', '');
+      const label = CATEGORY_LABELS[category] || category;
+      const wert = interaction.fields.getTextInputValue('wert').trim();
+
+      klamottenStore.set(category, wert);
+      const channel = await updateKlamottenPanel(client);
+
+      await interaction.reply({
+        embeds: [successEmbed(
+          channel
+            ? `**${label}** wurde auf **${wert}** gesetzt. Panel in ${channel} aktualisiert.`
+            : `**${label}** wurde auf **${wert}** gesetzt, aber der Klamotten-Channel (\`klamottenListChannelId\`) wurde nicht gefunden.`,
+          client
+        )],
         ephemeral: true
       });
     }

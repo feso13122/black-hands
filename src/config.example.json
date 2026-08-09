@@ -38,5 +38,7 @@
 
   "serverStatsRoleId": "ROLLEN_ID_DEREN_ANZAHL_IM_STATS_CHANNEL_ANGEZEIGT_WIRD",
 
-  "funkListChannelId": "CHANNEL_ID_FUER_DIE_FUNKLISTE"
+  "funkListChannelId": "CHANNEL_ID_FUER_DIE_FUNKLISTE",
+
+  "klamottenListChannelId": "CHANNEL_ID_FUER_DIE_KLAMOTTEN_LISTE"
 }

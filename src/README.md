@@ -15,6 +15,7 @@ Ein Discord.js-Bot mit:
 - Lager-System (`/lager rein`, `/lager raus`, `/lager liste`) mit eigener Channel-Sperre, Rollen-Berechtigung und Log-Channel
 - `/serverstats` erstellt zwei Voice-Channels, die Mitgliederzahl und Rollen-Anzahl im Namen zeigen und sich automatisch aktualisieren
 - `/funk` ändert Funk-Frequenz und Passwort und pflegt eine Funkliste-Nachricht
+- `/klamotten` pflegt ein Kleidungs-Panel (Torso/Hose/Shirt/Aufkleber) über ein Auswahlmenü + Modal
 - Zentrale `config.json` für alle Channel-/Rollen-IDs, Token separat in `.env`
 
 ## Setup
@@ -54,6 +55,7 @@ Ein Discord.js-Bot mit:
    - `lagerCommandChannelId` (einziger Channel, in dem `/lager rein`/`/lager raus` benutzt werden dürfen — für alle Nutzer offen), `lagerListChannelId` (Channel für die laufend aktualisierte Lagerliste), `lagerLogChannelId` (Channel für Rein/Raus-Logs), `lagerRoleIds` (zusätzliche Rollen-IDs, die `/lager liste` benutzen dürfen, unabhängig von `commandRoleIds`)
    - `serverStatsRoleId` (Rolle, deren Mitgliederzahl `/serverstats` im zweiten Stats-Channel anzeigt)
    - `funkListChannelId` (Channel für die Funkliste-Nachricht mit aktuellem Funk und Passwort)
+   - `klamottenListChannelId` (Channel für das Klamotten-Panel mit Torso/Hose/Shirt/Aufkleber)
 
    Diese Datei kannst du jederzeit ersetzen/neu einspielen — das Clip-Channel-Tracking liegt bewusst getrennt in `data/clipData.json` und bleibt davon unberührt. Bei Docker/Portainer wird `config.json` **nicht** als Volume gemountet, sondern kommt aus dem Image (Dockerfile `COPY`) — nach einer Änderung also committen, pushen und den Stack neu bauen lassen.
 
@@ -158,7 +160,14 @@ Beide Zahlen kommen aus **einem einzigen** `guild.members.fetch()`-Aufruf pro Ak
 
 `/funk funk:<Wert> passwort:<Wert>` (nur für Administratoren/`commandRoleIds`) speichert die aktuelle Funk-Frequenz und das Passwort und aktualisiert eine Funkliste-Nachricht in `funkListChannelId` (eine einzige Nachricht, die bearbeitet statt neu gesendet wird). Läuft wie die meisten anderen Commands nur im allgemeinen `commandChannelId`. Die Daten liegen in `data/funkData.json`.
 
-Laufen die Channels bereits, aktualisiert der Befehl sie sofort einmalig. Danach halten sich beide Namen automatisch alle 10 Minuten aktuell (`serverStatsScheduler.js`) — häufiger geht wegen Discords Rate-Limit für Channel-Umbenennungen nicht sinnvoll. Die Channel-IDs werden in `data/serverStatsData.json` gemerkt, komplett getrennt von `config.json`.
+## Klamotten-Panel
+
+`/klamotten` (nur für Administratoren/`commandRoleIds`, läuft im allgemeinen `commandChannelId`) sorgt zuerst dafür, dass in `klamottenListChannelId` ein Panel-Embed **"👕 So ist unsere Kleidung"** mit den vier Feldern Torso, Hose, Shirt und Aufkleber existiert (Nachricht wird bearbeitet statt neu gepostet), und antwortet dir dann ephemer mit einem Auswahlmenü.
+
+- Wählst du dort eine Kategorie aus, öffnet sich ein Modal mit einem freien Textfeld (Zahlen **und** Buchstaben erlaubt) für den neuen Wert dieser Kategorie.
+- Nach dem Absenden wird der Wert gespeichert und das Panel in `klamottenListChannelId` sofort aktualisiert.
+
+Die Daten liegen in `data/klamottenData.json`.
 
 ## Projektstruktur
 
@@ -179,7 +188,8 @@ black hands/
     │   ├── twitchStreamers.json Überwachte Twitch-Streamer
     │   ├── inventoryData.json  Lagerbestand
     │   ├── serverStatsData.json Server-Stats-Channel-IDs
-    │   └── funkData.json       Aktueller Funk und Passwort
+    │   ├── funkData.json       Aktueller Funk und Passwort
+    │   └── klamottenData.json  Torso/Hose/Shirt/Aufkleber
     ├── commands/
     │   ├── setup-clip-panel.js Postet das Clip-Channel-Panel
     │   ├── clip-unlock.js      Admin-Befehl: weiteren Clip-Channel freischalten

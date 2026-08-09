@@ -23,6 +23,7 @@ src/data/absenceData.json
 src/data/inventoryData.json
 src/data/serverStatsData.json
 src/data/funkData.json
+src/data/klamottenData.json
 
 # IDE
 .vscode/
