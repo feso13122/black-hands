@@ -165,6 +165,8 @@ Beide Zahlen kommen aus **einem einzigen** `guild.members.fetch()`-Aufruf pro Ak
 
 `/funk funk:<Wert> passwort:<Wert>` (nur für Administratoren/`commandRoleIds`) speichert die aktuelle Funk-Frequenz und das Passwort und aktualisiert eine Funkliste-Nachricht in `funkListChannelId` (eine einzige Nachricht, die bearbeitet statt neu gesendet wird). Läuft wie die meisten anderen Commands nur im allgemeinen `commandChannelId`. Die Daten liegen in `data/funkData.json`.
 
+Da Discord bei bearbeiteten Nachrichten keine neue Benachrichtigung auslöst, pingt der Bot die Rolle bei jeder Aktualisierung zusätzlich über eine eigene, neue Nachricht — so wird bei jeder Änderung wirklich frisch benachrichtigt.
+
 ## Klamotten-Panel
 
 `/klamotten` (nur für Administratoren/`commandRoleIds`, läuft im allgemeinen `commandChannelId`) sorgt zuerst dafür, dass in `klamottenListChannelId` ein Panel-Embed **"👕 So ist unsere Kleidung"** mit den vier Feldern Torso, Hose, Shirt und Aufkleber existiert (Nachricht wird bearbeitet statt neu gepostet), und antwortet dir dann ephemer mit einem Auswahlmenü.

@@ -22,18 +22,21 @@ async function postFunkList(interaction) {
     );
 
   const pingRoleId = '1535782072491180153';
-  const content = `<@&${pingRoleId}>`;
 
+  // Discord löst bei Nachrichten-Edits KEINE neue Benachrichtigung aus -
+  // deshalb wird die Rolle über eine eigene, neue Nachricht gepingt statt
+  // über den content der (bearbeiteten) Funkliste-Nachricht selbst.
   const existingMessageId = funkStore.getListMessageId();
   if (existingMessageId) {
     const existingMessage = await channel.messages.fetch(existingMessageId).catch(() => null);
     if (existingMessage) {
-      await existingMessage.edit({ content, embeds: [embed] });
+      await existingMessage.edit({ embeds: [embed] });
+      await channel.send({ content: `<@&${pingRoleId}> Die Funkliste wurde aktualisiert.` });
       return channel;
     }
   }
 
-  const message = await channel.send({ content, embeds: [embed] });
+  const message = await channel.send({ content: `<@&${pingRoleId}>`, embeds: [embed] });
   funkStore.setListMessageId(message.id);
   return channel;
 }
