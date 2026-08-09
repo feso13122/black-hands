@@ -39,12 +39,17 @@ module.exports = {
       return;
     }
 
+    // Commands mit eigener, abweichender Channel-Sperre (statt der globalen
+    // commandChannelId) - prüfen ihren erlaubten Channel selbst in execute().
+    const COMMANDS_WITH_OWN_CHANNEL_LOCK = ['lager'];
+
     // Slash-Commands
     if (interaction.isChatInputCommand()) {
       if (
         config.commandChannelId &&
         !config.commandChannelId.startsWith('CHANNEL_ID') &&
-        interaction.channelId !== config.commandChannelId
+        interaction.channelId !== config.commandChannelId &&
+        !COMMANDS_WITH_OWN_CHANNEL_LOCK.includes(interaction.commandName)
       ) {
         await interaction.reply({
           embeds: [errorEmbed(`Befehle können nur in <#${config.commandChannelId}> benutzt werden.`, client)],

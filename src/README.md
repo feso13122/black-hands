@@ -12,6 +12,7 @@ Ein Discord.js-Bot mit:
 - Alle Slash-Commands sind auf einen einzigen Channel gesperrt (`commandChannelId`)
 - Twitch-Live-Benachrichtigungen (`/addstreamer`, `/removestreamer`, `/streamers`) mit automatischem Live-Check
 - `/test-willkommen` und `/test-leave` zum Testen der Willkommens-/Leave-Embeds, nur für den Bot-Owner
+- Lager-System (`/lager rein`, `/lager raus`) mit eigener Channel-Sperre und automatisch gepflegter Lagerliste
 - Zentrale `config.json` für alle Channel-/Rollen-IDs, Token separat in `.env`
 
 ## Setup
@@ -48,6 +49,7 @@ Ein Discord.js-Bot mit:
    - `commandListChannelId` (Channel, in den `/command-liste` die Befehlsübersicht postet)
    - `commandChannelId` (einziger Channel, in dem überhaupt irgendein Slash-Command benutzt werden darf — siehe unten)
    - `twitchNotificationChannelId` (Channel für Live-Benachrichtigungen), `twitchPingRoleId` (Rolle, die dabei erwähnt wird), `twitchCheckIntervalMs` (wie oft geprüft wird, Standard 60000 = 1 Minute)
+   - `lagerCommandChannelId` (einziger Channel, in dem `/lager rein`/`/lager raus` benutzt werden dürfen — unabhängig von `commandChannelId`), `lagerListChannelId` (Channel für die laufend aktualisierte Lagerliste)
 
    Diese Datei kannst du jederzeit ersetzen/neu einspielen — das Clip-Channel-Tracking liegt bewusst getrennt in `data/clipData.json` und bleibt davon unberührt. Bei Docker/Portainer wird `config.json` **nicht** als Volume gemountet, sondern kommt aus dem Image (Dockerfile `COPY`) — nach einer Änderung also committen, pushen und den Stack neu bauen lassen.
 
@@ -131,6 +133,13 @@ Alle drei sind auf Administratoren/`commandRoleIds` beschränkt. Im Hintergrund 
 
 `/test-willkommen` und `/test-leave` posten die exakt gleichen Embeds wie ein echter Beitritt/Austritt (inklusive aktuellem Server-Profilbild über `member.displayAvatarURL()`), ohne dass jemand wirklich beitreten/gehen muss — praktisch zum Prüfen, wie die Nachrichten aussehen. Optional per `nutzer`-Option mit einem anderen Mitglied testbar, sonst wird dein eigenes Profil verwendet. Beide sind fest auf die Discord-User-ID `1264008617586069586` beschränkt (nicht über Rollen, sondern hart im Code), unabhängig von `commandRoleIds` oder Administrator-Rechten.
 
+## Lager-System
+
+- `/lager rein item:<Name> menge:<Zahl>` legt Items ins Lager (legt das Item automatisch an, falls neu).
+- `/lager raus item:<Name> menge:<Zahl>` nimmt Items raus — schlägt fehl, wenn nicht genug Bestand da ist. Das `item`-Feld ist ein Autocomplete-Feld und schlägt nur tatsächlich vorhandene Items mit ihrem aktuellen Bestand vor. Fällt der Bestand auf 0, wird das Item aus der Liste entfernt.
+
+Beide sind auf Administratoren/`commandRoleIds` beschränkt **und** haben eine eigene, unabhängige Channel-Sperre: Sie funktionieren ausschließlich in `lagerCommandChannelId`, unabhängig vom globalen `commandChannelId`. Jede Aktion aktualisiert automatisch die Lagerliste-Nachricht in `lagerListChannelId` (eine einzige Nachricht, die bearbeitet statt neu gesendet wird — wie bei der Sanktionsliste). Die Daten liegen in `data/inventoryData.json`.
+
 ## Projektstruktur
 
 ```
@@ -147,7 +156,8 @@ black hands/
     │   ├── sanctionsData.json  Sanktionen (offen + Historie)
     │   ├── allianceData.json   Aktive Bündnisse
     │   ├── absenceData.json    Aktuelle Abmeldungen
-    │   └── twitchStreamers.json Überwachte Twitch-Streamer
+    │   ├── twitchStreamers.json Überwachte Twitch-Streamer
+    │   └── inventoryData.json  Lagerbestand
     ├── commands/
     │   ├── setup-clip-panel.js Postet das Clip-Channel-Panel
     │   ├── clip-unlock.js      Admin-Befehl: weiteren Clip-Channel freischalten
@@ -161,7 +171,8 @@ black hands/
     │   ├── removestreamer.js   Twitch-Streamer von der Überwachung entfernen
     │   ├── streamers.js        Überwachte Twitch-Streamer anzeigen
     │   ├── test-willkommen.js  [Nur Owner] Willkommens-Embed testen
-    │   └── test-leave.js       [Nur Owner] Leave-Embed testen
+    │   ├── test-leave.js       [Nur Owner] Leave-Embed testen
+    │   └── lager.js            /lager rein, /lager raus
     ├── events/
     │   ├── ready.js
     │   ├── guildMemberAdd.js   Willkommen + Autorole + Log
@@ -189,6 +200,7 @@ black hands/
         ├── twitchApi.js         Twitch-Helix-API (Token, Stream-/User-Abfragen)
         ├── twitchScheduler.js   Prüft periodisch, ob Streamer live sind
         ├── memberEmbeds.js      Baut Willkommen/Leave-Embeds (auch für Test-Commands)
+        ├── inventoryStore.js    Lesen/Schreiben von data/inventoryData.json
         ├── permissions.js       Rollen-/Admin-/Owner-Check für geschützte Commands
         └── deployCommands.js    Registriert Slash-Commands bei Discord (von ready.js aufgerufen)
 ```

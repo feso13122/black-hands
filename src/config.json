@@ -29,5 +29,8 @@
 
   "twitchNotificationChannelId": "1535798082711584778",
   "twitchPingRoleId": "1535782072491180153",
-  "twitchCheckIntervalMs": 60000
+  "twitchCheckIntervalMs": 60000,
+
+  "lagerCommandChannelId": "1535440487031377940",
+  "lagerListChannelId": "1535800114487103609"
 }

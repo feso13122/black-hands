@@ -29,5 +29,8 @@
 
   "twitchNotificationChannelId": "CHANNEL_ID_FUER_TWITCH_LIVE_BENACHRICHTIGUNGEN",
   "twitchPingRoleId": "ROLLEN_ID_DIE_BEI_TWITCH_LIVE_ERWAEHNT_WIRD",
-  "twitchCheckIntervalMs": 60000
+  "twitchCheckIntervalMs": 60000,
+
+  "lagerCommandChannelId": "CHANNEL_ID_IN_DEM_LAGER_BEFEHLE_AUSGEFUEHRT_WERDEN_DUERFEN",
+  "lagerListChannelId": "CHANNEL_ID_FUER_DIE_LAGERLISTE"
 }
