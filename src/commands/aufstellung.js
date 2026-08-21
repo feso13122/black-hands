@@ -12,7 +12,8 @@ module.exports = {
     .setName('aufstellung')
     .setDescription('Kündigt eine Aufstellung mit Datum und Uhrzeit an.')
     .addStringOption(o => o.setName('datum').setDescription('Datum (TT.MM.JJJJ)').setRequired(true))
-    .addStringOption(o => o.setName('uhrzeit').setDescription('Uhrzeit (HH:MM)').setRequired(true)),
+    .addStringOption(o => o.setName('uhrzeit').setDescription('Uhrzeit (HH:MM)').setRequired(true))
+    .addStringOption(o => o.setName('grund').setDescription('Grund für die Aufstellung').setRequired(false)),
 
   async execute(interaction) {
     if (!canUseAdminCommands(interaction.member)) {
@@ -42,6 +43,7 @@ module.exports = {
 
     const datum = interaction.options.getString('datum').trim();
     const uhrzeit = interaction.options.getString('uhrzeit').trim();
+    const grund = interaction.options.getString('grund')?.trim() || '';
 
     const dateMatch = datum.match(/^(\d{1,2})\.(\d{1,2})\.(\d{4})$/);
     const timeMatch = uhrzeit.match(/^(\d{1,2}):(\d{2})$/);
@@ -71,10 +73,10 @@ module.exports = {
 
     const message = await channel.send({
       content: `<@&${PING_ROLE_ID}>`,
-      embeds: [buildAufstellungEmbed(interaction.client, unix, emptyPoll)],
+      embeds: [buildAufstellungEmbed(interaction.client, unix, emptyPoll, grund)],
       components: [buildAufstellungRow()]
     });
-    aufstellungStore.createPoll(message.id, unix);
+    aufstellungStore.createPoll(message.id, unix, grund);
 
     await interaction.reply({
       embeds: [successEmbed(`Aufstellung wurde in ${channel} angekündigt. Mitglieder können über die Buttons angeben, ob sie da sind.`, interaction.client)],

@@ -482,7 +482,7 @@ module.exports = {
       const updated = aufstellungStore.setVote(interaction.message.id, interaction.user.id, choice);
 
       await interaction.update({
-        embeds: [buildAufstellungEmbed(client, poll.unix, updated)],
+        embeds: [buildAufstellungEmbed(client, poll.unix, updated, poll.grund)],
         components: [buildAufstellungRow()]
       });
     }
