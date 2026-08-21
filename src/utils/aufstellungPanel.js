@@ -1,35 +1,14 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
-const { baseEmbed } = require('./embeds');
 
-function buildAufstellungEmbed(client, unix, poll, grund = '') {
-  const embed = baseEmbed(client)
-    .setColor('#5865F2')
-    .setTitle('📢 Aufstellung')
-    .setDescription(`Aufstellung ist am <t:${unix}:F> (<t:${unix}:R>).`);
+function buildAufstellungMessage(unix, poll, grund = '') {
+  const description = grund || 'Wer nicht reagiert und nicht erscheint fliegt morgen, und dann schauen wir wie es weitergeht.';
 
-  if (grund) {
-    embed.addFields({
-      name: '📝 Grund',
-      value: grund,
-      inline: false
-    });
-  }
+  let msg = `**Aufstellung am <t:${unix}:F> um <t:${unix}:t> Uhr am Anwesen.**\n\n${description}\n\n|| <@&1535782072491180153> ||\n\n`;
 
-  embed.addFields(
-    {
-      name: `✅ Da (${poll.da.length})`,
-      value: poll.da.length > 0 ? poll.da.map(id => `<@${id}>`).join(', ') : '—',
-      inline: false
-    },
-    {
-      name: `❌ Nicht da (${poll.nichtDa.length})`,
-      value: poll.nichtDa.length > 0 ? poll.nichtDa.map(id => `<@${id}>`).join(', ') : '—',
-      inline: false
-    }
-  );
+  msg += `✅ Da (${poll.da.length}): ${poll.da.length > 0 ? poll.da.map(id => `<@${id}>`).join(', ') : '—'}\n`;
+  msg += `❌ Nicht da (${poll.nichtDa.length}): ${poll.nichtDa.length > 0 ? poll.nichtDa.map(id => `<@${id}>`).join(', ') : '—'}\n\nMFG der Autor`;
 
-  embed.setFooter({ text: 'MFG der Autor' });
-  return embed;
+  return msg;
 }
 
 function buildAufstellungRow() {

@@ -19,7 +19,7 @@ const { buildPollEmbed, buildPollRow } = require('../utils/abstimmungPanel');
 const autofarbeStore = require('../utils/autofarbeStore');
 const { updateAutofarbePanel, CATEGORY_LABELS: AUTOFARBE_CATEGORY_LABELS } = require('../utils/autofarbePanel');
 const aufstellungStore = require('../utils/aufstellungStore');
-const { buildAufstellungEmbed, buildAufstellungRow } = require('../utils/aufstellungPanel');
+const { buildAufstellungMessage, buildAufstellungRow } = require('../utils/aufstellungPanel');
 
 function sanitizeChannelName(input) {
   return input
@@ -483,7 +483,7 @@ module.exports = {
       const updated = aufstellungStore.setVote(interaction.message.id, interaction.user.id, choice);
 
       await interaction.update({
-        embeds: [buildAufstellungEmbed(client, poll.unix, updated, poll.grund)],
+        content: buildAufstellungMessage(poll.unix, updated, poll.grund),
         components: [buildAufstellungRow()]
       });
     }

@@ -3,7 +3,7 @@ const config = require('../config.json');
 const { errorEmbed, successEmbed } = require('../utils/embeds');
 const { canUseAdminCommands } = require('../utils/permissions');
 const aufstellungStore = require('../utils/aufstellungStore');
-const { buildAufstellungEmbed, buildAufstellungRow } = require('../utils/aufstellungPanel');
+const { buildAufstellungMessage, buildAufstellungRow } = require('../utils/aufstellungPanel');
 
 const PING_ROLE_ID = '1535782072491180153';
 
@@ -73,8 +73,7 @@ module.exports = {
     const emptyPoll = { da: [], nichtDa: [] };
 
     const message = await channel.send({
-      content: `<@&${PING_ROLE_ID}>`,
-      embeds: [buildAufstellungEmbed(interaction.client, unix, emptyPoll, grund)],
+      content: buildAufstellungMessage(unix, emptyPoll, grund),
       components: [buildAufstellungRow()]
     });
     aufstellungStore.createPoll(message.id, unix, grund);
