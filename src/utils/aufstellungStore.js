@@ -21,9 +21,9 @@ function getPoll(messageId) {
   return data.polls[messageId] || null;
 }
 
-function createPoll(messageId, unix, grund = '') {
+function createPoll(messageId, unix, grund = '', authorId = null, authorTag = 'der Autor') {
   const data = load();
-  data.polls[messageId] = { unix, grund, da: [], nichtDa: [] };
+  data.polls[messageId] = { unix, grund, authorId, authorTag, da: [], nichtDa: [] };
   save(data);
   return data.polls[messageId];
 }

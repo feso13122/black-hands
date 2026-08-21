@@ -70,13 +70,13 @@ module.exports = {
     }
 
     const unix = Math.floor(start.getTime() / 1000);
-    const emptyPoll = { da: [], nichtDa: [] };
+    const emptyPoll = { da: [], nichtDa: [], authorId: interaction.user.id };
 
     const message = await channel.send({
-      content: buildAufstellungMessage(unix, emptyPoll, grund),
+      content: buildAufstellungMessage(unix, emptyPoll, grund, interaction.user.username),
       components: [buildAufstellungRow()]
     });
-    aufstellungStore.createPoll(message.id, unix, grund);
+    aufstellungStore.createPoll(message.id, unix, grund, interaction.user.id, interaction.user.username);
 
     await interaction.reply({
       embeds: [successEmbed(`Aufstellung wurde in ${channel} angekündigt. Mitglieder können über die Buttons angeben, ob sie da sind.`, interaction.client)],
