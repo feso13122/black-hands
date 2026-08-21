@@ -13,7 +13,8 @@ module.exports = {
     .setDescription('Kündigt eine Aufstellung mit Datum und Uhrzeit an.')
     .addStringOption(o => o.setName('datum').setDescription('Datum (TT.MM.JJJJ)').setRequired(true))
     .addStringOption(o => o.setName('uhrzeit').setDescription('Uhrzeit (HH:MM)').setRequired(true))
-    .addStringOption(o => o.setName('grund').setDescription('Grund für die Aufstellung').setRequired(false)),
+    .addStringOption(o => o.setName('grund').setDescription('Grund für die Aufstellung').setRequired(false))
+    .setDMPermission(false),
 
   async execute(interaction) {
     if (!canUseAdminCommands(interaction.member)) {
