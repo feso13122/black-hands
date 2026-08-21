@@ -26,4 +26,4 @@ function buildAufstellungRow() {
   );
 }
 
-module.exports = { buildAufstellungEmbed, buildAufstellungRow };
+module.exports = { buildAufstellungMessage, buildAufstellungRow };
