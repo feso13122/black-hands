@@ -62,4 +62,22 @@ async function updateAbsencePanel(client) {
   return channel;
 }
 
-module.exports = { updateAbsencePanel };
+// Sendet eine Benachrichtigung, wenn eine neue Abmeldung hinzugefügt wird
+async function notifyNewAbsence(client, userId, reason, until) {
+  if (!config.absenceNotificationChannelId || config.absenceNotificationChannelId.startsWith('CHANNEL_ID')) {
+    return;
+  }
+
+  const channel = await client.channels.fetch(config.absenceNotificationChannelId).catch(() => null);
+  if (!channel || !channel.isTextBased()) return;
+
+  const roleIds = config.absenceNotificationRoleIds || [];
+  const rolePings = roleIds.map(id => `<@&${id}>`).join(' ');
+
+  const unix = Math.floor(until / 1000);
+  const message = `${rolePings}\n\n<@${userId}> ist jetzt **abgemeldet** bis <t:${unix}:f> (<t:${unix}:R>)\n**Grund:** ${reason}`;
+
+  await channel.send(message).catch(() => null);
+}
+
+module.exports = { updateAbsencePanel, notifyNewAbsence };

@@ -11,7 +11,7 @@ const { baseEmbed, errorEmbed, successEmbed } = require('../utils/embeds');
 const { sendLog } = require('../utils/logger');
 const clipStore = require('../utils/clipStore');
 const absenceStore = require('../utils/absenceStore');
-const { updateAbsencePanel } = require('../utils/absencePanel');
+const { updateAbsencePanel, notifyNewAbsence } = require('../utils/absencePanel');
 const klamottenStore = require('../utils/klamottenStore');
 const { updateKlamottenPanel, CATEGORY_LABELS } = require('../utils/klamottenPanel');
 const abstimmungStore = require('../utils/abstimmungStore');
@@ -345,6 +345,7 @@ module.exports = {
       });
 
       await updateAbsencePanel(client);
+      await notifyNewAbsence(client, interaction.user.id, grund, until.getTime());
 
       const unix = Math.floor(until.getTime() / 1000);
       await interaction.reply({

@@ -22,6 +22,8 @@
   "allianceSanctionRoleIds": ["1344357490711728225", "1344357490711728224"],
 
   "absenceChannelId": "1344357491638534248",
+  "absenceNotificationChannelId": "1344357491995312167",
+  "absenceNotificationRoleIds": ["1344357490711728226", "1344357490711728224"],
 
   "commandListChannelId": "1535793000880283658",
 
