@@ -93,6 +93,8 @@ Wichtig: Die Sichtbarkeit für alle anderen hängt jetzt von der jeweiligen Kate
 
 **Clip-Channel entfernen:** `/clip-remove nutzer:<...>` löscht den Discord-Channel des Nutzers direkt und entfernt den Tracking-Eintrag, sodass der Nutzer danach sofort wieder einen neuen Clip-Channel erstellen kann (ohne `/clip-unlock`). Das `nutzer`-Feld ist ein Autocomplete-Feld und schlägt nur Nutzer vor, für die aktuell wirklich ein Clip-Channel in `data/clipData.json` gespeichert ist.
 
+**Bestehenden Channel als Clip-Channel anerkennen:** `/clip-set channel:<#Channel> nutzer:<@Nutzer>` verknüpft einen bereits existierenden Channel manuell mit einem Nutzer (z. B. wenn der Channel außerhalb des normalen Ablaufs entstanden ist). Der Bot vergibt dem Nutzer im Channel Sehen/Schreiben/Verlauf-lesen/Dateien-anhängen-Rechte und trägt den Channel in `data/clipData.json` ein — der Nutzer gilt danach als "hat schon einen Clip-Channel" und eine eventuell laufende Freischaltung wird verbraucht. Hat der Nutzer bereits einen anderen gespeicherten Clip-Channel, wird der Befehl abgelehnt (erst `/clip-remove`).
+
 ## Bündnis-Commands
 
 - `/bundnisse fraktion:<Name>` postet "Ab heute sind wir im Bündnis mit der **<Name>** Fraktion." in `allianceChannelId`, erwähnt dabei `allianceRoleId` und speichert das Bündnis in `data/allianceData.json`.
@@ -254,6 +256,7 @@ CDS | Final/
     │   ├── setup-clip-panel.js Postet das Clip-Channel-Panel
     │   ├── clip-unlock.js      Admin-Befehl: weiteren Clip-Channel freischalten
     │   ├── clip-remove.js      Admin-Befehl: Clip-Channel eines Nutzers entfernen
+    │   ├── clip-set.js         Admin-Befehl: bestehenden Channel als Clip-Channel eines Nutzers anerkennen
     │   ├── bundnisse.js        Bündnis-Ankündigung posten
     │   ├── auflosung.js        Bündnis-Auflösung posten
     │   ├── sanktion.js         /sanktion add, /sanktion bezahlt, /sanktion list, /sanktion katalog
