@@ -46,7 +46,7 @@ Ein Discord.js-Bot mit:
 
 5. **`config.json` ausfüllen** (Rechtsklick auf Server/Channel/Rolle → "ID kopieren", Entwicklermodus muss in Discord aktiviert sein):
    - `welcomeChannelId`, `leaveChannelId`, `logChannelId`
-   - `clipPanelChannelId` (informativ, das Panel wird per Command gepostet), `clipCategoryId` (Kategorie, in der neue Clip-Channels erstellt werden)
+   - `clipPanelChannelId` (Channel, in den `/setup-clip-panel` das Panel postet), `clipCategoryMaleId`/`clipCategoryFemaleId` (Kategorien, in denen neue Clip-Channels je nach Auswahl "Männer"/"Frauen" erstellt werden)
    - `autoRoleId`
    - `commandRoleIds` (Liste von Rollen-IDs, die `/setup-clip-panel` und `/clip-unlock` benutzen dürfen — Administratoren dürfen unabhängig davon immer)
    - `allianceChannelId` (Channel, in den `/bundnisse` und `/auflosung` posten), `allianceRoleId` (Rolle, die dabei immer erwähnt wird)
@@ -81,13 +81,13 @@ Ein Discord.js-Bot mit:
 
 ## Clip-Channel-Panel posten
 
-Nutze in dem gewünschten Channel den Befehl `/setup-clip-panel` (nur für Administratoren oder Rollen aus `commandRoleIds`). Das postet ein Embed mit einem Button. Klickt jemand darauf, öffnet sich ein Modal, in dem der Name für den neuen Channel eingegeben wird. Der Channel wird als `🔫clip-<name>` unter `clipCategoryId` erstellt und ist **mit der Kategorie synchronisiert** (wie Discords "Berechtigungen synchronisieren"):
+Der Befehl `/setup-clip-panel` (nur für Administratoren oder Rollen aus `commandRoleIds`) postet das Panel fest in `clipPanelChannelId`. Das Panel enthält ein Embed mit einem Button. Klickt jemand darauf, wird zunächst gefragt, ob der Channel unter der Kategorie **Männer** oder **Frauen** erstellt werden soll. Danach öffnet sich ein Modal, in dem der Name für den neuen Channel eingegeben wird. Der Channel wird als `🔫clip-<name>` unter der gewählten Kategorie (`clipCategoryMaleId` bzw. `clipCategoryFemaleId`) erstellt und ist **mit dieser Kategorie synchronisiert** (wie Discords "Berechtigungen synchronisieren"):
 
-- Alle Berechtigungen/Rollen, die auf der Kategorie `clipCategoryId` eingestellt sind, werden 1:1 auf den neuen Channel übernommen.
+- Alle Berechtigungen/Rollen, die auf der jeweiligen Kategorie eingestellt sind, werden 1:1 auf den neuen Channel übernommen.
 - Zusätzlich bekommt der **Ersteller** immer: sehen, schreiben, Verlauf lesen, Dateien anhängen.
 - Der **Bot** bekommt immer: sehen, schreiben, verwalten.
 
-Wichtig: Die Sichtbarkeit für alle anderen hängt jetzt von der Kategorie ab. Willst du, dass wirklich nur der Ersteller (und Admins) den Channel sehen, muss `@everyone` auf `clipCategoryId` selbst auf "Kanal anzeigen: Verweigern" stehen. Nutzer mit der Berechtigung **Administrator** sehen laut Discords Rechtesystem ohnehin automatisch **alle** Channels, unabhängig von den gesetzten Overwrites.
+Wichtig: Die Sichtbarkeit für alle anderen hängt jetzt von der jeweiligen Kategorie ab. Willst du, dass wirklich nur der Ersteller (und Admins) den Channel sehen, muss `@everyone` auf der Kategorie selbst auf "Kanal anzeigen: Verweigern" stehen. Nutzer mit der Berechtigung **Administrator** sehen laut Discords Rechtesystem ohnehin automatisch **alle** Channels, unabhängig von den gesetzten Overwrites.
 
 **Limit auf 1 Channel:** Hat ein Nutzer bereits einen (noch existierenden) Clip-Channel, wird beim Klick auf den Button abgelehnt, solange er nicht freigeschaltet ist. Ein Administrator schaltet mit `/clip-unlock nutzer:<@Nutzer>` einmalig einen weiteren Channel frei — die Freischaltung wird beim nächsten Erstellen automatisch wieder verbraucht. Wurde der bisherige Channel manuell gelöscht, erkennt der Bot das automatisch und erlaubt sofort wieder einen neuen.
 

@@ -6,13 +6,30 @@ const {
 } = require('discord.js');
 const { baseEmbed, errorEmbed } = require('../utils/embeds');
 const { canUseAdminCommands } = require('../utils/permissions');
+const config = require('../config.json');
 
 module.exports = {
   data: new SlashCommandBuilder()
     .setName('setup-clip-panel')
-    .setDescription('Postet das Panel zum Erstellen von Clip-Channels in diesen Channel.'),
+    .setDescription('Postet das Panel zum Erstellen von Clip-Channels.'),
 
   async execute(interaction) {
+    if (!canUseAdminCommands(interaction.member)) {
+      await interaction.reply({
+        embeds: [errorEmbed('Du hast keine Berechtigung, diesen Befehl zu benutzen.', interaction.client)],
+        ephemeral: true
+      });
+      return;
+    }
+
+    const targetChannel = await interaction.client.channels.fetch(config.clipPanelChannelId).catch(() => null);
+    if (!targetChannel) {
+      await interaction.reply({
+        embeds: [errorEmbed('Der Ziel-Channel für das Clip-Panel wurde nicht gefunden.', interaction.client)],
+        ephemeral: true
+      });
+      return;
+    }
 
     const embed = baseEmbed(interaction.client)
       .setTitle('🎬 Clip-Channel erstellen')
@@ -31,7 +48,7 @@ module.exports = {
         .setStyle(ButtonStyle.Primary)
     );
 
-    await interaction.channel.send({ embeds: [embed], components: [row] });
-    await interaction.reply({ content: 'Panel wurde gepostet.', ephemeral: true });
+    await targetChannel.send({ embeds: [embed], components: [row] });
+    await interaction.reply({ content: `Panel wurde in <#${config.clipPanelChannelId}> gepostet.`, ephemeral: true });
   }
 };

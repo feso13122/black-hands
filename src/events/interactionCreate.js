@@ -3,6 +3,8 @@ const {
   TextInputBuilder,
   TextInputStyle,
   ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
   ChannelType,
   PermissionFlagsBits
 } = require('discord.js');
@@ -136,8 +138,33 @@ module.exports = {
         }
       }
 
+      const row = new ActionRowBuilder().addComponents(
+        new ButtonBuilder()
+          .setCustomId('create_clip_channel_male')
+          .setLabel('Männer')
+          .setEmoji('👨')
+          .setStyle(ButtonStyle.Primary),
+        new ButtonBuilder()
+          .setCustomId('create_clip_channel_female')
+          .setLabel('Frauen')
+          .setEmoji('👩')
+          .setStyle(ButtonStyle.Primary)
+      );
+
+      await interaction.reply({
+        content: 'Wähle die Kategorie für deinen Clip-Channel:',
+        components: [row],
+        ephemeral: true
+      });
+      return;
+    }
+
+    // Button: Kategorie (Männer/Frauen) gewählt -> Modal öffnen
+    if (interaction.isButton() && (interaction.customId === 'create_clip_channel_male' || interaction.customId === 'create_clip_channel_female')) {
+      const gender = interaction.customId === 'create_clip_channel_male' ? 'male' : 'female';
+
       const modal = new ModalBuilder()
-        .setCustomId('clip_channel_modal')
+        .setCustomId(`clip_channel_modal_${gender}`)
         .setTitle('Clip-Channel erstellen');
 
       const nameInput = new TextInputBuilder()
@@ -155,16 +182,20 @@ module.exports = {
     }
 
     // Modal-Submit: Channel tatsächlich erstellen
-    if (interaction.isModalSubmit() && interaction.customId === 'clip_channel_modal') {
+    if (interaction.isModalSubmit() && interaction.customId.startsWith('clip_channel_modal_')) {
       await interaction.deferReply({ ephemeral: true });
 
+      const gender = interaction.customId.replace('clip_channel_modal_', '');
       const rawName = interaction.fields.getTextInputValue('channel_name');
       const channelName = `🔫clip-${sanitizeChannelName(rawName)}`;
       const guild = interaction.guild;
 
       try {
-        const categoryId = config.clipCategoryId && !config.clipCategoryId.startsWith('KATEGORIE_ID')
-          ? config.clipCategoryId
+        const configuredCategoryId = gender === 'male'
+          ? config.clipCategoryMaleId
+          : config.clipCategoryFemaleId;
+        const categoryId = configuredCategoryId && !configuredCategoryId.startsWith('KATEGORIE_ID')
+          ? configuredCategoryId
           : null;
         const category = categoryId ? await guild.channels.fetch(categoryId).catch(() => null) : null;
 
