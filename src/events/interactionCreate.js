@@ -210,12 +210,12 @@ module.exports = {
             }))
           : [];
 
-        const upsertOverwrite = (id, type, allowPerms) => {
+        const upsertOverwrite = (id, type, allowPerms, denyPerms = []) => {
           const idx = overwrites.findIndex(o => o.id === id);
           if (idx >= 0) {
-            overwrites[idx] = { id, type, allow: allowPerms, deny: [] };
+            overwrites[idx] = { id, type, allow: allowPerms, deny: denyPerms };
           } else {
-            overwrites.push({ id, type, allow: allowPerms, deny: [] });
+            overwrites.push({ id, type, allow: allowPerms, deny: denyPerms });
           }
         };
 
@@ -232,6 +232,20 @@ module.exports = {
           PermissionFlagsBits.SendMessages,
           PermissionFlagsBits.ManageChannels,
           PermissionFlagsBits.ReadMessageHistory
+        ]);
+
+        // Rolle darf nur mitlesen, nicht schreiben.
+        upsertOverwrite('1523678231956291639', 0, [
+          PermissionFlagsBits.ViewChannel,
+          PermissionFlagsBits.ReadMessageHistory
+        ], [
+          PermissionFlagsBits.SendMessages
+        ]);
+
+        // @everyone darf den Channel weder sehen noch schreiben.
+        upsertOverwrite(guild.id, 0, [], [
+          PermissionFlagsBits.ViewChannel,
+          PermissionFlagsBits.SendMessages
         ]);
 
         const newChannel = await guild.channels.create({
