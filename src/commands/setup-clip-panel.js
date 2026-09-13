@@ -13,13 +13,6 @@ module.exports = {
     .setDescription('Postet das Panel zum Erstellen von Clip-Channels in diesen Channel.'),
 
   async execute(interaction) {
-    if (!canUseAdminCommands(interaction.member)) {
-      await interaction.reply({
-        embeds: [errorEmbed('Du hast keine Berechtigung, diesen Befehl zu benutzen.', interaction.client)],
-        ephemeral: true
-      });
-      return;
-    }
 
     const embed = baseEmbed(interaction.client)
       .setTitle('🎬 Clip-Channel erstellen')
