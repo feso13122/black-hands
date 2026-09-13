@@ -1,18 +1,18 @@
 {
   "embedColor": "#5865F2",
 
-  "welcomeChannelId": "1344357491357777991",
-  "leaveChannelId": "1344357491357777992",
-  "logChannelId": "1535776359325106247",
+  "welcomeChannelId": "",
+  "leaveChannelId": "",
+  "logChannelId": "1548701682655957042",
 
   "clipPanelChannelId": "1535768334358945942",
-  "clipCategoryId": "1535767354020073482",
+  "clipCategoryId": "1523678244811968513",
 
   "autoRoleId": "1535782072491180153",
 
-  "commandRoleIds": ["1344357490711728226", "1344370713490100366", "1344357490711728224", "1344357490711728225"],
+  "commandRoleIds": ["1523678231977525256", "1523678231977525255", "1523678231977525253", "1523678232359075873"],
 
-  "allianceChannelId": "1344357491844186138",
+  "allianceChannelId": "",
   "allianceRoleId": "1535782072491180153",
 
   "sanctionListChannelId": "1344357491844186132",
@@ -29,8 +29,8 @@
 
   "commandChannelId": "1535795990223786105",
 
-  "twitchNotificationChannelId": "1535798082711584778",
-  "twitchPingRoleId": "1535782072491180153",
+  "twitchNotificationChannelId": "1523678243629170731",
+  "twitchPingRoleId": "1523678231956291639",
   "twitchCheckIntervalMs": 60000,
 
   "lagerCommandChannelId": "1535803065800724640",
