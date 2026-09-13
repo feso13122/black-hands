@@ -8,7 +8,7 @@ function baseEmbed(client) {
 
   if (client?.user) {
     embed.setFooter({
-      text: 'Black Hands System',
+      text: 'CDS | Final System',
       iconURL: client.user.displayAvatarURL()
     });
   }

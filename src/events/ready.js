@@ -12,7 +12,7 @@ module.exports = {
 
     client.user.setPresence({
       activities: [{
-        name: 'Black Hands System By NXMZ Feso',
+        name: 'CDS | Final System',
         type: ActivityType.Streaming,
         url: 'https://www.twitch.tv/the_offical_feso2'
       }],

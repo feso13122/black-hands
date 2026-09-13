@@ -7,7 +7,7 @@ function buildMemberCountName(count) {
 }
 
 function buildRoleCountName(count) {
-  return `Black Hands: ${count}`;
+  return `CDS | Final: ${count}`;
 }
 
 async function createStatsChannel(guild, name) {
