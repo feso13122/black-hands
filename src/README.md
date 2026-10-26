@@ -160,7 +160,7 @@ Jede Aktion (`rein`/`raus`) aktualisiert automatisch die Lagerliste-Nachricht in
 
 ## Aufstellung ankündigen
 
-`/aufstellung datum:<TT.MM.JJJJ> uhrzeit:<HH:MM>` (nur für Administratoren/`commandRoleIds`, läuft im allgemeinen `commandChannelId`) postet eine neue Ankündigung "📢 Aufstellung ist am ..." in `aufstellungChannelId` und erwähnt dabei immer Rolle `1535782072491180153` im Nachrichtentext (echter Ping, da jede Ankündigung eine neue Nachricht ist statt einer bearbeiteten). Es gibt keine Liste/Historie, jede Ausführung postet einfach eine neue Ankündigung.
+`/aufstellung datum:<TT.MM.JJJJ> uhrzeit:<HH:MM>` (nur für Administratoren/`commandRoleIds`, läuft im allgemeinen `commandChannelId`) postet eine neue Ankündigung "📢 Aufstellung ist am ..." in `aufstellungChannelId` und erwähnt dabei immer Rolle `1541076051093098624` im Nachrichtentext (echter Ping, da jede Ankündigung eine neue Nachricht ist statt einer bearbeiteten). Es gibt keine Liste/Historie, jede Ausführung postet einfach eine neue Ankündigung.
 
 Unter der Ankündigung stehen zwei Buttons — **"Da"** und **"Nicht da"** — mit denen jeder angeben kann, ob er kommt. Klicks werden live im Embed als Mitglieder-Liste mit Zähler angezeigt (`✅ Da (n)` / `❌ Nicht da (n)`), erneutes Klicken wechselt die Angabe. Die Zuordnung läuft über die jeweilige Nachrichten-ID in `data/aufstellungData.json`, mehrere gleichzeitig laufende Aufstellungen tracken unabhängig voneinander.
 

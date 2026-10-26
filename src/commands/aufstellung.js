@@ -5,7 +5,7 @@ const { canUseAdminCommands } = require('../utils/permissions');
 const aufstellungStore = require('../utils/aufstellungStore');
 const { buildAufstellungMessage, buildAufstellungRow } = require('../utils/aufstellungPanel');
 
-const PING_ROLE_ID = '1535782072491180153';
+const PING_ROLE_ID = '1541076051093098624';
 
 module.exports = {
   data: new SlashCommandBuilder()

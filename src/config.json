@@ -14,7 +14,7 @@
   "commandRoleIds": ["1541076051109748745", "1541076051109748742", "1541076051109748741", "1564299381115461733"],
 
   "allianceChannelId": "",
-  "allianceRoleId": "1535782072491180153",
+  "allianceRoleId": "1541076051093098624",
 
   "sanctionListChannelId": "1564300243175219312",
   "sanctionPaidChannelId": "1541076052724424728",
@@ -38,7 +38,7 @@
   "lagerListChannelId": "1535800114487103609",
   "lagerLogChannelId": "1535803065800724640",
   "lagerInfoChannelId": "1535440487031377940",
-  "lagerRoleIds": ["1535782072491180153"],
+  "lagerRoleIds": ["1541076051093098624"],
 
   "serverStatsRoleId": "1541076051093098624",
 
