@@ -7,7 +7,7 @@ function buildMemberCountName(count) {
 }
 
 function buildRoleCountName(count) {
-  return `CDS | Final: ${count}`;
+  return `Kodex | Lunar: ${count}`;
 }
 
 async function createStatsChannel(guild, name) {

@@ -8,7 +8,7 @@ function baseEmbed(client) {
 
   if (client?.user) {
     embed.setFooter({
-      text: 'CDS | Final System',
+      text: 'Kodex | Lunar System',
       iconURL: client.user.displayAvatarURL()
     });
   }

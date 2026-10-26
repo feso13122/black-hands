@@ -12,7 +12,7 @@ module.exports = {
 
     client.user.setPresence({
       activities: [{
-        name: 'CDS | Final System',
+        name: 'Kodex | Lunar System',
         type: ActivityType.Streaming,
         url: 'https://www.twitch.tv/the_offical_feso2'
       }],

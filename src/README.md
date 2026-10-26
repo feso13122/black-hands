@@ -169,7 +169,7 @@ Unter der Ankündigung stehen zwei Buttons — **"Da"** und **"Nicht da"** — m
 `/serverstats` (nur für Administratoren/`commandRoleIds`) erstellt beim ersten Ausführen zwei gesperrte Voice-Channels (niemand kann ihnen beitreten, `@everyone` sieht sie nur):
 
 - `👥 Mitglieder: <Zahl>` — alle Mitglieder **ohne Bots**.
-- `CDS | Final: <Zahl>` — nur Mitglieder mit der Rolle aus `serverStatsRoleId`. Ist `serverStatsRoleId` nicht gesetzt, wird dieser Channel übersprungen.
+- `Kodex | Lunar: <Zahl>` — nur Mitglieder mit der Rolle aus `serverStatsRoleId`. Ist `serverStatsRoleId` nicht gesetzt, wird dieser Channel übersprungen.
 
 Beide Zahlen kommen aus **einem einzigen** `guild.members.fetch()`-Aufruf pro Aktualisierung — Discord limitiert volle Member-Abfragen scharf, zwei Aufrufe kurz hintereinander lösen sonst einen `GatewayRateLimitError` aus.
 
@@ -229,7 +229,7 @@ Dafür sind zusätzliche (nicht-privilegierte) Gateway-Intents in `index.js` akt
 ## Projektstruktur
 
 ```
-CDS | Final/
+Kodex | Lunar/
 ├── .env                     BOT_TOKEN, BOT_CLIENTID, BOT_GUILDID, TWITCH_CLIENT_ID, TWITCH_SECRET (Secrets, nicht in Git)
 ├── docker-compose.yml
 ├── Dockerfile
