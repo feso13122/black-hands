@@ -21,7 +21,7 @@ async function postFunkList(interaction) {
       { name: 'Passwort', value: passwort || 'Noch nicht gesetzt', inline: true }
     );
 
-  const pingRoleId = '1541076051080519715';
+  const pingRoleId = '1541076051093098624';
 
   // Discord löst bei Nachrichten-Edits KEINE neue Benachrichtigung aus -
   // deshalb wird die Rolle über eine eigene, neue Nachricht gepingt statt
