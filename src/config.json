@@ -34,12 +34,12 @@
   "twitchPingRoleId": "1541076051093098624",
   "twitchCheckIntervalMs": 60000,
 
-  "lagereinCommandChannelId": "1535803065800724640",
-  "lagerausCommandChannelId": "1535803065800724640",
-  "lagerListChannelId": "1535800114487103609",
-  "lagereinLogChannelId": "1535803065800724640",
-  "lagerausLogChannelId": "1535803065800724640",
-  "lagerInfoChannelId": "1535440487031377940",
+  "lagereinCommandChannelId": "1541076052724424732",
+  "lagerausCommandChannelId": "1541076052724424733",
+  "lagerListChannelId": "1566096739591655634",
+  "lagereinLogChannelId": "1541076052724424732",
+  "lagerausLogChannelId": "1541076052724424733",
+  "lagerInfoChannelId": "1566096739591655634",
   "lagerRoleIds": ["1541076051093098624", "1541076051109748741"],
 
   "kasseeinCommandChannelId": "1566098935406399600",
