@@ -1,5 +1,5 @@
 const { baseEmbed } = require('../utils/embeds');
-const { sendBanLog } = require('../utils/logger');
+const { sendCategoryLog } = require('../utils/logger');
 
 module.exports = {
   name: 'guildBanRemove',
@@ -13,6 +13,6 @@ module.exports = {
         { name: 'ID', value: `${ban.user.id}`, inline: false }
       );
 
-    await sendBanLog(ban.client, embed);
+    await sendCategoryLog(ban.client, 'logBanRemove', embed);
   }
 };

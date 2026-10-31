@@ -1,5 +1,5 @@
 const { baseEmbed } = require('../utils/embeds');
-const { sendLog } = require('../utils/logger');
+const { sendCategoryLog } = require('../utils/logger');
 
 module.exports = {
   name: 'guildScheduledEventDelete',
@@ -9,6 +9,6 @@ module.exports = {
       .setTitle('📅 Server-Event gelöscht')
       .addFields({ name: 'Name', value: `${event.name}`, inline: false });
 
-    await sendLog(event.client, embed);
+    await sendCategoryLog(event.client, 'logEventDelete', embed);
   }
 };

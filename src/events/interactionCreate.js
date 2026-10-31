@@ -10,7 +10,7 @@ const {
 } = require('discord.js');
 const config = require('../config.json');
 const { baseEmbed, errorEmbed, successEmbed } = require('../utils/embeds');
-const { sendLog } = require('../utils/logger');
+const { sendCategoryLog } = require('../utils/logger');
 const clipStore = require('../utils/clipStore');
 const absenceStore = require('../utils/absenceStore');
 const { updateAbsencePanel, notifyNewAbsence } = require('../utils/absencePanel');
@@ -56,7 +56,7 @@ async function logCommandExecution(interaction) {
       { name: 'Optionen', value: summarizeCommandOptions(interaction).slice(0, 1024), inline: false }
     );
 
-  await sendLog(interaction.client, embed);
+  await sendCategoryLog(interaction.client, 'logCommands', embed);
 }
 
 module.exports = {
@@ -112,6 +112,16 @@ module.exports = {
         } else {
           await interaction.reply(payload);
         }
+
+        const errorEmbedLog = baseEmbed(client)
+          .setColor('#ED4245')
+          .setTitle('💥 Fehler bei Command-Ausführung')
+          .addFields(
+            { name: 'Command', value: `\`/${interaction.commandName}\``, inline: true },
+            { name: 'Nutzer', value: `${interaction.user} (${interaction.user.tag})`, inline: true },
+            { name: 'Fehler', value: `${err.message}`.slice(0, 1024), inline: false }
+          );
+        await sendCategoryLog(client, 'logErrors', errorEmbedLog).catch(() => {});
       }
       return;
     }
@@ -276,7 +286,7 @@ module.exports = {
             { name: 'Channel', value: `${newChannel}`, inline: false },
             { name: 'ID', value: `${newChannel.id}`, inline: false }
           );
-        await sendLog(client, logEmbed);
+        await sendCategoryLog(client, 'logServer', logEmbed);
       } catch (err) {
         console.error('Fehler beim Erstellen des Clip-Channels:', err);
         await interaction.editReply({

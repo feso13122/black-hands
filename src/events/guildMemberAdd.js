@@ -1,6 +1,6 @@
 const config = require('../config.json');
 const { baseEmbed } = require('../utils/embeds');
-const { sendLog } = require('../utils/logger');
+const { sendCategoryLog } = require('../utils/logger');
 const { buildWelcomeEmbed } = require('../utils/memberEmbeds');
 
 module.exports = {
@@ -40,6 +40,6 @@ module.exports = {
         { name: 'Mitgliederanzahl', value: `${guild.memberCount}`, inline: false },
         { name: 'ID', value: `${user.id}`, inline: false }
       );
-    await sendLog(client, logEmbed);
+    await sendCategoryLog(client, 'logMember', logEmbed);
   }
 };

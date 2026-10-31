@@ -1,5 +1,5 @@
 const { baseEmbed } = require('../utils/embeds');
-const { sendLog } = require('../utils/logger');
+const { sendCategoryLog } = require('../utils/logger');
 
 module.exports = {
   name: 'guildUpdate',
@@ -26,6 +26,6 @@ module.exports = {
       .setTitle('🔧 Servereinstellungen geändert')
       .addFields(...changes);
 
-    await sendLog(newGuild.client, embed);
+    await sendCategoryLog(newGuild.client, 'logGuildUpdate', embed);
   }
 };

@@ -13,33 +13,19 @@ async function sendToChannel(client, channelId, embed) {
   }
 }
 
-// Allgemeine Logs (alles, was keine eigene Kategorie unten hat).
+// Schickt ein Embed in den Log-Channel der übergebenen Kategorie
+// (config.logChannels.<key>). Ist für diese Kategorie noch keine eigene
+// Channel-ID eingetragen, fällt die Nachricht auf logChannels.logServer
+// zurück (den allgemeinen Server-Log).
+async function sendCategoryLog(client, key, embed) {
+  const channels = config.logChannels || {};
+  const channelId = channels[key] || channels.logServer;
+  await sendToChannel(client, channelId, embed);
+}
+
+// Kurzform für den allgemeinen Server-Log (logServer selbst).
 async function sendLog(client, embed) {
-  await sendToChannel(client, config.logChannelId, embed);
+  await sendCategoryLog(client, 'logServer', embed);
 }
 
-// Kicks - fällt auf logChannelId zurück, falls kickLogChannelId nicht
-// konfiguriert ist.
-async function sendKickLog(client, embed) {
-  await sendToChannel(client, config.kickLogChannelId || config.logChannelId, embed);
-}
-
-// Bans/Unbans - fällt auf logChannelId zurück, falls banLogChannelId nicht
-// konfiguriert ist.
-async function sendBanLog(client, embed) {
-  await sendToChannel(client, config.banLogChannelId || config.logChannelId, embed);
-}
-
-// Nachrichten gelöscht/bearbeitet - fällt auf logChannelId zurück, falls
-// nachrichtenLogChannelId nicht konfiguriert ist.
-async function sendMessageLog(client, embed) {
-  await sendToChannel(client, config.nachrichtenLogChannelId || config.logChannelId, embed);
-}
-
-// Voice-/Talk-Events - fällt auf logChannelId zurück, falls
-// talkLogChannelId nicht konfiguriert ist.
-async function sendVoiceLog(client, embed) {
-  await sendToChannel(client, config.talkLogChannelId || config.logChannelId, embed);
-}
-
-module.exports = { sendLog, sendKickLog, sendBanLog, sendMessageLog, sendVoiceLog };
+module.exports = { sendLog, sendCategoryLog };

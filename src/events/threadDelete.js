@@ -1,5 +1,5 @@
 const { baseEmbed } = require('../utils/embeds');
-const { sendLog } = require('../utils/logger');
+const { sendCategoryLog } = require('../utils/logger');
 
 module.exports = {
   name: 'threadDelete',
@@ -12,6 +12,6 @@ module.exports = {
         { name: 'In Channel', value: thread.parent ? `${thread.parent}` : 'Unbekannt', inline: true }
       );
 
-    await sendLog(thread.client, embed);
+    await sendCategoryLog(thread.client, 'logThreadDelete', embed);
   }
 };

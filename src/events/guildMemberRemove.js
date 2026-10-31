@@ -1,7 +1,7 @@
 const { AuditLogEvent } = require('discord.js');
 const config = require('../config.json');
 const { baseEmbed } = require('../utils/embeds');
-const { sendLog, sendKickLog } = require('../utils/logger');
+const { sendCategoryLog } = require('../utils/logger');
 const { buildLeaveEmbed } = require('../utils/memberEmbeds');
 
 // Prüft per Audit-Log, ob das Mitglied gekickt wurde (statt selbst zu
@@ -53,7 +53,7 @@ module.exports = {
           { name: 'Rollen', value: roles.slice(0, 1024), inline: false },
           { name: 'ID', value: `${user.id}`, inline: false }
         );
-      await sendKickLog(client, kickEmbed);
+      await sendCategoryLog(client, 'logModeration', kickEmbed);
       return;
     }
 
@@ -67,6 +67,6 @@ module.exports = {
         { name: 'Mitgliederanzahl', value: `${guild.memberCount}`, inline: false },
         { name: 'ID', value: `${user.id}`, inline: false }
       );
-    await sendLog(client, logEmbed);
+    await sendCategoryLog(client, 'logMember', logEmbed);
   }
 };

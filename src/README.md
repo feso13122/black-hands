@@ -179,19 +179,40 @@ Alle vier Subcommands sind auf `canUseBosslager` beschränkt (Administratoren/`c
 
 ## Log-Channels automatisch erstellen
 
-`/logcreator` (nur für Administratoren/`commandRoleIds`) legt für alles, was der Bot irgendwo loggen kann, automatisch einen eigenen Text-Channel in der fest hinterlegten Log-Kategorie `1541076054989607040` an:
+Jede Log-Kategorie hat einen eigenen Channel unter `config.logChannels.<key>` (z. B. `logChannels.logBanAdd`). `utils/logger.js` exportiert dafür `sendCategoryLog(client, key, embed)`: schickt das Embed in `logChannels.<key>`, oder - falls dafür noch keine Channel-ID eingetragen ist - in `logChannels.logServer` (den allgemeinen Fallback-Log). Jedes Event-/Command-File ruft das mit seinem eigenen Key auf, dadurch landet jede Art von Log automatisch im richtigen Channel, sobald er konfiguriert ist:
 
-- `logChannelId` (alle Gateway-Events ohne eigene Kategorie: Channel-/Rollen-/Emoji-/Thread-/Invite-/Webhook-Änderungen, Member-Join/-Update, Scheduled Events, ausgeführte Commands, Clip-Channel-Erstellung, ...)
-- `kickLogChannelId` (gekickte Mitglieder, per Audit-Log von normalem Verlassen unterschieden), `banLogChannelId` (Bans/Unbans), `nachrichtenLogChannelId` (gelöschte/bearbeitete Nachrichten), `talkLogChannelId` (Voice-Channel-Aktivität)
-- `sanctionAddChannelId`, `sanctionPaidChannelId`, `lagereinLogChannelId`, `lagerausLogChannelId`, `kasseeinLogChannelId`, `kasseausLogChannelId`, `bosslagereinLogChannelId`, `bosslagerausLogChannelId`.
+| Key | Inhalt |
+| --- | --- |
+| `logCommands` | Ausgeführte Slash-Commands |
+| `logMember` | Mitglied beigetreten / normal verlassen |
+| `logUserUpdate` | Rollen/Nickname/Timeout eines Mitglieds geändert |
+| `logServer` | Fallback für alles ohne eigenen Key (+ Clip-Channel-Erstellung) |
+| `logGuildUpdate` | Servereinstellungen geändert |
+| `logVoice` | Voice-Channel-Aktivität |
+| `logModeration` | Kicks (per Audit-Log von normalem Verlassen unterschieden, mit Moderator+Grund) |
+| `logErrors` | Fehler bei der Command-Ausführung |
+| `logMessageDelete` / `logMessageDeleteBulk` / `logMessageEdit` | Nachrichten gelöscht / massenhaft gelöscht / bearbeitet |
+| `logReactionAdd` / `logReactionRemove` | Reaktionen hinzugefügt/entfernt |
+| `logChannelCreate` / `logChannelDelete` / `logChannelUpdate` | Channel erstellt/gelöscht/bearbeitet |
+| `logRoleCreate` / `logRoleDelete` / `logRoleUpdate` | Rolle erstellt/gelöscht/bearbeitet |
+| `logInviteCreate` / `logInviteDelete` | Invite erstellt/gelöscht |
+| `logEmojiCreate` / `logEmojiDelete` / `logEmojiUpdate` | Emoji erstellt/gelöscht/umbenannt |
+| `logStickerCreate` / `logStickerDelete` / `logStickerUpdate` | Sticker erstellt/gelöscht/bearbeitet |
+| `logThreadCreate` / `logThreadDelete` / `logThreadUpdate` | Thread erstellt/gelöscht/bearbeitet |
+| `logBanAdd` / `logBanRemove` | Ban/Unban |
+| `logEventCreate` / `logEventDelete` / `logEventUpdate` | Server-Event erstellt/gelöscht/bearbeitet |
+| `logWebhookUpdate` | Webhooks geändert |
+| `logAutoMod` | AutoMod-Aktion ausgeführt |
 
-Für jeden dieser Config-Keys prüft der Befehl, ob schon eine gültige Channel-ID eingetragen ist:
+Nicht übernommen (keine entsprechende Funktion im Bot): `logTicket`/`transcriptChannel` (kein Ticket-System), `logPayments` (kein Payment-System), `logChat` (keine generische Chat-Mitschnitt-Funktion, abgedeckt durch `logMessageDelete`/`logMessageEdit`), `logConsole` (kein rohes Konsolen-Mirroring, zu Spam-anfällig), `logRoles` (redundant zu `logRoleCreate`/`logRoleDelete`/`logRoleUpdate`).
+
+`/logcreator` (nur für Administratoren/`commandRoleIds`) legt für **alle** diese `logChannels`-Keys sowie für die restlichen feature-eigenen Log-Channels (`sanctionAddChannelId`, `sanctionPaidChannelId`, `lagereinLogChannelId`, `lagerausLogChannelId`, `kasseeinLogChannelId`, `kasseausLogChannelId`, `bosslagereinLogChannelId`, `bosslagerausLogChannelId`) automatisch einen eigenen Text-Channel in der fest hinterlegten Log-Kategorie `1541076054989607040` an:
 
 - Existiert der Channel bereits (per ID), wird er (falls nötig) in die Log-Kategorie verschoben und per `channel.setParent(..., { lockPermissions: true })`/`channel.lockPermissions()` mit deren Berechtigungen synchronisiert.
 - Wurde noch keine ID eingetragen, aber in der Kategorie existiert schon ein Channel mit dem passenden Namen (z. B. `kick`, `ban`, `nachrichten-log`, `talk` - falls manuell angelegt), wird dieser übernommen statt dupliziert.
 - Existiert wirklich noch kein Channel, wird einer neu in der Kategorie erstellt (automatisch mit der Kategorie gesynct).
 
-In jedem dieser Fälle wird die (neue oder gefundene) Channel-ID direkt über `updateConfig()` in `config.json` geschrieben — kein Bot-Neustart nötig, die Änderung gilt sofort. `sendKickLog`/`sendBanLog`/`sendMessageLog`/`sendVoiceLog` in `utils/logger.js` fallen automatisch auf `logChannelId` zurück, solange der jeweilige Key noch nicht gesetzt ist.
+In jedem dieser Fälle wird die (neue oder gefundene) Channel-ID direkt über `updateConfig()` in `config.json` geschrieben — kein Bot-Neustart nötig, die Änderung gilt sofort.
 
 ## Aufstellung ankündigen
 

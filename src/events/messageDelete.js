@@ -1,5 +1,5 @@
 const { baseEmbed } = require('../utils/embeds');
-const { sendMessageLog } = require('../utils/logger');
+const { sendCategoryLog } = require('../utils/logger');
 
 module.exports = {
   name: 'messageDelete',
@@ -24,6 +24,6 @@ module.exports = {
       });
     }
 
-    await sendMessageLog(message.client, embed);
+    await sendCategoryLog(message.client, 'logMessageDelete', embed);
   }
 };

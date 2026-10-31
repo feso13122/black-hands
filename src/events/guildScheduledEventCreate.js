@@ -1,5 +1,5 @@
 const { baseEmbed } = require('../utils/embeds');
-const { sendLog } = require('../utils/logger');
+const { sendCategoryLog } = require('../utils/logger');
 
 module.exports = {
   name: 'guildScheduledEventCreate',
@@ -12,6 +12,6 @@ module.exports = {
         { name: 'Start', value: event.scheduledStartAt ? `<t:${Math.floor(event.scheduledStartAt.getTime() / 1000)}:f>` : 'Unbekannt', inline: true }
       );
 
-    await sendLog(event.client, embed);
+    await sendCategoryLog(event.client, 'logEventCreate', embed);
   }
 };

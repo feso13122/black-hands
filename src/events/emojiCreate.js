@@ -1,5 +1,5 @@
 const { baseEmbed } = require('../utils/embeds');
-const { sendLog } = require('../utils/logger');
+const { sendCategoryLog } = require('../utils/logger');
 
 module.exports = {
   name: 'emojiCreate',
@@ -13,6 +13,6 @@ module.exports = {
         { name: 'ID', value: `${emoji.id}`, inline: true }
       );
 
-    await sendLog(emoji.client, embed);
+    await sendCategoryLog(emoji.client, 'logEmojiCreate', embed);
   }
 };

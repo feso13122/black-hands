@@ -1,5 +1,5 @@
 const { baseEmbed } = require('../utils/embeds');
-const { sendVoiceLog } = require('../utils/logger');
+const { sendCategoryLog } = require('../utils/logger');
 
 module.exports = {
   name: 'voiceStateUpdate',
@@ -34,6 +34,6 @@ module.exports = {
       .setTitle(title)
       .setDescription(description);
 
-    await sendVoiceLog(user.client, embed);
+    await sendCategoryLog(user.client, 'logVoice', embed);
   }
 };

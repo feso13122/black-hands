@@ -1,5 +1,5 @@
 const { baseEmbed } = require('../utils/embeds');
-const { sendLog } = require('../utils/logger');
+const { sendCategoryLog } = require('../utils/logger');
 
 module.exports = {
   name: 'webhookUpdate',
@@ -9,6 +9,6 @@ module.exports = {
       .setTitle('🔧 Webhooks geändert')
       .addFields({ name: 'Channel', value: `${channel}`, inline: false });
 
-    await sendLog(channel.client, embed);
+    await sendCategoryLog(channel.client, 'logWebhookUpdate', embed);
   }
 };

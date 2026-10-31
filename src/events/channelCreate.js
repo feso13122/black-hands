@@ -1,6 +1,6 @@
 const { ChannelType } = require('discord.js');
 const { baseEmbed } = require('../utils/embeds');
-const { sendLog } = require('../utils/logger');
+const { sendCategoryLog } = require('../utils/logger');
 
 module.exports = {
   name: 'channelCreate',
@@ -16,6 +16,6 @@ module.exports = {
         { name: 'ID', value: `${channel.id}`, inline: true }
       );
 
-    await sendLog(channel.client, embed);
+    await sendCategoryLog(channel.client, 'logChannelCreate', embed);
   }
 };

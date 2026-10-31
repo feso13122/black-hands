@@ -1,5 +1,5 @@
 const { baseEmbed } = require('../utils/embeds');
-const { sendMessageLog } = require('../utils/logger');
+const { sendCategoryLog } = require('../utils/logger');
 
 module.exports = {
   name: 'messageDeleteBulk',
@@ -14,6 +14,6 @@ module.exports = {
         { name: 'Anzahl', value: `${messages.size}`, inline: true }
       );
 
-    await sendMessageLog(channel.client, embed);
+    await sendCategoryLog(channel.client, 'logMessageDeleteBulk', embed);
   }
 };

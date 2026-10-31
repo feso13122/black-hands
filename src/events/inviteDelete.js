@@ -1,5 +1,5 @@
 const { baseEmbed } = require('../utils/embeds');
-const { sendLog } = require('../utils/logger');
+const { sendCategoryLog } = require('../utils/logger');
 
 module.exports = {
   name: 'inviteDelete',
@@ -12,6 +12,6 @@ module.exports = {
         { name: 'Channel', value: `${invite.channel}`, inline: true }
       );
 
-    await sendLog(invite.client, embed);
+    await sendCategoryLog(invite.client, 'logInviteDelete', embed);
   }
 };

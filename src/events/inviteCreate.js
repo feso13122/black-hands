@@ -1,5 +1,5 @@
 const { baseEmbed } = require('../utils/embeds');
-const { sendLog } = require('../utils/logger');
+const { sendCategoryLog } = require('../utils/logger');
 
 module.exports = {
   name: 'inviteCreate',
@@ -15,6 +15,6 @@ module.exports = {
         { name: 'Läuft ab', value: invite.maxAge ? `<t:${Math.floor((Date.now() + invite.maxAge * 1000) / 1000)}:R>` : 'Nie', inline: true }
       );
 
-    await sendLog(invite.client, embed);
+    await sendCategoryLog(invite.client, 'logInviteCreate', embed);
   }
 };

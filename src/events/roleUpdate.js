@@ -1,5 +1,5 @@
 const { baseEmbed } = require('../utils/embeds');
-const { sendLog } = require('../utils/logger');
+const { sendCategoryLog } = require('../utils/logger');
 
 module.exports = {
   name: 'roleUpdate',
@@ -32,6 +32,6 @@ module.exports = {
         { name: 'ID', value: `${newRole.id}`, inline: false }
       );
 
-    await sendLog(newRole.client, embed);
+    await sendCategoryLog(newRole.client, 'logRoleUpdate', embed);
   }
 };

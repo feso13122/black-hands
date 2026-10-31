@@ -1,5 +1,5 @@
 const { baseEmbed } = require('../utils/embeds');
-const { sendLog } = require('../utils/logger');
+const { sendCategoryLog } = require('../utils/logger');
 
 module.exports = {
   name: 'guildMemberUpdate',
@@ -39,6 +39,6 @@ module.exports = {
       });
     }
 
-    await sendLog(newMember.client, embed);
+    await sendCategoryLog(newMember.client, 'logUserUpdate', embed);
   }
 };
