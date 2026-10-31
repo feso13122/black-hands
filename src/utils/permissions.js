@@ -35,4 +35,10 @@ function canUseKasse(member) {
   return hasAnyRole(member, config.kasseRoleIds);
 }
 
-module.exports = { canUseAdminCommands, canManageAllianceAndSanctions, canUseLager, canUseKasse, isOwner };
+function canUseBosslager(member) {
+  if (!member) return false;
+  if (canUseAdminCommands(member)) return true;
+  return hasAnyRole(member, config.bosslagerRoleIds);
+}
+
+module.exports = { canUseAdminCommands, canManageAllianceAndSanctions, canUseLager, canUseKasse, canUseBosslager, isOwner };

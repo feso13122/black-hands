@@ -78,7 +78,7 @@ module.exports = {
 
     // Commands mit eigener, abweichender Channel-Sperre (statt der globalen
     // commandChannelId) - prüfen ihren erlaubten Channel selbst in execute().
-    const COMMANDS_WITH_OWN_CHANNEL_LOCK = ['lager'];
+    const COMMANDS_WITH_OWN_CHANNEL_LOCK = ['lager', 'kasse', 'bosslager'];
 
     // Slash-Commands
     if (interaction.isChatInputCommand()) {

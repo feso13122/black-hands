@@ -167,6 +167,27 @@ Jede Aktion (`rein`/`raus`) aktualisiert automatisch die Lagerliste-Nachricht in
 
 Beide Rollen-Beschränkungen laufen über `canUseKasse` (Administratoren/`commandRoleIds`/`kasseRoleIds`). Jede Aktion aktualisiert die Kassenstand-Nachricht in `kasseListChannelId` und postet einen Log-Eintrag in `kasseeinLogChannelId` bzw. `kasseausLogChannelId`. Die Daten liegen in `data/kasseData.json`.
 
+## Boss-Lager
+
+Eigenständiges zweites Lager, komplett getrennt vom normalen Lager (eigene Daten, eigene Liste), nur für Bosse:
+
+- `/bosslager rein item:<Name> menge:<Zahl>` legt Items ins Boss-Lager — nur in `bosslagerEinCommandChannelId`.
+- `/bosslager raus item:<Name> menge:<Zahl>` nimmt Items raus — schlägt fehl, wenn nicht genug Bestand da ist. Nur in `bosslagerAusCommandChannelId`.
+- `/bosslager liste` aktualisiert die Boss-Lagerliste-Nachricht, `/bosslager info` postet/aktualisiert ein Info-Panel mit Beispielen. Beide laufen im gleichen Channel `bosslagerInfoListeChannelId`.
+
+Alle vier Subcommands sind auf `canUseBosslager` beschränkt (Administratoren/`commandRoleIds`/`bosslagerRoleIds`) — anders als beim normalen Lager dürfen hier also nicht alle Nutzer `rein`/`raus` benutzen. Die Liste wird in `bosslagerInfoListeChannelId` gepostet (eine einzige Nachricht, die bearbeitet wird). Die Daten liegen in `data/bosslagerData.json`.
+
+## Log-Channels automatisch erstellen
+
+`/logcreator` (nur für Administratoren/`commandRoleIds`) legt für alles, was der Bot irgendwo loggen kann, automatisch einen eigenen Text-Channel in der fest hinterlegten Log-Kategorie `1541076054989607040` an:
+
+- `logChannelId` (allgemeine Gateway-/Command-Logs), `sanctionAddChannelId`, `sanctionPaidChannelId`, `lagereinLogChannelId`, `lagerausLogChannelId`, `kasseeinLogChannelId`, `kasseausLogChannelId`.
+
+Für jeden dieser Config-Keys prüft der Befehl, ob schon eine gültige Channel-ID eingetragen ist:
+
+- Existiert der Channel bereits, wird er (falls nötig) in die Log-Kategorie verschoben und per `channel.setParent(..., { lockPermissions: true })`/`channel.lockPermissions()` mit deren Berechtigungen synchronisiert.
+- Existiert noch kein Channel, wird einer neu in der Kategorie erstellt (automatisch mit der Kategorie gesynct) und die neue Channel-ID direkt über `updateConfig()` in `config.json` geschrieben — kein Bot-Neustart nötig, die Änderung gilt sofort.
+
 ## Aufstellung ankündigen
 
 `/aufstellung datum:<TT.MM.JJJJ> uhrzeit:<HH:MM>` (nur für Administratoren/`commandRoleIds`, läuft im allgemeinen `commandChannelId`) postet eine neue Ankündigung "📢 Aufstellung ist am ..." in `aufstellungChannelId` und erwähnt dabei immer Rolle `1541076051093098624` im Nachrichtentext (echter Ping, da jede Ankündigung eine neue Nachricht ist statt einer bearbeiteten). Es gibt keine Liste/Historie, jede Ausführung postet einfach eine neue Ankündigung.

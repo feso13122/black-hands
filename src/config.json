@@ -49,6 +49,11 @@
   "kasseausLogChannelId": "1566098935406399600",
   "kasseRoleIds": ["1541076051109748741", "1564299381115461733"],
 
+  "bosslagerEinCommandChannelId": "1566103205991948348",
+  "bosslagerAusCommandChannelId": "1566103340864114908",
+  "bosslagerInfoListeChannelId": "1566103485580054628",
+  "bosslagerRoleIds": ["1541076051109748741", "1564299381115461733"],
+
   "serverStatsRoleId": "1541076051093098624",
 
   "funkListChannelId": "1564205116683194448",

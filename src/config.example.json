@@ -46,6 +46,11 @@
   "kasseausLogChannelId": "CHANNEL_ID_FUER_KASSE_AUS_LOGS",
   "kasseRoleIds": ["ROLLEN_ID_1", "ROLLEN_ID_2"],
 
+  "bosslagerEinCommandChannelId": "CHANNEL_ID_FUER_BOSSLAGER_REIN",
+  "bosslagerAusCommandChannelId": "CHANNEL_ID_FUER_BOSSLAGER_RAUS",
+  "bosslagerInfoListeChannelId": "CHANNEL_ID_FUER_BOSSLAGER_INFO_UND_LISTE",
+  "bosslagerRoleIds": ["ROLLEN_ID_1", "ROLLEN_ID_2"],
+
   "serverStatsRoleId": "ROLLEN_ID_DEREN_ANZAHL_IM_STATS_CHANNEL_ANGEZEIGT_WIRD",
 
   "funkListChannelId": "CHANNEL_ID_FUER_DIE_FUNKLISTE",
