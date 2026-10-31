@@ -32,10 +32,19 @@
   "twitchPingRoleId": "ROLLEN_ID_DIE_BEI_TWITCH_LIVE_ERWAEHNT_WIRD",
   "twitchCheckIntervalMs": 60000,
 
-  "lagerCommandChannelId": "CHANNEL_ID_IN_DEM_LAGER_BEFEHLE_AUSGEFUEHRT_WERDEN_DUERFEN",
+  "lagereinCommandChannelId": "CHANNEL_ID_FUER_LAGER_REIN",
+  "lagerausCommandChannelId": "CHANNEL_ID_FUER_LAGER_RAUS",
   "lagerListChannelId": "CHANNEL_ID_FUER_DIE_LAGERLISTE",
-  "lagerLogChannelId": "CHANNEL_ID_FUER_LAGER_LOGS",
+  "lagereinLogChannelId": "CHANNEL_ID_FUER_LAGER_REIN_LOGS",
+  "lagerausLogChannelId": "CHANNEL_ID_FUER_LAGER_RAUS_LOGS",
   "lagerRoleIds": ["ROLLEN_ID_1", "ROLLEN_ID_2"],
+
+  "kasseeinCommandChannelId": "CHANNEL_ID_FUER_KASSE_EINZAHLUNGEN",
+  "kasseausCommandChannelId": "CHANNEL_ID_FUER_KASSE_AUSZAHLUNGEN",
+  "kasseListChannelId": "CHANNEL_ID_FUER_DIE_KASSENLISTE",
+  "kasseeinLogChannelId": "CHANNEL_ID_FUER_KASSE_EIN_LOGS",
+  "kasseausLogChannelId": "CHANNEL_ID_FUER_KASSE_AUS_LOGS",
+  "kasseRoleIds": ["ROLLEN_ID_1", "ROLLEN_ID_2"],
 
   "serverStatsRoleId": "ROLLEN_ID_DEREN_ANZAHL_IM_STATS_CHANNEL_ANGEZEIGT_WIRD",
 

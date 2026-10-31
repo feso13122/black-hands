@@ -29,4 +29,10 @@ function canUseLager(member) {
   return hasAnyRole(member, config.lagerRoleIds);
 }
 
-module.exports = { canUseAdminCommands, canManageAllianceAndSanctions, canUseLager, isOwner };
+function canUseKasse(member) {
+  if (!member) return false;
+  if (canUseAdminCommands(member)) return true;
+  return hasAnyRole(member, config.kasseRoleIds);
+}
+
+module.exports = { canUseAdminCommands, canManageAllianceAndSanctions, canUseLager, canUseKasse, isOwner };

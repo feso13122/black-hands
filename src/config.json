@@ -34,11 +34,20 @@
   "twitchPingRoleId": "1541076051093098624",
   "twitchCheckIntervalMs": 60000,
 
-  "lagerCommandChannelId": "1535803065800724640",
+  "lagereinCommandChannelId": "1535803065800724640",
+  "lagerausCommandChannelId": "1535803065800724640",
   "lagerListChannelId": "1535800114487103609",
-  "lagerLogChannelId": "1535803065800724640",
+  "lagereinLogChannelId": "1535803065800724640",
+  "lagerausLogChannelId": "1535803065800724640",
   "lagerInfoChannelId": "1535440487031377940",
   "lagerRoleIds": ["1541076051093098624"],
+
+  "kasseeinCommandChannelId": "CHANNEL_ID_FUER_KASSE_EINZAHLUNGEN",
+  "kasseausCommandChannelId": "CHANNEL_ID_FUER_KASSE_AUSZAHLUNGEN",
+  "kasseListChannelId": "CHANNEL_ID_FUER_DIE_KASSENLISTE",
+  "kasseeinLogChannelId": "CHANNEL_ID_FUER_KASSE_EIN_LOGS",
+  "kasseausLogChannelId": "CHANNEL_ID_FUER_KASSE_AUS_LOGS",
+  "kasseRoleIds": ["1541076051093098624"],
 
   "serverStatsRoleId": "1541076051093098624",
 

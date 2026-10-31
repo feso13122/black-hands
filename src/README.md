@@ -56,7 +56,8 @@ Ein Discord.js-Bot mit:
    - `commandListChannelId` (Channel, in den `/command-liste` die Befehlsübersicht postet)
    - `commandChannelId` (einziger Channel, in dem überhaupt irgendein Slash-Command benutzt werden darf — siehe unten)
    - `twitchNotificationChannelId` (Channel für Live-Benachrichtigungen), `twitchPingRoleId` (Rolle, die dabei erwähnt wird), `twitchCheckIntervalMs` (wie oft geprüft wird, Standard 60000 = 1 Minute)
-   - `lagerCommandChannelId` (einziger Channel, in dem `/lager rein`/`/lager raus` benutzt werden dürfen — für alle Nutzer offen), `lagerListChannelId` (Channel für die laufend aktualisierte Lagerliste), `lagerLogChannelId` (Channel für Rein/Raus-Logs), `lagerRoleIds` (zusätzliche Rollen-IDs, die `/lager liste` benutzen dürfen, unabhängig von `commandRoleIds`)
+   - `lagereinCommandChannelId` (einziger Channel, in dem `/lager rein` benutzt werden darf — für alle Nutzer offen), `lagerausCommandChannelId` (einziger Channel, in dem `/lager raus` benutzt werden darf), `lagerListChannelId` (Channel für die laufend aktualisierte Lagerliste), `lagereinLogChannelId`/`lagerausLogChannelId` (Channel für Rein-/Raus-Logs), `lagerRoleIds` (zusätzliche Rollen-IDs, die `/lager liste` benutzen dürfen, unabhängig von `commandRoleIds`)
+   - `kasseeinCommandChannelId` (einziger Channel, in dem `/kasse ein` benutzt werden darf), `kasseausCommandChannelId` (einziger Channel, in dem `/kasse aus` benutzt werden darf), `kasseListChannelId` (Channel für den laufend aktualisierten Kassenstand), `kasseeinLogChannelId`/`kasseausLogChannelId` (Channel für Ein-/Auszahlungs-Logs), `kasseRoleIds` (Rollen-IDs, die `/kasse` benutzen dürfen, unabhängig von `commandRoleIds`)
    - `serverStatsRoleId` (Rolle, deren Mitgliederzahl `/serverstats` im zweiten Stats-Channel anzeigt)
    - `funkListChannelId` (Channel für die Funkliste-Nachricht mit aktuellem Funk und Passwort)
    - `klamottenListChannelId` (Channel für das Klamotten-Panel mit Torso/Hose/Shirt/Aufkleber)
@@ -152,11 +153,19 @@ Alle drei sind auf Administratoren/`commandRoleIds` beschränkt. Im Hintergrund 
 
 ## Lager-System
 
-- `/lager rein item:<Name> menge:<Zahl>` legt Items ins Lager (legt das Item automatisch an, falls neu). **Jeder Nutzer** darf das, keine Rollen-Beschränkung — funktioniert aber ausschließlich in `lagerCommandChannelId`.
-- `/lager raus item:<Name> menge:<Zahl>` nimmt Items raus — schlägt fehl, wenn nicht genug Bestand da ist. Das `item`-Feld ist ein Autocomplete-Feld und schlägt nur tatsächlich vorhandene Items mit ihrem aktuellen Bestand vor. Fällt der Bestand auf 0, wird das Item aus der Liste entfernt. Ebenfalls für **jeden Nutzer**, nur in `lagerCommandChannelId`.
-- `/lager liste` aktualisiert die Lagerliste-Nachricht, ohne den Bestand zu verändern. Läuft im **allgemeinen** `commandChannelId` (wie die meisten anderen Commands), nicht in `lagerCommandChannelId`, und bleibt auf Administratoren/`commandRoleIds`/`lagerRoleIds` beschränkt.
+- `/lager rein item:<Name> menge:<Zahl>` legt Items ins Lager (legt das Item automatisch an, falls neu). **Jeder Nutzer** darf das, keine Rollen-Beschränkung — funktioniert aber ausschließlich in `lagereinCommandChannelId`.
+- `/lager raus item:<Name> menge:<Zahl>` nimmt Items raus — schlägt fehl, wenn nicht genug Bestand da ist. Das `item`-Feld ist ein Autocomplete-Feld und schlägt nur tatsächlich vorhandene Items mit ihrem aktuellen Bestand vor. Fällt der Bestand auf 0, wird das Item aus der Liste entfernt. Ebenfalls für **jeden Nutzer**, nur in `lagerausCommandChannelId`.
+- `/lager liste` aktualisiert die Lagerliste-Nachricht, ohne den Bestand zu verändern. Läuft im **allgemeinen** `commandChannelId` (wie die meisten anderen Commands), nicht in `lagereinCommandChannelId`/`lagerausCommandChannelId`, und bleibt auf Administratoren/`commandRoleIds`/`lagerRoleIds` beschränkt.
 
-Jede Aktion (`rein`/`raus`) aktualisiert automatisch die Lagerliste-Nachricht in `lagerListChannelId` (eine einzige Nachricht, die bearbeitet statt neu gesendet wird — wie bei der Sanktionsliste) und postet zusätzlich einen Log-Eintrag (Item, Menge, neuer Bestand, wer es ausgeführt hat) in `lagerLogChannelId`. Die Daten liegen in `data/inventoryData.json`.
+Jede Aktion (`rein`/`raus`) aktualisiert automatisch die Lagerliste-Nachricht in `lagerListChannelId` (eine einzige Nachricht, die bearbeitet statt neu gesendet wird — wie bei der Sanktionsliste) und postet zusätzlich einen Log-Eintrag (Item, Menge, neuer Bestand, wer es ausgeführt hat) in `lagereinLogChannelId` bzw. `lagerausLogChannelId`. Die Daten liegen in `data/inventoryData.json`.
+
+## Fraktionskasse
+
+- `/kasse ein typ:<Grün/Schwarz> betrag:<Zahl> grund:<Text>` zahlt Geld in die Fraktionskasse ein — nur in `kasseeinCommandChannelId`.
+- `/kasse aus typ:<Grün/Schwarz> betrag:<Zahl> grund:<Text>` zahlt Geld aus der Fraktionskasse aus — schlägt fehl, wenn der Kontostand nicht reicht. Nur in `kasseausCommandChannelId`.
+- `/kasse liste` aktualisiert den Kassenstand, läuft im **allgemeinen** `commandChannelId`.
+
+Beide Rollen-Beschränkungen laufen über `canUseKasse` (Administratoren/`commandRoleIds`/`kasseRoleIds`). Jede Aktion aktualisiert die Kassenstand-Nachricht in `kasseListChannelId` und postet einen Log-Eintrag in `kasseeinLogChannelId` bzw. `kasseausLogChannelId`. Die Daten liegen in `data/kasseData.json`.
 
 ## Aufstellung ankündigen
 
@@ -208,7 +217,7 @@ Klickt jemand auf Ja/Nein, wird die Stimme sofort in der Nachricht selbst aktual
 
 ## Logging
 
-Alles, was der Bot über die Discord-Gateway-Events mitbekommen kann, landet als Embed in `logChannelId` — zusätzlich zu den feature-eigenen Logs (z. B. `sanctionAddChannelId`, `lagerLogChannelId`). Abgedeckt sind:
+Alles, was der Bot über die Discord-Gateway-Events mitbekommen kann, landet als Embed in `logChannelId` — zusätzlich zu den feature-eigenen Logs (z. B. `sanctionAddChannelId`, `lagereinLogChannelId`/`lagerausLogChannelId`). Abgedeckt sind:
 
 - **Command-Ausführung**: Jede erfolgreiche Slash-Command-Interaktion (wer, welcher Befehl inkl. Subcommand, in welchem Channel, mit welchen Optionen) — zentral in `interactionCreate.js`.
 - **Nachrichten**: bearbeitet, gelöscht, massenhaft gelöscht.

@@ -184,16 +184,20 @@ module.exports = {
       return;
     }
 
-    // /lager rein und /lager raus: eigene Channel-Sperre auf
-    // lagerCommandChannelId, aber KEINE Rollen-/Admin-Beschränkung -
-    // jeder Nutzer darf sie dort benutzen.
+    // /lager rein und /lager raus: eigene Channel-Sperre, jeweils auf einen
+    // eigenen Channel (lagereinCommandChannelId / lagerausCommandChannelId).
+    // KEINE Rollen-/Admin-Beschränkung - jeder Nutzer darf sie dort benutzen.
+    const requiredChannelId = sub === 'rein'
+      ? config.lagereinCommandChannelId
+      : config.lagerausCommandChannelId;
+
     if (
-      config.lagerCommandChannelId &&
-      !config.lagerCommandChannelId.startsWith('CHANNEL_ID') &&
-      interaction.channelId !== config.lagerCommandChannelId
+      requiredChannelId &&
+      !requiredChannelId.startsWith('CHANNEL_ID') &&
+      interaction.channelId !== requiredChannelId
     ) {
       await interaction.reply({
-        embeds: [errorEmbed(`\`/lager ${sub}\` kann nur in <#${config.lagerCommandChannelId}> benutzt werden.`, interaction.client)],
+        embeds: [errorEmbed(`\`/lager ${sub}\` kann nur in <#${requiredChannelId}> benutzt werden.`, interaction.client)],
         ephemeral: true
       });
       return;

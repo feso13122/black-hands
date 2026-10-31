@@ -36,10 +36,11 @@ async function postInventoryList(client) {
 
 // results: [{ item, menge, total }]
 async function postLagerLog(client, { action, executor, results }) {
-  if (!config.lagerLogChannelId || config.lagerLogChannelId.startsWith('CHANNEL_ID')) return;
+  const logChannelId = action === 'rein' ? config.lagereinLogChannelId : config.lagerausLogChannelId;
+  if (!logChannelId || logChannelId.startsWith('CHANNEL_ID')) return;
   if (results.length === 0) return;
 
-  const channel = await client.channels.fetch(config.lagerLogChannelId).catch(() => null);
+  const channel = await client.channels.fetch(logChannelId).catch(() => null);
   if (!channel || !channel.isTextBased()) return;
 
   const embed = baseEmbed(client)
