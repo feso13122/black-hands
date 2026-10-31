@@ -9,13 +9,19 @@ const LOG_CATEGORY_ID = '1541076054989607040';
 // Alles, was der Bot irgendwo loggen kann, zusammen mit dem Config-Key,
 // in dem die jeweilige Channel-ID steht.
 const LOG_TARGETS = [
-  { key: 'logChannelId', name: 'log-allgemein', topic: 'Allgemeine Server-/Bot-Logs (Channel-, Rollen-, Member-, Nachrichten-Events, ausgeführte Commands, ...)' },
+  { key: 'logChannelId', name: 'log-allgemein', topic: 'Allgemeine Server-/Bot-Logs (Channel-, Rollen-, Member-, Scheduled-Event-Logs, ausgeführte Commands, ...)' },
+  { key: 'kickLogChannelId', name: 'kick', topic: 'Gekickte Mitglieder' },
+  { key: 'banLogChannelId', name: 'ban', topic: 'Bans/Unbans' },
+  { key: 'nachrichtenLogChannelId', name: 'nachrichten-log', topic: 'Gelöschte/bearbeitete Nachrichten' },
+  { key: 'talkLogChannelId', name: 'talk', topic: 'Voice-Channel-Aktivität' },
   { key: 'sanctionAddChannelId', name: 'log-sanktion-neu', topic: 'Neue Sanktionen' },
   { key: 'sanctionPaidChannelId', name: 'log-sanktion-bezahlt', topic: 'Bezahlte Sanktionen' },
   { key: 'lagereinLogChannelId', name: 'log-lager-rein', topic: 'Lager: Ware rein' },
   { key: 'lagerausLogChannelId', name: 'log-lager-raus', topic: 'Lager: Ware raus' },
   { key: 'kasseeinLogChannelId', name: 'log-kasse-ein', topic: 'Fraktionskasse: Einzahlungen' },
-  { key: 'kasseausLogChannelId', name: 'log-kasse-aus', topic: 'Fraktionskasse: Auszahlungen' }
+  { key: 'kasseausLogChannelId', name: 'log-kasse-aus', topic: 'Fraktionskasse: Auszahlungen' },
+  { key: 'bosslagereinLogChannelId', name: 'log-bosslager-rein', topic: 'Boss-Lager: Ware rein' },
+  { key: 'bosslagerausLogChannelId', name: 'log-bosslager-raus', topic: 'Boss-Lager: Ware raus' }
 ];
 
 module.exports = {
@@ -53,11 +59,25 @@ module.exports = {
         ? await interaction.guild.channels.fetch(existingId).catch(() => null)
         : null;
 
+      let foundByName = false;
+      if (!channel) {
+        // Noch keine ID konfiguriert - evtl. wurde der Channel schon
+        // manuell in der Kategorie angelegt. Dann per Name wiederverwenden
+        // statt einen doppelten Channel zu erstellen.
+        channel = interaction.guild.channels.cache.find(
+          c => c.parentId === LOG_CATEGORY_ID && c.type === ChannelType.GuildText && c.name === target.name
+        ) || null;
+        foundByName = Boolean(channel);
+      }
+
       if (channel) {
         if (channel.parentId !== LOG_CATEGORY_ID) {
           await channel.setParent(LOG_CATEGORY_ID, { lockPermissions: true }).catch(() => null);
         } else {
           await channel.lockPermissions().catch(() => null);
+        }
+        if (foundByName) {
+          configUpdates[target.key] = channel.id;
         }
         synced.push(`${channel} — \`${target.key}\``);
         continue;

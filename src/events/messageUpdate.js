@@ -1,5 +1,5 @@
 const { baseEmbed } = require('../utils/embeds');
-const { sendLog } = require('../utils/logger');
+const { sendMessageLog } = require('../utils/logger');
 
 module.exports = {
   name: 'messageUpdate',
@@ -22,6 +22,6 @@ module.exports = {
       embed.addFields({ name: 'Link', value: newMessage.url });
     }
 
-    await sendLog(newMessage.client, embed);
+    await sendMessageLog(newMessage.client, embed);
   }
 };

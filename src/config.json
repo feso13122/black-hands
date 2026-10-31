@@ -4,6 +4,10 @@
   "welcomeChannelId": "1541076052246397060",
   "leaveChannelId": "",
   "logChannelId": "1564299730928935084",
+  "kickLogChannelId": "CHANNEL_ID_FUER_KICK_LOGS",
+  "banLogChannelId": "CHANNEL_ID_FUER_BAN_LOGS",
+  "nachrichtenLogChannelId": "CHANNEL_ID_FUER_NACHRICHTEN_LOGS",
+  "talkLogChannelId": "CHANNEL_ID_FUER_TALK_LOGS",
 
   "clipPanelChannelId": "1541076053961740329",
   "clipCategoryMaleId": "1541076053961740328",
@@ -52,6 +56,8 @@
   "bosslagerEinCommandChannelId": "1566103205991948348",
   "bosslagerAusCommandChannelId": "1566103340864114908",
   "bosslagerInfoListeChannelId": "1566103485580054628",
+  "bosslagereinLogChannelId": "CHANNEL_ID_FUER_BOSSLAGER_REIN_LOGS",
+  "bosslagerausLogChannelId": "CHANNEL_ID_FUER_BOSSLAGER_RAUS_LOGS",
   "bosslagerRoleIds": ["1541076051109748741", "1564299381115461733"],
 
   "serverStatsRoleId": "1541076051093098624",

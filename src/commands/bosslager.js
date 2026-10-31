@@ -3,7 +3,7 @@ const config = require('../config.json');
 const { baseEmbed, errorEmbed, successEmbed } = require('../utils/embeds');
 const { canUseBosslager } = require('../utils/permissions');
 const bosslagerStore = require('../utils/bosslagerStore');
-const { postBosslagerList } = require('../utils/bosslagerPanel');
+const { postBosslagerList, postBosslagerLog } = require('../utils/bosslagerPanel');
 
 function parseItemList(raw) {
   const entries = [];
@@ -213,6 +213,7 @@ module.exports = {
 
     if (results.length > 0) {
       await postBosslagerList(interaction.client);
+      await postBosslagerLog(interaction.client, { action: sub, executor: interaction.user, results });
     }
 
     const summaryLines = [

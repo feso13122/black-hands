@@ -4,6 +4,10 @@
   "welcomeChannelId": "CHANNEL_ID_FUER_WILLKOMMENSNACHRICHTEN",
   "leaveChannelId": "CHANNEL_ID_FUER_VERLASSEN_NACHRICHTEN",
   "logChannelId": "CHANNEL_ID_FUER_DAS_LOGGING",
+  "kickLogChannelId": "CHANNEL_ID_FUER_KICK_LOGS",
+  "banLogChannelId": "CHANNEL_ID_FUER_BAN_LOGS",
+  "nachrichtenLogChannelId": "CHANNEL_ID_FUER_NACHRICHTEN_LOGS",
+  "talkLogChannelId": "CHANNEL_ID_FUER_TALK_LOGS",
 
   "clipPanelChannelId": "CHANNEL_ID_WO_DER_CLIP_BUTTON_GEPOSTET_WIRD",
   "clipCategoryMaleId": "KATEGORIE_ID_FUER_NEUE_CLIP_CHANNELS_MAENNER",
@@ -49,6 +53,8 @@
   "bosslagerEinCommandChannelId": "CHANNEL_ID_FUER_BOSSLAGER_REIN",
   "bosslagerAusCommandChannelId": "CHANNEL_ID_FUER_BOSSLAGER_RAUS",
   "bosslagerInfoListeChannelId": "CHANNEL_ID_FUER_BOSSLAGER_INFO_UND_LISTE",
+  "bosslagereinLogChannelId": "CHANNEL_ID_FUER_BOSSLAGER_REIN_LOGS",
+  "bosslagerausLogChannelId": "CHANNEL_ID_FUER_BOSSLAGER_RAUS_LOGS",
   "bosslagerRoleIds": ["ROLLEN_ID_1", "ROLLEN_ID_2"],
 
   "serverStatsRoleId": "ROLLEN_ID_DEREN_ANZAHL_IM_STATS_CHANNEL_ANGEZEIGT_WIRD",

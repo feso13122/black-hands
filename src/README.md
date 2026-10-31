@@ -175,18 +175,23 @@ Eigenständiges zweites Lager, komplett getrennt vom normalen Lager (eigene Date
 - `/bosslager raus item:<Name> menge:<Zahl>` nimmt Items raus — schlägt fehl, wenn nicht genug Bestand da ist. Nur in `bosslagerAusCommandChannelId`.
 - `/bosslager liste` aktualisiert die Boss-Lagerliste-Nachricht, `/bosslager info` postet/aktualisiert ein Info-Panel mit Beispielen. Beide laufen im gleichen Channel `bosslagerInfoListeChannelId`.
 
-Alle vier Subcommands sind auf `canUseBosslager` beschränkt (Administratoren/`commandRoleIds`/`bosslagerRoleIds`) — anders als beim normalen Lager dürfen hier also nicht alle Nutzer `rein`/`raus` benutzen. Die Liste wird in `bosslagerInfoListeChannelId` gepostet (eine einzige Nachricht, die bearbeitet wird). Die Daten liegen in `data/bosslagerData.json`.
+Alle vier Subcommands sind auf `canUseBosslager` beschränkt (Administratoren/`commandRoleIds`/`bosslagerRoleIds`) — anders als beim normalen Lager dürfen hier also nicht alle Nutzer `rein`/`raus` benutzen. Die Liste wird in `bosslagerInfoListeChannelId` gepostet (eine einzige Nachricht, die bearbeitet wird). Jede Aktion (`rein`/`raus`) postet zusätzlich einen Log-Eintrag in `bosslagereinLogChannelId` bzw. `bosslagerausLogChannelId` — genau wie beim normalen Lager. Die Daten liegen in `data/bosslagerData.json`.
 
 ## Log-Channels automatisch erstellen
 
 `/logcreator` (nur für Administratoren/`commandRoleIds`) legt für alles, was der Bot irgendwo loggen kann, automatisch einen eigenen Text-Channel in der fest hinterlegten Log-Kategorie `1541076054989607040` an:
 
-- `logChannelId` (allgemeine Gateway-/Command-Logs), `sanctionAddChannelId`, `sanctionPaidChannelId`, `lagereinLogChannelId`, `lagerausLogChannelId`, `kasseeinLogChannelId`, `kasseausLogChannelId`.
+- `logChannelId` (alle Gateway-Events ohne eigene Kategorie: Channel-/Rollen-/Emoji-/Thread-/Invite-/Webhook-Änderungen, Member-Join/-Update, Scheduled Events, ausgeführte Commands, Clip-Channel-Erstellung, ...)
+- `kickLogChannelId` (gekickte Mitglieder, per Audit-Log von normalem Verlassen unterschieden), `banLogChannelId` (Bans/Unbans), `nachrichtenLogChannelId` (gelöschte/bearbeitete Nachrichten), `talkLogChannelId` (Voice-Channel-Aktivität)
+- `sanctionAddChannelId`, `sanctionPaidChannelId`, `lagereinLogChannelId`, `lagerausLogChannelId`, `kasseeinLogChannelId`, `kasseausLogChannelId`, `bosslagereinLogChannelId`, `bosslagerausLogChannelId`.
 
 Für jeden dieser Config-Keys prüft der Befehl, ob schon eine gültige Channel-ID eingetragen ist:
 
-- Existiert der Channel bereits, wird er (falls nötig) in die Log-Kategorie verschoben und per `channel.setParent(..., { lockPermissions: true })`/`channel.lockPermissions()` mit deren Berechtigungen synchronisiert.
-- Existiert noch kein Channel, wird einer neu in der Kategorie erstellt (automatisch mit der Kategorie gesynct) und die neue Channel-ID direkt über `updateConfig()` in `config.json` geschrieben — kein Bot-Neustart nötig, die Änderung gilt sofort.
+- Existiert der Channel bereits (per ID), wird er (falls nötig) in die Log-Kategorie verschoben und per `channel.setParent(..., { lockPermissions: true })`/`channel.lockPermissions()` mit deren Berechtigungen synchronisiert.
+- Wurde noch keine ID eingetragen, aber in der Kategorie existiert schon ein Channel mit dem passenden Namen (z. B. `kick`, `ban`, `nachrichten-log`, `talk` - falls manuell angelegt), wird dieser übernommen statt dupliziert.
+- Existiert wirklich noch kein Channel, wird einer neu in der Kategorie erstellt (automatisch mit der Kategorie gesynct).
+
+In jedem dieser Fälle wird die (neue oder gefundene) Channel-ID direkt über `updateConfig()` in `config.json` geschrieben — kein Bot-Neustart nötig, die Änderung gilt sofort. `sendKickLog`/`sendBanLog`/`sendMessageLog`/`sendVoiceLog` in `utils/logger.js` fallen automatisch auf `logChannelId` zurück, solange der jeweilige Key noch nicht gesetzt ist.
 
 ## Aufstellung ankündigen
 
