@@ -91,8 +91,8 @@
   "bosslagerEinCommandChannelId": "1566103205991948348",
   "bosslagerAusCommandChannelId": "1566103340864114908",
   "bosslagerInfoListeChannelId": "1566103485580054628",
-  "bosslagereinLogChannelId": "CHANNEL_ID_FUER_BOSSLAGER_REIN_LOGS",
-  "bosslagerausLogChannelId": "CHANNEL_ID_FUER_BOSSLAGER_RAUS_LOGS",
+  "bosslagereinLogChannelId": "1566103205991948348",
+  "bosslagerausLogChannelId": "1566103340864114908",
   "bosslagerRoleIds": ["1541076051109748741", "1564299381115461733"],
 
   "serverStatsRoleId": "1541076051093098624",
