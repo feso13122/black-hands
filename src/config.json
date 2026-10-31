@@ -40,14 +40,14 @@
   "lagereinLogChannelId": "1535803065800724640",
   "lagerausLogChannelId": "1535803065800724640",
   "lagerInfoChannelId": "1535440487031377940",
-  "lagerRoleIds": ["1541076051093098624"],
+  "lagerRoleIds": ["1541076051093098624", "1541076051109748741"],
 
-  "kasseeinCommandChannelId": "CHANNEL_ID_FUER_KASSE_EINZAHLUNGEN",
-  "kasseausCommandChannelId": "CHANNEL_ID_FUER_KASSE_AUSZAHLUNGEN",
-  "kasseListChannelId": "CHANNEL_ID_FUER_DIE_KASSENLISTE",
-  "kasseeinLogChannelId": "CHANNEL_ID_FUER_KASSE_EIN_LOGS",
-  "kasseausLogChannelId": "CHANNEL_ID_FUER_KASSE_AUS_LOGS",
-  "kasseRoleIds": ["1541076051093098624"],
+  "kasseeinCommandChannelId": "1566098935406399600",
+  "kasseausCommandChannelId": "1566098935406399600",
+  "kasseListChannelId": "1566098847967482036",
+  "kasseeinLogChannelId": "1566098935406399600",
+  "kasseausLogChannelId": "1566098935406399600",
+  "kasseRoleIds": ["1541076051109748741", "1564299381115461733"],
 
   "serverStatsRoleId": "1541076051093098624",
 
